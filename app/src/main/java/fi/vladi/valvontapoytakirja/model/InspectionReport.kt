@@ -57,6 +57,10 @@ data class InspectionReport(
     val additionalNotes: String = "",
     val signatureStrokes: List<SignatureStroke> = emptyList(),
 
+    // PDF:n ulkoasu
+    val logoPath: String = "",
+    val footerText: String = "",
+
     // Valokuvat tallennetaan sovelluksen omaan tallennustilaan
     val photos: List<ReportPhoto> = emptyList()
 )
