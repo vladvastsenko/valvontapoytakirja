@@ -107,6 +107,17 @@ private fun ValvontaApp() {
         if (imported.isNotEmpty()) saveReport(report.copy(photos = report.photos + imported))
     }
 
+    val logoLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.PickVisualMedia()
+    ) { uri ->
+        val report = currentReport ?: return@rememberLauncherForActivityResult
+        if (uri != null) {
+            repository.importLogo(report.id, uri)?.let { logo ->
+                saveReport(report.copy(logoPath = logo.absolutePath))
+            }
+        }
+    }
+
     val active = currentReport
     if (active == null) {
         HomeScreen(
@@ -135,6 +146,11 @@ private fun ValvontaApp() {
                 cameraLauncher.launch(repository.cameraUri(file))
             },
             onGallery = { galleryLauncher.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)) },
+            onPickLogo = { logoLauncher.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)) },
+            onRemoveLogo = {
+                if (active.logoPath.isNotBlank()) repository.deletePhoto(active.logoPath)
+                saveReport(active.copy(logoPath = ""))
+            },
             onExport = {
                 val pdf = ReportPdfGenerator.generate(context, active)
                 val uri = FileProvider.getUriForFile(context, "${context.packageName}.fileprovider", pdf)
@@ -187,7 +203,7 @@ private fun HomeScreen(
             }
         }
         Spacer(Modifier.height(20.dp))
-        Text("Versio 0.1.0 • Tallennus tapahtuu tässä puhelimessa.", style = MaterialTheme.typography.bodySmall)
+        Text("Versio 0.3.0 • Tallennus tapahtuu tässä puhelimessa.", style = MaterialTheme.typography.bodySmall)
     }
 }
 
@@ -198,6 +214,8 @@ private fun EditorScreen(
     onBack: () -> Unit,
     onCamera: () -> Unit,
     onGallery: () -> Unit,
+    onPickLogo: () -> Unit,
+    onRemoveLogo: () -> Unit,
     onExport: () -> Unit,
     onDeletePhoto: (String) -> Unit
 ) {
@@ -212,6 +230,33 @@ private fun EditorScreen(
         }
         Text("VALVONTAPÖYTÄKIRJA", style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.Bold)
         Text("Täytä tiedot. Muutokset tallentuvat automaattisesti tähän puhelimeen.", style = MaterialTheme.typography.bodySmall)
+
+        SectionTitle("PDF:N ULKOASU")
+        Text("Oma logo ensimmäisen sivun yläosaan")
+        if (report.logoPath.isNotBlank()) {
+            val logoBitmap = remember(report.logoPath) {
+                BitmapFactory.decodeFile(report.logoPath)?.asImageBitmap()
+            }
+            if (logoBitmap != null) {
+                Image(
+                    bitmap = logoBitmap,
+                    contentDescription = "Oma logo",
+                    modifier = Modifier.fillMaxWidth().height(76.dp),
+                    contentScale = ContentScale.Fit
+                )
+            }
+        }
+        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            OutlinedButton(onClick = onPickLogo, modifier = Modifier.weight(1f)) {
+                Text(if (report.logoPath.isBlank()) "Valitse logo" else "Vaihda logo")
+            }
+            if (report.logoPath.isNotBlank()) {
+                OutlinedButton(onClick = onRemoveLogo) { Text("Poista logo") }
+            }
+        }
+        Field("Alatunniste PDF:n viimeisellä sivulla", report.footerText) {
+            onChange(report.copy(footerText = it))
+        }
 
         SectionTitle("1. TYÖMAA JA OSAPUOLET")
         Field("Kohteen osoite", report.siteAddress) { onChange(report.copy(siteAddress = it)) }
@@ -239,7 +284,7 @@ private fun EditorScreen(
         Field("Alustan kosteus (%)", report.substrateMoisturePercent) { onChange(report.copy(substrateMoisturePercent = it)) }
 
         SectionTitle("3. KÄYTETYT MATERIAALIT")
-        Text("Valmistaja ja tuote ovat vapaita kenttiä. Voit käyttää myös muita valmistajia kuin Kiilto.")
+        Text("Valitse tuote valmistajan mukaan tai kirjoita oma tuote. Eri valmistajien järjestelmäosia ei pidä yhdistää ilman valmistajan hyväksyntää.")
         report.materials.forEachIndexed { index, material ->
             MaterialCard(
                 material = material,
@@ -351,7 +396,7 @@ private fun MaterialCard(
             if (productOptions.isNotEmpty()) {
                 Box {
                     OutlinedButton(onClick = { expanded = true }) {
-                        Text(material.productName.ifBlank { "Valitse Kiilto-tuote" })
+                        Text(material.productName.ifBlank { "Valitse tuote" })
                     }
                     DropdownMenu(
                         expanded = expanded,
@@ -359,7 +404,7 @@ private fun MaterialCard(
                     ) {
                         productOptions.forEach { product ->
                             DropdownMenuItem(
-                                text = { Text(product.name) },
+                                text = { Text("${product.manufacturer} – ${product.name}") },
                                 onClick = {
                                     onChange(material.copy(manufacturer = product.manufacturer, productName = product.name))
                                     expanded = false
