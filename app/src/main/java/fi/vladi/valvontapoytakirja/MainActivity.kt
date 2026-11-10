@@ -513,7 +513,7 @@ private fun MaterialCard(
                     }
                 }
             }
-            if (!isFamilyMaterial || !lockedFamilyManufacturer || isFamilyAnchor) {
+            if (!isFamilyMaterial || !lockedFamilyManufacturer) {
                 Field("Valmistaja", material.manufacturer) { onChange(material.copy(manufacturer = it)) }
             }
             Field("Tuotteen nimi", material.productName) { onChange(material.copy(productName = it)) }
