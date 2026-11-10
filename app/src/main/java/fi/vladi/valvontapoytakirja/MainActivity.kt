@@ -218,7 +218,7 @@ private fun HomeScreen(
             }
         }
         Spacer(Modifier.height(20.dp))
-        Text("Versio 0.4.0 • Tallennus tapahtuu tässä puhelimessa.", style = MaterialTheme.typography.bodySmall)
+        Text("Versio 0.4.1 • Tallennus tapahtuu tässä puhelimessa.", style = MaterialTheme.typography.bodySmall)
     }
 }
 
@@ -303,12 +303,46 @@ private fun EditorScreen(
         Field("Alustan kosteus (%)", report.substrateMoisturePercent) { onChange(report.copy(substrateMoisturePercent = it)) }
 
         SectionTitle("3. KÄYTETYT MATERIAALIT")
-        Text("Valitse tuote valmistajan mukaan tai kirjoita oma tuote. Eri valmistajien järjestelmäosia ei pidä yhdistää ilman valmistajan hyväksyntää.")
+        Text("Valitse sama valmistaja pohjusteelle, vedeneristeelle ja kiinnityslaastille. Muut materiaalit voivat olla eri valmistajilta.")
+        val waterproofingFamilyCategories = setOf("pohjuste (primer)", "vedeneriste", "kiinnityslaasti")
+        val knownFamilyManufacturers = MaterialCatalog.manufacturersFor("vedeneriste")
+        val familyManufacturer = report.materials.firstOrNull {
+            it.category in waterproofingFamilyCategories && it.manufacturer in knownFamilyManufacturers
+        }?.manufacturer.orEmpty()
+        val familyAnchorIndex = report.materials.indexOfFirst {
+            it.category in waterproofingFamilyCategories && it.manufacturer == familyManufacturer && familyManufacturer.isNotBlank()
+        }
         report.materials.forEachIndexed { index, material ->
             MaterialCard(
                 material = material,
+                familyManufacturer = familyManufacturer,
+                isFamilyAnchor = index == familyAnchorIndex,
                 onChange = { changed ->
-                    onChange(report.copy(materials = report.materials.toMutableList().also { it[index] = changed }))
+                    val updatedMaterials = report.materials.toMutableList()
+                    val previous = updatedMaterials[index]
+                    updatedMaterials[index] = changed
+
+                    // The first selected family manufacturer becomes the system manufacturer
+                    // for primer, waterproofing and tile adhesive.
+                    if (changed.category in waterproofingFamilyCategories &&
+                        changed.manufacturer in knownFamilyManufacturers &&
+                        changed.manufacturer != previous.manufacturer
+                    ) {
+                        updatedMaterials.indices.forEach { familyIndex ->
+                            val familyItem = updatedMaterials[familyIndex]
+                            if (familyItem.category in waterproofingFamilyCategories) {
+                                val productBelongsToFamily = MaterialCatalog.productsFor(
+                                    familyItem.category,
+                                    changed.manufacturer
+                                ).any { it.name == familyItem.productName }
+                                updatedMaterials[familyIndex] = familyItem.copy(
+                                    manufacturer = changed.manufacturer,
+                                    productName = if (productBelongsToFamily) familyItem.productName else ""
+                                )
+                            }
+                        }
+                    }
+                    onChange(report.copy(materials = updatedMaterials))
                 },
                 onRemove = {
                     onChange(report.copy(materials = report.materials.filterNot { it.id == material.id }))
@@ -404,23 +438,33 @@ private fun Field(
 @Composable
 private fun MaterialCard(
     material: MaterialEntry,
+    familyManufacturer: String,
+    isFamilyAnchor: Boolean,
     onChange: (MaterialEntry) -> Unit,
     onRemove: () -> Unit
 ) {
     var expanded by remember(material.id) { mutableStateOf(false) }
     var manufacturerExpanded by remember(material.id) { mutableStateOf(false) }
-    val manufacturers = MaterialCatalog.manufacturersFor(material.category)
-    val productOptions = MaterialCatalog.productsFor(material.category, material.manufacturer)
+    val familyCategories = setOf("pohjuste (primer)", "vedeneriste", "kiinnityslaasti")
+    val isFamilyMaterial = material.category in familyCategories
+    val lockedFamilyManufacturer = familyManufacturer.isNotBlank() && isFamilyMaterial
+    val effectiveManufacturer = if (lockedFamilyManufacturer) familyManufacturer else material.manufacturer
+    val manufacturers = MaterialCatalog.manufacturersFor(material.category).let { options ->
+        if (lockedFamilyManufacturer && !isFamilyAnchor) listOf(familyManufacturer) else options
+    }
+    val productOptions = MaterialCatalog.productsFor(material.category, effectiveManufacturer)
     Card(modifier = Modifier.fillMaxWidth()) {
         Column(Modifier.padding(12.dp), verticalArrangement = Arrangement.spacedBy(7.dp)) {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Text(material.category, fontWeight = FontWeight.SemiBold, modifier = Modifier.weight(1f))
                 TextButton(onClick = onRemove) { Text("Poista") }
             }
-            if (manufacturers.isNotEmpty()) {
+            if (lockedFamilyManufacturer && !isFamilyAnchor) {
+                Text("Valmistaja: $familyManufacturer • sama järjestelmä")
+            } else if (manufacturers.isNotEmpty()) {
                 Box {
                     OutlinedButton(onClick = { manufacturerExpanded = true }, modifier = Modifier.fillMaxWidth()) {
-                        Text(material.manufacturer.ifBlank { "Valitse valmistaja" })
+                        Text(effectiveManufacturer.ifBlank { "Valitse valmistaja" })
                     }
                     DropdownMenu(expanded = manufacturerExpanded, onDismissRequest = { manufacturerExpanded = false }) {
                         manufacturers.forEach { manufacturer ->
@@ -445,22 +489,26 @@ private fun MaterialCard(
                             DropdownMenuItem(
                                 text = { Text(product.name) },
                                 onClick = {
-                                    onChange(material.copy(manufacturer = product.manufacturer, productName = product.name))
+                                    onChange(material.copy(manufacturer = effectiveManufacturer.ifBlank { product.manufacturer }, productName = product.name))
                                     expanded = false
                                 }
                             )
                         }
-                        DropdownMenuItem(
-                            text = { Text("Muu / oma tuote") },
-                            onClick = {
-                                onChange(material.copy(manufacturer = "", productName = ""))
-                                expanded = false
-                            }
-                        )
+                        if (!lockedFamilyManufacturer) {
+                            DropdownMenuItem(
+                                text = { Text("Muu / oma tuote") },
+                                onClick = {
+                                    onChange(material.copy(manufacturer = "", productName = ""))
+                                    expanded = false
+                                }
+                            )
+                        }
                     }
                 }
             }
-            Field("Valmistaja", material.manufacturer) { onChange(material.copy(manufacturer = it)) }
+            if (!isFamilyMaterial || !lockedFamilyManufacturer || isFamilyAnchor) {
+                Field("Valmistaja", material.manufacturer) { onChange(material.copy(manufacturer = it)) }
+            }
             Field("Tuotteen nimi", material.productName) { onChange(material.copy(productName = it)) }
             Field("Lisätiedot", material.notes) { onChange(material.copy(notes = it)) }
         }
