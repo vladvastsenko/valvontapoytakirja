@@ -5,13 +5,17 @@ Android-sovellus märkätilojen vedeneristyksen tarkastusraporttien laatimiseen.
 ## Ominaisuudet
 
 - Natiivi Android-sovellus: Kotlin + Jetpack Compose.
-- Raportin tiedot tallennetaan automaattisesti puhelimen omaan tallennustilaan.
+- Raportin tiedot ja liitetyt kuvat tallennetaan puhelimen omaan tallennustilaan.
 - Valokuvia voi ottaa kameralla tai valita useita kuvia galleriasta.
-- Valokuville voi lisätä vapaaehtoisen kommentin.
-- PDF:n valokuvasivuille tulostetaan enintään 9 kuvaa sivua kohden. Tyhjästä kommentista ei tulosteta tekstiriviä.
+- Kuville voi lisätä vapaaehtoisen kommentin.
+- PDF:n erillisillä kuvasivuilla enintään 9 kuvaa sivua kohden; pienempi kuvamäärä kasvattaa kuvien kokoa.
+- PDF:ssä ei tulosteta kuvanumeroita, kuvaruutuja eikä valokuvasivun otsikkoa.
 - Tarkastajan allekirjoituksen voi piirtää sormella. PDF:ään allekirjoitus viedään läpinäkyvänä, korkearesoluutioisena kuvana.
-- Materiaalivalinnoissa on Kiilto-tuotekatalogi työvaiheittain sekä mahdollisuus syöttää oma tuote ja valmistaja.
-- Materiaalikatalogi on erillinen, joten muiden valmistajien tuotteita voidaan lisätä myöhemmin.
+- Ensimmäisen sivun yläosaan voi lisätä oman logon.
+- Viimeiselle PDF-sivulle voi lisätä itse muokattavan alatunnisteen.
+- Materiaalikatalogissa on Kiilto-, weber-, SCHÖNOX-, ARDEX- ja Mapei-tuotteita työvaiheittain.
+- Tuotteen valmistajan ja nimen voi myös syöttää käsin.
+- Eri valmistajien järjestelmäosia ei tule yhdistää ilman valmistajan hyväksyntää.
 - Lattiakaivon alueen erilliset kalvonpaksuuskentät on poistettu lomakkeesta ja PDF:stä.
 
 ## Rakentaminen
