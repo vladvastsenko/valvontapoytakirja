@@ -194,7 +194,7 @@ private fun HomeScreen(
             Text("Pöytäkirjamallit", style = MaterialTheme.typography.titleLarge)
             templates.forEach { template ->
                 OutlinedButton(onClick = { onCreateFromTemplate(template) }, modifier = Modifier.fillMaxWidth()) {
-                    Text(template.templateName + " • " + template.siteAddress)
+                    Text(template.templateName + " • " + template.siteAddress + " • " + (template.materials.firstOrNull { it.manufacturer.isNotBlank() }?.manufacturer ?: "Valmistaja määrittämättä"))
                 }
             }
         }
@@ -218,7 +218,7 @@ private fun HomeScreen(
             }
         }
         Spacer(Modifier.height(20.dp))
-        Text("Versio 0.3.0 • Tallennus tapahtuu tässä puhelimessa.", style = MaterialTheme.typography.bodySmall)
+        Text("Versio 0.4.0 • Tallennus tapahtuu tässä puhelimessa.", style = MaterialTheme.typography.bodySmall)
     }
 }
 
