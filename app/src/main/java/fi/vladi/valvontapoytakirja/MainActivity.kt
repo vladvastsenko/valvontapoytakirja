@@ -227,7 +227,7 @@ private fun HomeScreen(
             }
         }
         Spacer(Modifier.height(20.dp))
-        Text("Valvoja 0.4.3 • Tallennus tapahtuu tässä puhelimessa.", style = MaterialTheme.typography.bodySmall)
+        Text("Valvoja 0.4.4 • Tallennus tapahtuu tässä puhelimessa.", style = MaterialTheme.typography.bodySmall)
     }
 }
 
@@ -368,7 +368,7 @@ private fun EditorScreen(
             )
         }
         OutlinedButton(
-            onClick = { onChange(report.copy(materials = report.materials + MaterialEntry(category = "Uusi materiaali"))) },
+            onClick = { onChange(report.copy(materials = report.materials + MaterialEntry(category = "Lisää:"))) },
             modifier = Modifier.fillMaxWidth()
         ) { Text("+ Lisää materiaali") }
 
