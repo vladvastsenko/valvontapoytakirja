@@ -386,12 +386,29 @@ private fun MaterialCard(
     onRemove: () -> Unit
 ) {
     var expanded by remember(material.id) { mutableStateOf(false) }
-    val productOptions = MaterialCatalog.productsFor(material.category)
+    var manufacturerExpanded by remember(material.id) { mutableStateOf(false) }
+    val manufacturers = MaterialCatalog.manufacturersFor(material.category)
+    val productOptions = MaterialCatalog.productsFor(material.category, material.manufacturer)
     Card(modifier = Modifier.fillMaxWidth()) {
         Column(Modifier.padding(12.dp), verticalArrangement = Arrangement.spacedBy(7.dp)) {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Text(material.category, fontWeight = FontWeight.SemiBold, modifier = Modifier.weight(1f))
                 TextButton(onClick = onRemove) { Text("Poista") }
+            }
+            if (manufacturers.isNotEmpty()) {
+                Box {
+                    OutlinedButton(onClick = { manufacturerExpanded = true }, modifier = Modifier.fillMaxWidth()) {
+                        Text(material.manufacturer.ifBlank { "Valitse valmistaja" })
+                    }
+                    DropdownMenu(expanded = manufacturerExpanded, onDismissRequest = { manufacturerExpanded = false }) {
+                        manufacturers.forEach { manufacturer ->
+                            DropdownMenuItem(text = { Text(manufacturer) }, onClick = {
+                                onChange(material.copy(manufacturer = manufacturer, productName = ""))
+                                manufacturerExpanded = false
+                            })
+                        }
+                    }
+                }
             }
             if (productOptions.isNotEmpty()) {
                 Box {
@@ -404,7 +421,7 @@ private fun MaterialCard(
                     ) {
                         productOptions.forEach { product ->
                             DropdownMenuItem(
-                                text = { Text("${product.manufacturer} – ${product.name}") },
+                                text = { Text(product.name) },
                                 onClick = {
                                     onChange(material.copy(manufacturer = product.manufacturer, productName = product.name))
                                     expanded = false
