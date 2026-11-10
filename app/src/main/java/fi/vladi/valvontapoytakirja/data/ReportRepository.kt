@@ -26,6 +26,28 @@ class ReportRepository(private val context: Context) {
             ?.sortedByDescending { it.createdAt }
             ?: emptyList()
 
+    private fun templatesDirectory(): File =
+        File(context.filesDir, "templates").apply { mkdirs() }
+
+    fun listTemplates(): List<InspectionReport> =
+        templatesDirectory().listFiles { file -> file.extension == "json" }
+            ?.mapNotNull { file ->
+                runCatching { json.decodeFromString(InspectionReport.serializer(), file.readText()) }.getOrNull()
+            }
+            ?.sortedBy { it.templateName.lowercase() }
+            ?: emptyList()
+
+    fun saveTemplate(report: InspectionReport, name: String) {
+        val template = report.copy(
+            id = java.util.UUID.randomUUID().toString(),
+            createdAt = Instant.now().toString(),
+            templateName = name.trim(),
+            photos = emptyList(),
+            signatureStrokes = emptyList()
+        )
+        File(templatesDirectory(), template.id + ".json")
+            .writeText(json.encodeToString(InspectionReport.serializer(), template))
+    }
     fun save(report: InspectionReport) {
         val file = File(reportsDirectory(), "${report.id}.json")
         file.writeText(json.encodeToString(InspectionReport.serializer(), report))
