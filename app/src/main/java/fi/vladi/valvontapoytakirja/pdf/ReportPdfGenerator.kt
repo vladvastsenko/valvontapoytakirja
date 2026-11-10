@@ -256,11 +256,16 @@ object ReportPdfGenerator {
                 nextPage()
 
                 val gap = 8f
-                val columns = 3
+                val columns = when (pagePhotos.size) {
+                    1, 2 -> 1
+                    in 3..4 -> 2
+                    else -> 3
+                }
+                val rows = (pagePhotos.size + columns - 1) / columns
                 val topStart = 40f
                 val bottomReserved = 42f
                 val cellWidth = (pageWidth - margin * 2 - gap * (columns - 1)) / columns.toFloat()
-                val cellHeight = (pageHeight - topStart - bottomReserved - gap * 2) / 3f
+                val cellHeight = (pageHeight - topStart - bottomReserved - gap * (rows - 1)) / rows.toFloat()
 
                 pagePhotos.forEachIndexed { index, photo ->
                     val column = index % columns
