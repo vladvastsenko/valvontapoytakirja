@@ -220,7 +220,7 @@ private fun HomeScreen(
                         Text(report.siteAddress.ifBlank { "Uusi pöytäkirja" }, fontWeight = FontWeight.SemiBold)
                         if (report.folderPath.isNotBlank()) Text("Kansio: " + report.folderPath, style = MaterialTheme.typography.bodySmall)
                         Text("Tarkastuspäivä: ${report.inspectionDate.ifBlank { "—" }}")
-                        Text("Tulos: ${report.inspectionResult}")
+                        Text("Tulos: ${report.inspectionResult.ifBlank { "Ei valittu" }}")
                         Text("${report.photos.size} valokuvaa", style = MaterialTheme.typography.bodySmall)
                     }
                 }
