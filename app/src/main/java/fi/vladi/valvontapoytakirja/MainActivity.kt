@@ -359,9 +359,9 @@ private fun MaterialCard(
                     ) {
                         productOptions.forEach { product ->
                             DropdownMenuItem(
-                                text = { Text(product) },
+                                text = { Text(product.name) },
                                 onClick = {
-                                    onChange(material.copy(manufacturer = "Kiilto", productName = product))
+                                    onChange(material.copy(manufacturer = product.manufacturer, productName = product.name))
                                     expanded = false
                                 }
                             )
