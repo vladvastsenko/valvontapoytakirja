@@ -49,7 +49,13 @@ object ReportPdfGenerator {
         writer.section("RAKENTEET JA MITAT")
         writer.field("Lattialämmitys", report.floorHeating)
         writer.field("Kynnys / viemärin nosto (mm)", report.thresholdOrDrainLiftMm)
-        writer.field("Lattian kaadot", report.floorSlopes)
+        writer.field(
+            "Lattian kaadot",
+            listOf(
+                report.floorSlopeRatios.joinToString(", "),
+                report.floorSlopes
+            ).filter { it.isNotBlank() }.joinToString(" – ")
+        )
 
         writer.section("PINTA-ALAT JA VEDENERISTEEN MENEKKI")
         writer.field("Seinien pinta-ala (m²)", report.wallAreaM2)
