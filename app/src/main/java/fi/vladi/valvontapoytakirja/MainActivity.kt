@@ -75,6 +75,7 @@ private fun ValvontaApp() {
     val context = LocalContext.current
     val repository = remember { ReportRepository(context) }
     var reports by remember { mutableStateOf(repository.listReports()) }
+    var templates by remember { mutableStateOf(repository.listTemplates()) }
     var currentReport by remember { mutableStateOf<InspectionReport?>(null) }
     var pendingCameraFile by remember { mutableStateOf<File?>(null) }
 
@@ -122,6 +123,8 @@ private fun ValvontaApp() {
     if (active == null) {
         HomeScreen(
             reports = reports,
+            templates = templates,
+            onCreateFromTemplate = { template -> saveReport(template.copy(id = java.util.UUID.randomUUID().toString(), createdAt = LocalDate.now().toString(), templateName = "", photos = emptyList(), signatureStrokes = emptyList())) },
             onCreate = {
                 val newReport = InspectionReport(
                     inspectionDate = LocalDate.now().toString(),
@@ -147,6 +150,7 @@ private fun ValvontaApp() {
             },
             onGallery = { galleryLauncher.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)) },
             onPickLogo = { logoLauncher.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)) },
+            onSaveTemplate = { name -> repository.saveTemplate(active, name); templates = repository.listTemplates() },
             onRemoveLogo = {
                 if (active.logoPath.isNotBlank()) repository.deletePhoto(active.logoPath)
                 saveReport(active.copy(logoPath = ""))
@@ -172,6 +176,8 @@ private fun ValvontaApp() {
 @Composable
 private fun HomeScreen(
     reports: List<InspectionReport>,
+    templates: List<InspectionReport>,
+    onCreateFromTemplate: (InspectionReport) -> Unit,
     onCreate: () -> Unit,
     onOpen: (InspectionReport) -> Unit
 ) {
@@ -184,6 +190,14 @@ private fun HomeScreen(
         Button(onClick = onCreate, modifier = Modifier.fillMaxWidth()) {
             Text("Uusi pöytäkirja")
         }
+        if (templates.isNotEmpty()) {
+            Text("Pöytäkirjamallit", style = MaterialTheme.typography.titleLarge)
+            templates.forEach { template ->
+                OutlinedButton(onClick = { onCreateFromTemplate(template) }, modifier = Modifier.fillMaxWidth()) {
+                    Text(template.templateName + " • " + template.siteAddress)
+                }
+            }
+        }
         Text("Tallennetut pöytäkirjat", style = MaterialTheme.typography.titleLarge)
         if (reports.isEmpty()) {
             Text("Ei vielä tallennettuja pöytäkirjoja.")
@@ -195,7 +209,8 @@ private fun HomeScreen(
                 ) {
                     Column(Modifier.padding(16.dp)) {
                         Text(report.siteAddress.ifBlank { "Uusi pöytäkirja" }, fontWeight = FontWeight.SemiBold)
-                        Text("Tarkastuspäivä: ${report.inspectionDate.ifBlank { "—" }}")
+                        if (report.folderPath.isNotBlank()) Text("Kansio: " + report.folderPath, style = MaterialTheme.typography.bodySmall)
+        Text("Tarkastuspäivä: ${report.inspectionDate.ifBlank { "—" }}")
                         Text("Tulos: ${report.inspectionResult}")
                         Text("${report.photos.size} valokuvaa", style = MaterialTheme.typography.bodySmall)
                     }
@@ -216,6 +231,7 @@ private fun EditorScreen(
     onGallery: () -> Unit,
     onPickLogo: () -> Unit,
     onRemoveLogo: () -> Unit,
+    onSaveTemplate: (String) -> Unit,
     onExport: () -> Unit,
     onDeletePhoto: (String) -> Unit
 ) {
@@ -259,6 +275,9 @@ private fun EditorScreen(
         }
 
         SectionTitle("1. TYÖMAA JA OSAPUOLET")
+        Field("Kansio / alikansio (esim. Asiakkaat/Helsinki/Kohde)", report.folderPath) {
+            onChange(report.copy(folderPath = it.trim('/')))
+        }
         Field("Kohteen osoite", report.siteAddress) { onChange(report.copy(siteAddress = it)) }
         Field("Tilaaja / kohteen edustaja", report.clientOrRepresentative) { onChange(report.copy(clientOrRepresentative = it)) }
         Field("Tilaajan sähköposti", report.clientEmail) { onChange(report.copy(clientEmail = it)) }
@@ -350,6 +369,9 @@ private fun EditorScreen(
         )
 
         Spacer(Modifier.height(12.dp))
+        OutlinedButton(onClick = { onSaveTemplate(report.siteAddress.ifBlank { "Uusi malli" }) }, modifier = Modifier.fillMaxWidth()) {
+            Text("Tallenna raportti malliksi")
+        }
         Button(onClick = onExport, modifier = Modifier.fillMaxWidth()) { Text("Luo ja jaa PDF-raportti") }
         OutlinedButton(onClick = onBack, modifier = Modifier.fillMaxWidth()) { Text("Tallenna ja sulje") }
         Spacer(Modifier.height(28.dp))
