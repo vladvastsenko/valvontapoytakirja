@@ -254,7 +254,7 @@ private fun EditorScreen(
                 OutlinedButton(onClick = onRemoveLogo) { Text("Poista logo") }
             }
         }
-        Field("Alatunniste PDF:n viimeisellä sivulla", report.footerText) {
+        Field("Alatunniste PDF:n viimeisellä sivulla", report.footerText, minLines = 2) {
             onChange(report.copy(footerText = it))
         }
 
