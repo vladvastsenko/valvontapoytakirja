@@ -28,6 +28,9 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.DatePicker
+import androidx.compose.material3.DatePickerDialog
+import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
@@ -55,7 +58,10 @@ import fi.vladi.valvontapoytakirja.model.MaterialEntry
 import fi.vladi.valvontapoytakirja.model.ReportPhoto
 import fi.vladi.valvontapoytakirja.pdf.ReportPdfGenerator
 import java.io.File
+import java.time.Instant
 import java.time.LocalDate
+import java.time.ZoneOffset
+import java.time.format.DateTimeFormatter
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -285,8 +291,12 @@ private fun EditorScreen(
         Field("Sertifikaattinumero", report.installerCertificateNumber) { onChange(report.copy(installerCertificateNumber = it)) }
         Field("Vedeneristäjän puhelin", report.installerPhone) { onChange(report.copy(installerPhone = it)) }
         Field("Vedeneristäjän sähköposti", report.installerEmail) { onChange(report.copy(installerEmail = it)) }
-        Field("Asennustyön aloituspäivä", report.workStartDate) { onChange(report.copy(workStartDate = it)) }
-        Field("Asennustyön päättymispäivä", report.workEndDate) { onChange(report.copy(workEndDate = it)) }
+        DateField("Asennustyön aloituspäivä", report.workStartDate) {
+            onChange(report.copy(workStartDate = it))
+        }
+        DateField("Asennustyön päättymispäivä", report.workEndDate) {
+            onChange(report.copy(workEndDate = it))
+        }
 
         SectionTitle("2. ALUSTAT JA TYÖOLOSUHTEET")
         Field("Seinien alusta / rakenne", report.wallSubstrate) { onChange(report.copy(wallSubstrate = it)) }
@@ -401,7 +411,9 @@ private fun EditorScreen(
         Field("Sertifikaattinumero", report.inspectorCertificateNumber) { onChange(report.copy(inspectorCertificateNumber = it)) }
         Field("Puhelin", report.inspectorPhone) { onChange(report.copy(inspectorPhone = it)) }
         Field("Sähköposti", report.inspectorEmail) { onChange(report.copy(inspectorEmail = it)) }
-        Field("Tarkastuspäivä", report.inspectionDate) { onChange(report.copy(inspectionDate = it)) }
+        DateField("Tarkastuspäivä", report.inspectionDate) {
+            onChange(report.copy(inspectionDate = it))
+        }
         SignaturePad(
             strokes = report.signatureStrokes,
             onChange = { onChange(report.copy(signatureStrokes = it)) }
@@ -421,6 +433,68 @@ private fun EditorScreen(
 private fun SectionTitle(title: String) {
     Spacer(Modifier.height(10.dp))
     Text(title, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
+}
+
+@Composable
+private fun DateField(
+    label: String,
+    value: String,
+    onDateSelected: (String) -> Unit
+) {
+    var showPicker by remember { mutableStateOf(false) }
+    val dateFormatter = remember { DateTimeFormatter.ofPattern("dd.MM.yyyy") }
+    val initialMillis = remember(value) {
+        runCatching {
+            LocalDate.parse(value).atStartOfDay(ZoneOffset.UTC).toInstant().toEpochMilli()
+        }.getOrElse {
+            LocalDate.now().atStartOfDay(ZoneOffset.UTC).toInstant().toEpochMilli()
+        }
+    }
+    val pickerState = rememberDatePickerState(initialSelectedDateMillis = initialMillis)
+    val displayDate = remember(value) {
+        runCatching { LocalDate.parse(value).format(dateFormatter) }.getOrDefault("")
+    }
+
+    OutlinedButton(
+        onClick = { showPicker = true },
+        modifier = Modifier.fillMaxWidth()
+    ) {
+        Column(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalAlignment = Alignment.Start
+        ) {
+            Text(label, style = MaterialTheme.typography.labelSmall)
+            Text(displayDate.ifBlank { "Valitse päivämäärä" })
+        }
+    }
+
+    if (showPicker) {
+        DatePickerDialog(
+            onDismissRequest = { showPicker = false },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        pickerState.selectedDateMillis?.let { millis ->
+                            val selectedDate = Instant.ofEpochMilli(millis)
+                                .atZone(ZoneOffset.UTC)
+                                .toLocalDate()
+                            onDateSelected(selectedDate.toString())
+                        }
+                        showPicker = false
+                    }
+                ) {
+                    Text("Valitse")
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { showPicker = false }) {
+                    Text("Peruuta")
+                }
+            }
+        ) {
+            DatePicker(state = pickerState)
+        }
+    }
 }
 
 @Composable
