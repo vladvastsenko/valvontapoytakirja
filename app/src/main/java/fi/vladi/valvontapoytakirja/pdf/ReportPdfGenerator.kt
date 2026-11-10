@@ -258,7 +258,7 @@ object ReportPdfGenerator {
                 val gap = 8f
                 val columns = when (pagePhotos.size) {
                     1, 2 -> 1
-                    in 3..4 -> 2
+                    in 3..6 -> 2
                     else -> 3
                 }
                 val rows = (pagePhotos.size + columns - 1) / columns
