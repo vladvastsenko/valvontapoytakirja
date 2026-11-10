@@ -261,13 +261,10 @@ object ReportPdfGenerator {
             photos.chunked(9).forEach { pagePhotos ->
                 nextPage()
 
+                // Always reserve the same 3 x 3 layout, regardless of the number of photos.
+                val columns = 3
+                val rows = 3
                 val gap = 8f
-                val columns = when (pagePhotos.size) {
-                    1, 2 -> 1
-                    in 3..6 -> 2
-                    else -> 3
-                }
-                val rows = (pagePhotos.size + columns - 1) / columns
                 val topStart = 40f
                 val bottomReserved = 42f
                 val cellWidth = (pageWidth - margin * 2 - gap * (columns - 1)) / columns.toFloat()
@@ -291,7 +288,8 @@ object ReportPdfGenerator {
             cellHeight: Float
         ) {
             val canvas = page.canvas
-            val captionSpace = if (photo.caption.isBlank()) 0f else 25f
+            // Reserve identical caption space for every cell so image areas stay equal-sized.
+            val captionSpace = 25f
             val imageRect = RectF(left, top, left + cellWidth, top + cellHeight - captionSpace)
             val bitmap = BitmapFactory.decodeFile(photo.filePath)
             if (bitmap != null) {
