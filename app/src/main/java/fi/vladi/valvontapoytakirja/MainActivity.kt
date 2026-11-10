@@ -11,6 +11,7 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -25,6 +26,8 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
@@ -45,6 +48,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.core.content.FileProvider
+import fi.vladi.valvontapoytakirja.data.MaterialCatalog
 import fi.vladi.valvontapoytakirja.data.ReportRepository
 import fi.vladi.valvontapoytakirja.model.InspectionReport
 import fi.vladi.valvontapoytakirja.model.MaterialEntry
@@ -268,8 +272,6 @@ private fun EditorScreen(
         Field("Seinät – vaadittu vähimmäispaksuus (mm)", report.wallRequiredMinimumThicknessMm) { onChange(report.copy(wallRequiredMinimumThicknessMm = it)) }
         Field("Lattia – mitattu paksuus (mm)", report.floorDryFilmThicknessMm) { onChange(report.copy(floorDryFilmThicknessMm = it)) }
         Field("Lattia – vaadittu vähimmäispaksuus (mm)", report.floorRequiredMinimumThicknessMm) { onChange(report.copy(floorRequiredMinimumThicknessMm = it)) }
-        Field("Lattiakaivon alue – mitattu paksuus (mm)", report.drainZoneDryFilmThicknessMm) { onChange(report.copy(drainZoneDryFilmThicknessMm = it)) }
-        Field("Lattiakaivon alue – vaadittu vähimmäispaksuus (mm)", report.drainZoneRequiredMinimumThicknessMm) { onChange(report.copy(drainZoneRequiredMinimumThicknessMm = it)) }
 
         SectionTitle("7. VALOKUVAT")
         Text("Voit ottaa kuvan kameralla tai valita useita kuvia galleriasta.")
@@ -297,6 +299,10 @@ private fun EditorScreen(
         Field("Puhelin", report.inspectorPhone) { onChange(report.copy(inspectorPhone = it)) }
         Field("Sähköposti", report.inspectorEmail) { onChange(report.copy(inspectorEmail = it)) }
         Field("Tarkastuspäivä", report.inspectionDate) { onChange(report.copy(inspectionDate = it)) }
+        SignaturePad(
+            strokes = report.signatureStrokes,
+            onChange = { onChange(report.copy(signatureStrokes = it)) }
+        )
 
         Spacer(Modifier.height(12.dp))
         Button(onClick = onExport, modifier = Modifier.fillMaxWidth()) { Text("Luo ja jaa PDF-raportti") }
@@ -334,13 +340,42 @@ private fun MaterialCard(
     onChange: (MaterialEntry) -> Unit,
     onRemove: () -> Unit
 ) {
+    var expanded by remember(material.id) { mutableStateOf(false) }
+    val productOptions = MaterialCatalog.productsFor(material.category)
     Card(modifier = Modifier.fillMaxWidth()) {
         Column(Modifier.padding(12.dp), verticalArrangement = Arrangement.spacedBy(7.dp)) {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Text(material.category, fontWeight = FontWeight.SemiBold, modifier = Modifier.weight(1f))
                 TextButton(onClick = onRemove) { Text("Poista") }
             }
-            Field("Materiaaliryhmä", material.category) { onChange(material.copy(category = it)) }
+            if (productOptions.isNotEmpty()) {
+                Box {
+                    OutlinedButton(onClick = { expanded = true }) {
+                        Text(material.productName.ifBlank { "Valitse Kiilto-tuote" })
+                    }
+                    DropdownMenu(
+                        expanded = expanded,
+                        onDismissRequest = { expanded = false }
+                    ) {
+                        productOptions.forEach { product ->
+                            DropdownMenuItem(
+                                text = { Text(product) },
+                                onClick = {
+                                    onChange(material.copy(manufacturer = "Kiilto", productName = product))
+                                    expanded = false
+                                }
+                            )
+                        }
+                        DropdownMenuItem(
+                            text = { Text("Muu / oma tuote") },
+                            onClick = {
+                                onChange(material.copy(manufacturer = "", productName = ""))
+                                expanded = false
+                            }
+                        )
+                    }
+                }
+            }
             Field("Valmistaja", material.manufacturer) { onChange(material.copy(manufacturer = it)) }
             Field("Tuotteen nimi", material.productName) { onChange(material.copy(productName = it)) }
             Field("Lisätiedot", material.notes) { onChange(material.copy(notes = it)) }
@@ -369,7 +404,7 @@ private fun PhotoCard(
             } else {
                 Text("Kuvaa ei voitu näyttää: ${File(photo.filePath).name}")
             }
-            Field("Kuvan selite / tarkastuskohta", photo.caption, minLines = 2, onValueChange = onCaptionChange)
+            Field("Kommentti (valinnainen)", photo.caption, minLines = 2, onValueChange = onCaptionChange)
             TextButton(onClick = onDelete) { Text("Poista kuva") }
         }
     }
