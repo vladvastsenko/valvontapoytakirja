@@ -37,6 +37,7 @@ data class InspectionReport(
     val floorHeating: String = "",
     val thresholdOrDrainLiftMm: String = "",
     val floorSlopes: String = "",
+    val floorSlopeRatios: List<String> = emptyList(),
 
     // Pinta-alat ja menekit
     val wallAreaM2: String = "",
