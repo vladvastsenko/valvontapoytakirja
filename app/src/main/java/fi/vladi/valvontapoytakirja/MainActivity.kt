@@ -331,7 +331,14 @@ private fun EditorScreen(
             it.category in waterproofingFamilyCategories && it.manufacturer in knownFamilyManufacturers
         }?.manufacturer.orEmpty()
         val familyAnchorIndex = report.materials.indexOfFirst {
-            it.category in waterproofingFamilyCategories && it.manufacturer == familyManufacturer && familyManufacturer.isNotBlank()
+            it.category in waterproofingFamilyCategories &&
+                it.manufacturer == familyManufacturer &&
+                familyManufacturer.isNotBlank() &&
+                MaterialCatalog.manufacturersFor(it.category).containsAll(knownFamilyManufacturers)
+        }.takeIf { it >= 0 } ?: report.materials.indexOfFirst {
+            it.category in waterproofingFamilyCategories &&
+                it.manufacturer == familyManufacturer &&
+                familyManufacturer.isNotBlank()
         }
         report.materials.forEachIndexed { index, material ->
             MaterialCard(
