@@ -66,6 +66,19 @@ import java.time.LocalDate
 import java.time.ZoneOffset
 import java.time.format.DateTimeFormatter
 
+private val WATERPROOFING_FAMILY_CATEGORIES = setOf(
+    "pohjuste (primer)",
+    "vedeneriste",
+    "kaivolaippa / lattiakaivovahvike",
+    "nurkkavahvike / vahvikenauha",
+    "läpivientivahvike",
+    "läpivientien tiivistysmassa",
+    "kiinnityslaasti"
+)
+
+private fun isWaterproofingFamilyCategory(category: String): Boolean =
+    category.trim().lowercase() in WATERPROOFING_FAMILY_CATEGORIES
+
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -317,26 +330,17 @@ private fun EditorScreen(
 
         SectionTitle("3. KÄYTETYT MATERIAALIT")
         Text("Valitse sama valmistaja koko vedeneristysjärjestelmälle: pohjuste, vedeneriste, kaivolaippa, vahvikenauhat, läpivientivahvikkeet, tiivistysmassa ja kiinnityslaasti.")
-        val waterproofingFamilyCategories = setOf(
-            "pohjuste (primer)",
-            "vedeneriste",
-            "kaivolaippa / lattiakaivovahvike",
-            "nurkkavahvike / vahvikenauha",
-            "läpivientivahvike",
-            "läpivientien tiivistysmassa",
-            "kiinnityslaasti"
-        )
         val knownFamilyManufacturers = MaterialCatalog.manufacturersFor("vedeneriste")
         val familyManufacturer = report.materials.firstOrNull {
-            it.category in waterproofingFamilyCategories && it.manufacturer in knownFamilyManufacturers
+            isWaterproofingFamilyCategory(it.category) && it.manufacturer in knownFamilyManufacturers
         }?.manufacturer.orEmpty()
         val familyAnchorIndex = report.materials.indexOfFirst {
-            it.category in waterproofingFamilyCategories &&
+            isWaterproofingFamilyCategory(it.category) &&
                 it.manufacturer == familyManufacturer &&
                 familyManufacturer.isNotBlank() &&
                 MaterialCatalog.manufacturersFor(it.category).containsAll(knownFamilyManufacturers)
         }.takeIf { it >= 0 } ?: report.materials.indexOfFirst {
-            it.category in waterproofingFamilyCategories &&
+            isWaterproofingFamilyCategory(it.category) &&
                 it.manufacturer == familyManufacturer &&
                 familyManufacturer.isNotBlank()
         }
@@ -350,18 +354,18 @@ private fun EditorScreen(
                     updatedMaterials[index] = changed
 
                     val selectedFamilyManufacturer = when {
-                        changed.category in waterproofingFamilyCategories &&
+                        isWaterproofingFamilyCategory(changed.category) &&
                             changed.manufacturer in knownFamilyManufacturers -> changed.manufacturer
                         familyManufacturer.isNotBlank() -> familyManufacturer
                         else -> ""
                     }
 
                     if (selectedFamilyManufacturer.isNotBlank() &&
-                        changed.category in waterproofingFamilyCategories
+                        isWaterproofingFamilyCategory(changed.category)
                     ) {
                         updatedMaterials.indices.forEach { familyIndex ->
                             val familyItem = updatedMaterials[familyIndex]
-                            if (familyItem.category in waterproofingFamilyCategories) {
+                            if (isWaterproofingFamilyCategory(familyItem.category)) {
                                 val productBelongsToFamily = MaterialCatalog.productsFor(
                                     familyItem.category,
                                     selectedFamilyManufacturer
@@ -589,16 +593,7 @@ private fun MaterialCard(
 ) {
     var expanded by remember(material.id) { mutableStateOf(false) }
     var manufacturerExpanded by remember(material.id) { mutableStateOf(false) }
-    val familyCategories = setOf(
-        "pohjuste (primer)",
-        "vedeneriste",
-        "kaivolaippa / lattiakaivovahvike",
-        "nurkkavahvike / vahvikenauha",
-        "läpivientivahvike",
-        "läpivientien tiivistysmassa",
-        "kiinnityslaasti"
-    )
-    val isFamilyMaterial = material.category in familyCategories
+    val isFamilyMaterial = isWaterproofingFamilyCategory(material.category)
     val lockedFamilyManufacturer = familyManufacturer.isNotBlank() && isFamilyMaterial
     val effectiveManufacturer = if (lockedFamilyManufacturer) familyManufacturer else material.manufacturer
     val manufacturers = MaterialCatalog.manufacturersFor(material.category).let { options ->
