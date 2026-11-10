@@ -319,25 +319,32 @@ private fun EditorScreen(
                 isFamilyAnchor = index == familyAnchorIndex,
                 onChange = { changed ->
                     val updatedMaterials = report.materials.toMutableList()
-                    val previous = updatedMaterials[index]
                     updatedMaterials[index] = changed
 
-                    // The first selected family manufacturer becomes the system manufacturer
-                    // for primer, waterproofing and tile adhesive.
-                    if (changed.category in waterproofingFamilyCategories &&
-                        changed.manufacturer in knownFamilyManufacturers &&
-                        changed.manufacturer != previous.manufacturer
+                    val selectedFamilyManufacturer = when {
+                        changed.category in waterproofingFamilyCategories &&
+                            changed.manufacturer in knownFamilyManufacturers -> changed.manufacturer
+                        familyManufacturer.isNotBlank() -> familyManufacturer
+                        else -> ""
+                    }
+
+                    if (selectedFamilyManufacturer.isNotBlank() &&
+                        changed.category in waterproofingFamilyCategories
                     ) {
                         updatedMaterials.indices.forEach { familyIndex ->
                             val familyItem = updatedMaterials[familyIndex]
                             if (familyItem.category in waterproofingFamilyCategories) {
                                 val productBelongsToFamily = MaterialCatalog.productsFor(
                                     familyItem.category,
-                                    changed.manufacturer
+                                    selectedFamilyManufacturer
                                 ).any { it.name == familyItem.productName }
                                 updatedMaterials[familyIndex] = familyItem.copy(
-                                    manufacturer = changed.manufacturer,
-                                    productName = if (productBelongsToFamily) familyItem.productName else ""
+                                    manufacturer = selectedFamilyManufacturer,
+                                    productName = if (familyIndex == index || productBelongsToFamily) {
+                                        familyItem.productName
+                                    } else {
+                                        ""
+                                    }
                                 )
                             }
                         }
