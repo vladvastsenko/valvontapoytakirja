@@ -21,6 +21,9 @@ object ReportPdfGenerator {
         val writer = PdfWriter(document, report.logoPath)
 
         writer.title("VALVONTAPÖYTÄKIRJA")
+        if (report.folderPath.isNotBlank()) {
+            writer.field("Kansio / alikansio", report.folderPath)
+        }
         writer.field("Kohde", report.siteAddress)
         writer.field("Tilaaja / kohteen edustaja", report.clientOrRepresentative)
         writer.field("Tilaajan sähköposti", report.clientEmail)
