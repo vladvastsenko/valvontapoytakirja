@@ -26,6 +26,8 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Checkbox
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.DatePicker
@@ -192,7 +194,7 @@ private fun HomeScreen(
         modifier = Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(20.dp),
         verticalArrangement = Arrangement.spacedBy(12.dp)
     ) {
-        Text("Valvontapöytäkirja", style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.Bold)
+        Text("Valvoja", style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.Bold)
         Text("Märkätilojen vedeneristyksen tarkastusraportit")
         Button(onClick = onCreate, modifier = Modifier.fillMaxWidth()) {
             Text("Uusi pöytäkirja")
@@ -225,7 +227,7 @@ private fun HomeScreen(
             }
         }
         Spacer(Modifier.height(20.dp))
-        Text("Versio 0.4.2 • Tallennus tapahtuu tässä puhelimessa.", style = MaterialTheme.typography.bodySmall)
+        Text("Valvoja 0.4.3 • Tallennus tapahtuu tässä puhelimessa.", style = MaterialTheme.typography.bodySmall)
     }
 }
 
@@ -373,7 +375,28 @@ private fun EditorScreen(
         SectionTitle("4. RAKENTEET JA MITAT")
         Field("Lattialämmitys", report.floorHeating) { onChange(report.copy(floorHeating = it)) }
         Field("Kynnys / viemärin nosto (mm)", report.thresholdOrDrainLiftMm) { onChange(report.copy(thresholdOrDrainLiftMm = it)) }
-        Field("Lattian kaadot ja niiden sijainnit", report.floorSlopes, minLines = 2) { onChange(report.copy(floorSlopes = it)) }
+        Text("Lattian kaato")
+        Row(horizontalArrangement = Arrangement.spacedBy(16.dp), verticalAlignment = Alignment.CenterVertically) {
+            listOf("1:50", "1:100").forEach { ratio ->
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Checkbox(
+                        checked = ratio in report.floorSlopeRatios,
+                        onCheckedChange = { checked ->
+                            val updated = if (checked) {
+                                (report.floorSlopeRatios + ratio).distinct()
+                            } else {
+                                report.floorSlopeRatios.filterNot { it == ratio }
+                            }
+                            onChange(report.copy(floorSlopeRatios = updated))
+                        }
+                    )
+                    Text(ratio)
+                }
+            }
+        }
+        Field("Kaatojen sijainnit / lisätiedot", report.floorSlopes, minLines = 2) {
+            onChange(report.copy(floorSlopes = it))
+        }
 
         SectionTitle("5. PINTA-ALAT JA MENEKKI")
         Field("Seinien pinta-ala (m²)", report.wallAreaM2) { onChange(report.copy(wallAreaM2 = it)) }
@@ -404,7 +427,32 @@ private fun EditorScreen(
         }
 
         SectionTitle("8. TARKASTUKSEN TULOS")
-        Field("Tarkastuksen tulos (esim. HYVÄKSYTTY)", report.inspectionResult) { onChange(report.copy(inspectionResult = it)) }
+        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            if (report.inspectionResult == "HYVÄKSYTTY") {
+                Button(
+                    onClick = { onChange(report.copy(inspectionResult = "HYVÄKSYTTY")) },
+                    modifier = Modifier.weight(1f),
+                    colors = ButtonDefaults.buttonColors(containerColor = androidx.compose.ui.graphics.Color(0xFF168447))
+                ) { Text("Hyväksytty") }
+            } else {
+                OutlinedButton(
+                    onClick = { onChange(report.copy(inspectionResult = "HYVÄKSYTTY")) },
+                    modifier = Modifier.weight(1f)
+                ) { Text("Hyväksytty") }
+            }
+            if (report.inspectionResult == "HYLÄTTY") {
+                Button(
+                    onClick = { onChange(report.copy(inspectionResult = "HYLÄTTY")) },
+                    modifier = Modifier.weight(1f),
+                    colors = ButtonDefaults.buttonColors(containerColor = androidx.compose.ui.graphics.Color(0xFFC62828))
+                ) { Text("Hylätty") }
+            } else {
+                OutlinedButton(
+                    onClick = { onChange(report.copy(inspectionResult = "HYLÄTTY")) },
+                    modifier = Modifier.weight(1f)
+                ) { Text("Hylätty") }
+            }
+        }
         Field("Lisähuomiot", report.additionalNotes, minLines = 3) { onChange(report.copy(additionalNotes = it)) }
 
         SectionTitle("9. TARKASTAJA")
