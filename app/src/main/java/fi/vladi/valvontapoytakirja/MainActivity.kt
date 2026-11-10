@@ -30,6 +30,7 @@ import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.DatePicker
 import androidx.compose.material3.DatePickerDialog
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
@@ -435,6 +436,7 @@ private fun SectionTitle(title: String) {
     Text(title, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun DateField(
     label: String,
@@ -450,7 +452,6 @@ private fun DateField(
             LocalDate.now().atStartOfDay(ZoneOffset.UTC).toInstant().toEpochMilli()
         }
     }
-    val pickerState = rememberDatePickerState(initialSelectedDateMillis = initialMillis)
     val displayDate = remember(value) {
         runCatching { LocalDate.parse(value).format(dateFormatter) }.getOrDefault("")
     }
@@ -469,6 +470,7 @@ private fun DateField(
     }
 
     if (showPicker) {
+        val pickerState = rememberDatePickerState(initialSelectedDateMillis = initialMillis)
         DatePickerDialog(
             onDismissRequest = { showPicker = false },
             confirmButton = {
