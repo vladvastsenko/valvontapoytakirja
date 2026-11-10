@@ -338,13 +338,11 @@ private fun EditorScreen(
                                     familyItem.category,
                                     selectedFamilyManufacturer
                                 ).any { it.name == familyItem.productName }
+                                val alreadyUsesFamily = familyItem.manufacturer == selectedFamilyManufacturer
+                                val keepPosition = familyIndex == index || productBelongsToFamily || alreadyUsesFamily
                                 updatedMaterials[familyIndex] = familyItem.copy(
-                                    manufacturer = selectedFamilyManufacturer,
-                                    productName = if (familyIndex == index || productBelongsToFamily) {
-                                        familyItem.productName
-                                    } else {
-                                        ""
-                                    }
+                                    manufacturer = if (keepPosition) selectedFamilyManufacturer else "",
+                                    productName = if (keepPosition) familyItem.productName else ""
                                 )
                             }
                         }
