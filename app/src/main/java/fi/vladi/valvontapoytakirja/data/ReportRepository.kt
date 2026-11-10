@@ -21,7 +21,7 @@ class ReportRepository(private val context: Context) {
     fun listReports(): List<InspectionReport> =
         reportsDirectory().listFiles { file -> file.extension == "json" }
             ?.mapNotNull { file ->
-                runCatching { json.decodeFromString<InspectionReport>(file.readText()) }.getOrNull()
+                runCatching { json.decodeFromString(InspectionReport.serializer(), file.readText()) }.getOrNull()
             }
             ?.sortedByDescending { it.createdAt }
             ?: emptyList()
@@ -39,14 +39,17 @@ class ReportRepository(private val context: Context) {
     fun cameraUri(file: File): Uri =
         FileProvider.getUriForFile(context, "${context.packageName}.fileprovider", file)
 
-    fun importPhoto(reportId: String, uri: Uri): File? = runCatching {
-        val directory = File(reportsDirectory(), "$reportId/photos").apply { mkdirs() }
-        val destination = File(directory, "photo_${System.currentTimeMillis()}_${directory.listFiles()?.size ?: 0}.jpg")
-        context.contentResolver.openInputStream(uri)?.use { input ->
-            destination.outputStream().use { output -> input.copyTo(output) }
-        } ?: return null
-        destination
-    }.getOrNull()
+    fun importPhoto(reportId: String, uri: Uri): File? {
+        return runCatching {
+            val directory = File(reportsDirectory(), "$reportId/photos").apply { mkdirs() }
+            val destination = File(directory, "photo_${System.currentTimeMillis()}_${directory.listFiles()?.size ?: 0}.jpg")
+            val input = context.contentResolver.openInputStream(uri) ?: error("Unable to open selected image")
+            input.use {
+                destination.outputStream().use { output -> it.copyTo(output) }
+            }
+            destination
+        }.getOrNull()
+    }
 
     fun deletePhoto(path: String) {
         runCatching { File(path).delete() }
