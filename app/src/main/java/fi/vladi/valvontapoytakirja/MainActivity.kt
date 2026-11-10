@@ -6,6 +6,7 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.compose.setContent
+import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
@@ -129,7 +130,7 @@ private fun ValvontaApp() {
                 pendingCameraFile = file
                 cameraLauncher.launch(repository.cameraUri(file))
             },
-            onGallery = { galleryLauncher.launch(ActivityResultContracts.PickVisualMedia.ImageOnly) },
+            onGallery = { galleryLauncher.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)) },
             onExport = {
                 val pdf = ReportPdfGenerator.generate(context, active)
                 val uri = FileProvider.getUriForFile(context, "${context.packageName}.fileprovider", pdf)
