@@ -18,7 +18,7 @@ import java.io.FileOutputStream
 object ReportPdfGenerator {
     fun generate(context: Context, report: InspectionReport): File {
         val document = PdfDocument()
-        val writer = PdfWriter(document)
+        val writer = PdfWriter(document, report.logoPath)
 
         writer.title("VALVONTAPÖYTÄKIRJA")
         writer.field("Kohde", report.siteAddress)
@@ -79,7 +79,7 @@ object ReportPdfGenerator {
             writer.photos(report.photos)
         }
 
-        writer.finish()
+        writer.finish(report.footerText)
         val exportDirectory = File(context.cacheDir, "exports").apply { mkdirs() }
         val safeName = report.siteAddress
             .replace(Regex("[^A-Za-z0-9ÄÖÅäöå_-]+"), "_")
@@ -91,7 +91,10 @@ object ReportPdfGenerator {
         return output
     }
 
-    private class PdfWriter(private val document: PdfDocument) {
+    private class PdfWriter(
+        private val document: PdfDocument,
+        private val logoPath: String
+    ) {
         private val pageWidth = 595
         private val pageHeight = 842
         private val margin = 42f
@@ -111,30 +114,40 @@ object ReportPdfGenerator {
             color = Color.rgb(35, 75, 95)
         }
         private val imagePaint = Paint(Paint.ANTI_ALIAS_FLAG).apply { isFilterBitmap = true }
-        private val photoNumberPaint = Paint(bodyPaint).apply {
-            textSize = 9f
-            color = Color.DKGRAY
-        }
         private var pageNumber = 0
         private var page: PdfDocument.Page
         private var y = 0f
 
         init {
             page = startPage()
+            drawFirstPageLogo()
         }
 
         private fun startPage(): PdfDocument.Page {
             pageNumber++
             val info = PdfDocument.PageInfo.Builder(pageWidth, pageHeight, pageNumber).create()
             val newPage = document.startPage(info)
-            newPage.canvas.drawText(
-                "VLADI MTV  •  VALVONTAPÖYTÄKIRJA",
-                margin,
-                24f,
-                Paint(boldPaint).apply { textSize = 8f; color = Color.GRAY }
-            )
-            y = 52f
+            y = 42f
             return newPage
+        }
+
+        private fun drawFirstPageLogo() {
+            if (logoPath.isBlank()) return
+            val bitmap = BitmapFactory.decodeFile(logoPath) ?: return
+            val maxWidth = 170f
+            val maxHeight = 58f
+            val scale = minOf(maxWidth / bitmap.width, maxHeight / bitmap.height)
+            val width = bitmap.width * scale
+            val height = bitmap.height * scale
+            val destination = RectF(
+                margin,
+                22f,
+                margin + width,
+                22f + height
+            )
+            page.canvas.drawBitmap(bitmap, null, destination, imagePaint)
+            y = maxOf(y, 92f)
+            bitmap.recycle()
         }
 
         private fun nextPage() {
@@ -239,43 +252,36 @@ object ReportPdfGenerator {
         }
 
         fun photos(photos: List<ReportPhoto>) {
-            photos.chunked(9).forEachIndexed { pageIndex, pagePhotos ->
+            photos.chunked(9).forEach { pagePhotos ->
                 nextPage()
-                page.canvas.drawText(
-                    if (pageIndex == 0) "VALOKUVAT" else "VALOKUVAT (JATKUU)",
-                    margin,
-                    y + 15f,
-                    titlePaint
-                )
 
-                val gap = 10f
+                val gap = 8f
                 val columns = 3
-                val topStart = y + 28f
+                val topStart = 40f
+                val bottomReserved = 42f
                 val cellWidth = (pageWidth - margin * 2 - gap * (columns - 1)) / columns.toFloat()
-                val cellHeight = (pageHeight - topStart - 30f - gap * 2) / 3f
+                val cellHeight = (pageHeight - topStart - bottomReserved - gap * 2) / 3f
 
                 pagePhotos.forEachIndexed { index, photo ->
                     val column = index % columns
                     val row = index / columns
                     val left = margin + column * (cellWidth + gap)
                     val top = topStart + row * (cellHeight + gap)
-                    drawPhotoCell(photo, pageIndex * 9 + index + 1, left, top, cellWidth, cellHeight)
+                    drawPhotoCell(photo, left, top, cellWidth, cellHeight)
                 }
             }
         }
 
         private fun drawPhotoCell(
             photo: ReportPhoto,
-            number: Int,
             left: Float,
             top: Float,
             cellWidth: Float,
             cellHeight: Float
         ) {
             val canvas = page.canvas
-            canvas.drawText("Kuva $number", left, top + 10f, photoNumberPaint)
-
-            val imageRect = RectF(left, top + 17f, left + cellWidth, top + cellHeight - 48f)
+            val captionSpace = if (photo.caption.isBlank()) 0f else 25f
+            val imageRect = RectF(left, top, left + cellWidth, top + cellHeight - captionSpace)
             val bitmap = BitmapFactory.decodeFile(photo.filePath)
             if (bitmap != null) {
                 val ratio = minOf(imageRect.width() / bitmap.width, imageRect.height() / bitmap.height)
@@ -288,21 +294,14 @@ object ReportPdfGenerator {
                     imageRect.centerY() + drawHeight / 2f
                 )
                 canvas.drawBitmap(bitmap, null, destination, imagePaint)
-                canvas.drawRect(imageRect, Paint().apply {
-                    style = Paint.Style.STROKE
-                    color = Color.LTGRAY
-                    strokeWidth = 0.6f
-                })
                 bitmap.recycle()
-            } else {
-                canvas.drawText("Kuvaa ei voitu ladata", left + 2f, imageRect.centerY(), bodyPaint)
             }
 
             if (photo.caption.isNotBlank()) {
                 val captionPaint = Paint(bodyPaint).apply { textSize = 9.5f }
                 val lines = wrapCaption(photo.caption, captionPaint, cellWidth).take(2)
                 lines.forEachIndexed { lineIndex, line ->
-                    canvas.drawText(line, left, top + cellHeight - 27f + lineIndex * 11f, captionPaint)
+                    canvas.drawText(line, left, top + cellHeight - 15f + lineIndex * 10f, captionPaint)
                 }
             }
         }
@@ -323,7 +322,27 @@ object ReportPdfGenerator {
             return lines
         }
 
-        fun finish() {
+        fun finish(footerText: String) {
+            if (footerText.isNotBlank()) {
+                val footerPaint = Paint(bodyPaint).apply {
+                    textSize = 8.5f
+                    color = Color.DKGRAY
+                }
+                val lines = wrapCaption(footerText, footerPaint, pageWidth - margin * 2).take(2)
+                page.canvas.drawLine(
+                    margin,
+                    pageHeight - 34f,
+                    pageWidth - margin,
+                    pageHeight - 34f,
+                    Paint(Paint.ANTI_ALIAS_FLAG).apply {
+                        color = Color.LTGRAY
+                        strokeWidth = 0.6f
+                    }
+                )
+                lines.forEachIndexed { index, line ->
+                    page.canvas.drawText(line, margin, pageHeight - 18f + index * 10f, footerPaint)
+                }
+            }
             document.finishPage(page)
         }
     }
