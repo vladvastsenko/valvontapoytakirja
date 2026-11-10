@@ -5,9 +5,17 @@ package fi.vladi.valvontapoytakirja.data
  * Product choices are grouped by report position so other manufacturers can
  * be added later without changing the report model.
  */
+data class CatalogProduct(
+    val manufacturer: String,
+    val name: String
+)
+
 object MaterialCatalog {
-    fun productsFor(category: String): List<String> = when (category.lowercase()) {
-        "tasoite" -> listOf(
+    private fun kiilto(vararg names: String): List<CatalogProduct> =
+        names.map { CatalogProduct(manufacturer = "Kiilto", name = it) }
+
+    fun productsFor(category: String): List<CatalogProduct> = when (category.lowercase()) {
+        "tasoite" -> kiilto(
             "SR DF Pikamärkätilatasoite",
             "SK Märkätilatasoite",
             "TM DF Seinän pikatäyttömassa",
@@ -22,33 +30,27 @@ object MaterialCatalog {
             "Maxirapid Erikoisnopea tasoite",
             "Pro Easyrapid Erikoisnopea hienotasoite"
         )
-        "pohjuste (primer)" -> listOf(
+        "pohjuste (primer)" -> kiilto(
             "PrimerOne",
             "Pro Keraprimer",
             "Pro Start Primer"
         )
-        "vedeneriste" -> listOf(
+        "vedeneriste" -> kiilto(
             "Kerafiber",
             "KeraPro",
             "Keramix",
             "KeraSafe+",
             "Pro KeraSafe Project"
         )
-        "kaivolaippa / lattiakaivovahvike" -> listOf(
+        "kaivolaippa / lattiakaivovahvike" -> kiilto(
             "Easy Kaivolaippa",
             "KeraSafe Kaivolaippa",
             "Lattiakaivovahvike"
         )
-        "nurkkavahvike / vahvikenauha" -> listOf(
-            "Nurkkavahvikenauha"
-        )
-        "läpivientivahvike" -> listOf(
-            "Läpivientivahvike"
-        )
-        "läpivientien tiivistysmassa" -> listOf(
-            "Pro XPU"
-        )
-        "kiinnityslaasti" -> listOf(
+        "nurkkavahvike / vahvikenauha" -> kiilto("Nurkkavahvikenauha")
+        "läpivientivahvike" -> kiilto("Läpivientivahvike")
+        "läpivientien tiivistysmassa" -> kiilto("Pro XPU")
+        "kiinnityslaasti" -> kiilto(
             "Highflex S2 DF",
             "Superfix DF",
             "Pro Lightfix",
@@ -58,18 +60,9 @@ object MaterialCatalog {
             "Floorfix DF Rapid",
             "Floorfix DF"
         )
-        "seinäsaumaus" -> listOf(
-            "Pro Tile Grout",
-            "Pro Epoxy Tile Grout"
-        )
-        "lattiasaumaus" -> listOf(
-            "Pro Floor Tile Grout",
-            "Pro Epoxy Tile Grout"
-        )
-        "elastinen saumausmassa" -> listOf(
-            "Pro Sanitary Silicone",
-            "Pro Silicone E"
-        )
+        "seinäsaumaus" -> kiilto("Pro Tile Grout", "Pro Epoxy Tile Grout")
+        "lattiasaumaus" -> kiilto("Pro Floor Tile Grout", "Pro Epoxy Tile Grout")
+        "elastinen saumausmassa" -> kiilto("Pro Sanitary Silicone", "Pro Silicone E")
         else -> emptyList()
     }
 }
