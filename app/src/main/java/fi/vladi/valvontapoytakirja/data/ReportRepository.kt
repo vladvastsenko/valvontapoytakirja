@@ -51,6 +51,23 @@ class ReportRepository(private val context: Context) {
         }.getOrNull()
     }
 
+    fun importLogo(reportId: String, uri: Uri): File? {
+        return runCatching {
+            val directory = File(reportsDirectory(), reportId).apply { mkdirs() }
+            val extension = when (context.contentResolver.getType(uri)) {
+                "image/png" -> "png"
+                "image/webp" -> "webp"
+                else -> "jpg"
+            }
+            val destination = File(directory, "logo.${extension}")
+            val input = context.contentResolver.openInputStream(uri) ?: error("Unable to open selected logo")
+            input.use {
+                destination.outputStream().use { output -> it.copyTo(output) }
+            }
+            destination
+        }.getOrNull()
+    }
+
     fun deletePhoto(path: String) {
         runCatching { File(path).delete() }
     }
