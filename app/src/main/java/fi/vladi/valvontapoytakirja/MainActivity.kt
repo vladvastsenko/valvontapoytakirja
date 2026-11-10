@@ -224,7 +224,7 @@ private fun HomeScreen(
             }
         }
         Spacer(Modifier.height(20.dp))
-        Text("Versio 0.4.1 • Tallennus tapahtuu tässä puhelimessa.", style = MaterialTheme.typography.bodySmall)
+        Text("Versio 0.4.2 • Tallennus tapahtuu tässä puhelimessa.", style = MaterialTheme.typography.bodySmall)
     }
 }
 
