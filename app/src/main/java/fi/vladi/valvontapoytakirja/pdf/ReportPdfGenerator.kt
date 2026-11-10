@@ -67,6 +67,7 @@ object ReportPdfGenerator {
         writer.field("Tulos", report.inspectionResult)
         writer.field("Lisähuomiot", report.additionalNotes)
 
+        writer.spacer(28f)
         writer.section("TARKASTAJA")
         writer.field("Nimi", report.inspectorName)
         writer.field("Sertifikaattinumero", report.inspectorCertificateNumber)
@@ -168,6 +169,11 @@ object ReportPdfGenerator {
                 strokeWidth = 1f
             })
             y += 13f
+        }
+
+        fun spacer(height: Float) {
+            ensureSpace(height)
+            y += height
         }
 
         fun section(value: String) {
