@@ -51,7 +51,7 @@ data class InspectionReport(
     val floorDryFilmThicknessMm: String = "",
     val floorRequiredMinimumThicknessMm: String = "",
     // Tarkastuksen tulos ja tarkastaja
-    val inspectionResult: String = "HYVÄKSYTTY",
+    val inspectionResult: String = "",
     val inspectorName: String = "",
     val inspectorCertificateNumber: String = "",
     val inspectorPhone: String = "",
