@@ -14,7 +14,7 @@ object MaterialCatalog {
     private fun products(manufacturer: String, vararg names: String): List<CatalogProduct> =
         names.map { CatalogProduct(manufacturer = manufacturer, name = it) }
 
-    fun productsFor(category: String): List<CatalogProduct> {
+    fun productsFor(category: String, manufacturer: String = ""): List<CatalogProduct> {
         val key = category.lowercase()
         val kiilto = when (key) {
             "tasoite" -> products("Kiilto",
@@ -105,6 +105,11 @@ object MaterialCatalog {
             else -> emptyList()
         }
 
-        return kiilto + weber + schonox + ardex + mapei
+        val all = kiilto + weber + schonox + ardex + mapei
+        return if (manufacturer.isBlank()) all else all.filter { it.manufacturer == manufacturer }
     }
+    
+    fun manufacturersFor(category: String): List<String> =
+        productsFor(category).map { it.manufacturer }.distinct().sorted()
+
 }
