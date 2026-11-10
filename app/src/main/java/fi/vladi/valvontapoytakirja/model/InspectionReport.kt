@@ -47,9 +47,6 @@ data class InspectionReport(
     val wallRequiredMinimumThicknessMm: String = "",
     val floorDryFilmThicknessMm: String = "",
     val floorRequiredMinimumThicknessMm: String = "",
-    val drainZoneDryFilmThicknessMm: String = "",
-    val drainZoneRequiredMinimumThicknessMm: String = "",
-
     // Tarkastuksen tulos ja tarkastaja
     val inspectionResult: String = "HYVÄKSYTTY",
     val inspectorName: String = "",
@@ -58,6 +55,7 @@ data class InspectionReport(
     val inspectorEmail: String = "",
     val inspectionDate: String = LocalDate.now().toString(),
     val additionalNotes: String = "",
+    val signatureStrokes: List<SignatureStroke> = emptyList(),
 
     // Valokuvat tallennetaan sovelluksen omaan tallennustilaan
     val photos: List<ReportPhoto> = emptyList()
@@ -73,6 +71,17 @@ data class MaterialEntry(
 )
 
 @Serializable
+data class SignatureStroke(
+    val points: List<SignaturePoint>
+)
+
+@Serializable
+data class SignaturePoint(
+    val x: Float,
+    val y: Float
+)
+
+@Serializable
 data class ReportPhoto(
     val id: String = UUID.randomUUID().toString(),
     val filePath: String,
@@ -83,12 +92,17 @@ fun defaultMaterialEntries(): List<MaterialEntry> = listOf(
     "Tasoite",
     "Pohjuste (primer)",
     "Vedeneriste",
-    "Kaivotyyppi ja kaivolaippa",
-    "Nurkkavahvikkeet ja vahvikenauhat",
-    "Läpivientien tiivistys",
-    "Laattaliima",
+    "Kaivotyyppi",
+    "Kaivolaippa / lattiakaivovahvike",
+    "Nurkkavahvike / vahvikenauha",
+    "Läpivientivahvike",
+    "Läpivientien tiivistysmassa",
+    "Kiinnityslaasti",
     "Laatat",
     "Seinäsaumaus",
     "Lattiasaumaus",
-    "Elastiset saumat"
-).map { MaterialEntry(category = it, manufacturer = "Kiilto") }
+    "Elastinen saumausmassa"
+).map { category ->
+    val hasKiiltoProducts = category !in listOf("Kaivotyyppi", "Laatat")
+    MaterialEntry(category = category, manufacturer = if (hasKiiltoProducts) "Kiilto" else "")
+}
