@@ -227,7 +227,7 @@ private fun HomeScreen(
             }
         }
         Spacer(Modifier.height(20.dp))
-        Text("Valvoja 0.4.4 • Tallennus tapahtuu tässä puhelimessa.", style = MaterialTheme.typography.bodySmall)
+        Text("Valvoja 0.4.5 • Tallennus tapahtuu tässä puhelimessa.", style = MaterialTheme.typography.bodySmall)
     }
 }
 
@@ -316,8 +316,16 @@ private fun EditorScreen(
         Field("Alustan kosteus (%)", report.substrateMoisturePercent) { onChange(report.copy(substrateMoisturePercent = it)) }
 
         SectionTitle("3. KÄYTETYT MATERIAALIT")
-        Text("Valitse sama valmistaja pohjusteelle, vedeneristeelle ja kiinnityslaastille. Muut materiaalit voivat olla eri valmistajilta.")
-        val waterproofingFamilyCategories = setOf("pohjuste (primer)", "vedeneriste", "kiinnityslaasti")
+        Text("Valitse sama valmistaja koko vedeneristysjärjestelmälle: pohjuste, vedeneriste, kaivolaippa, vahvikenauhat, läpivientivahvikkeet, tiivistysmassa ja kiinnityslaasti.")
+        val waterproofingFamilyCategories = setOf(
+            "pohjuste (primer)",
+            "vedeneriste",
+            "kaivolaippa / lattiakaivovahvike",
+            "nurkkavahvike / vahvikenauha",
+            "läpivientivahvike",
+            "läpivientien tiivistysmassa",
+            "kiinnityslaasti"
+        )
         val knownFamilyManufacturers = MaterialCatalog.manufacturersFor("vedeneriste")
         val familyManufacturer = report.materials.firstOrNull {
             it.category in waterproofingFamilyCategories && it.manufacturer in knownFamilyManufacturers
@@ -574,7 +582,15 @@ private fun MaterialCard(
 ) {
     var expanded by remember(material.id) { mutableStateOf(false) }
     var manufacturerExpanded by remember(material.id) { mutableStateOf(false) }
-    val familyCategories = setOf("pohjuste (primer)", "vedeneriste", "kiinnityslaasti")
+    val familyCategories = setOf(
+        "pohjuste (primer)",
+        "vedeneriste",
+        "kaivolaippa / lattiakaivovahvike",
+        "nurkkavahvike / vahvikenauha",
+        "läpivientivahvike",
+        "läpivientien tiivistysmassa",
+        "kiinnityslaasti"
+    )
     val isFamilyMaterial = material.category in familyCategories
     val lockedFamilyManufacturer = familyManufacturer.isNotBlank() && isFamilyMaterial
     val effectiveManufacturer = if (lockedFamilyManufacturer) familyManufacturer else material.manufacturer
