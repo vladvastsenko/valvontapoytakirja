@@ -1,16 +1,19 @@
 package fi.vladi.valvontapoytakirja.pdf
 
 import android.content.Context
+import android.graphics.Bitmap
 import android.graphics.BitmapFactory
+import android.graphics.Canvas
+import android.graphics.Color
 import android.graphics.Paint
+import android.graphics.Path
 import android.graphics.RectF
 import android.graphics.pdf.PdfDocument
 import fi.vladi.valvontapoytakirja.model.InspectionReport
+import fi.vladi.valvontapoytakirja.model.ReportPhoto
+import fi.vladi.valvontapoytakirja.model.SignatureStroke
 import java.io.File
 import java.io.FileOutputStream
-import java.text.SimpleDateFormat
-import java.util.Date
-import java.util.Locale
 
 object ReportPdfGenerator {
     fun generate(context: Context, report: InspectionReport): File {
@@ -37,7 +40,9 @@ object ReportPdfGenerator {
 
         writer.section("KÄYTETYT MATERIAALIT")
         report.materials.forEach { material ->
-            val product = listOf(material.manufacturer, material.productName).filter { it.isNotBlank() }.joinToString(" – ")
+            val product = listOf(material.manufacturer, material.productName)
+                .filter { it.isNotBlank() }
+                .joinToString(" – ")
             writer.field(material.category, listOf(product, material.notes).filter { it.isNotBlank() }.joinToString(" | "))
         }
 
@@ -57,8 +62,6 @@ object ReportPdfGenerator {
         writer.field("Seinät – vaadittu vähimmäispaksuus (mm)", report.wallRequiredMinimumThicknessMm)
         writer.field("Lattia – mitattu paksuus (mm)", report.floorDryFilmThicknessMm)
         writer.field("Lattia – vaadittu vähimmäispaksuus (mm)", report.floorRequiredMinimumThicknessMm)
-        writer.field("Lattiakaivon alue – mitattu paksuus (mm)", report.drainZoneDryFilmThicknessMm)
-        writer.field("Lattiakaivon alue – vaadittu vähimmäispaksuus (mm)", report.drainZoneRequiredMinimumThicknessMm)
 
         writer.section("TARKASTUKSEN TULOS")
         writer.field("Tulos", report.inspectionResult)
@@ -70,12 +73,10 @@ object ReportPdfGenerator {
         writer.field("Puhelin", report.inspectorPhone)
         writer.field("Sähköposti", report.inspectorEmail)
         writer.field("Tarkastuspäivä", report.inspectionDate)
+        writer.signature(report.signatureStrokes)
 
         if (report.photos.isNotEmpty()) {
-            writer.section("VALOKUVAT")
-            report.photos.forEachIndexed { index, photo ->
-                writer.photo(index + 1, photo.filePath, photo.caption)
-            }
+            writer.photos(report.photos)
         }
 
         writer.finish()
@@ -95,13 +96,25 @@ object ReportPdfGenerator {
         private val pageHeight = 842
         private val margin = 42f
         private val bodyPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
-            color = android.graphics.Color.rgb(40, 45, 50)
+            color = Color.rgb(40, 45, 50)
             textSize = 10.5f
         }
-        private val boldPaint = Paint(bodyPaint).apply { typeface = android.graphics.Typeface.create("sans-serif", android.graphics.Typeface.BOLD) }
-        private val titlePaint = Paint(boldPaint).apply { textSize = 20f; color = android.graphics.Color.rgb(20, 35, 48) }
-        private val sectionPaint = Paint(boldPaint).apply { textSize = 13f; color = android.graphics.Color.rgb(35, 75, 95) }
+        private val boldPaint = Paint(bodyPaint).apply {
+            typeface = android.graphics.Typeface.create("sans-serif", android.graphics.Typeface.BOLD)
+        }
+        private val titlePaint = Paint(boldPaint).apply {
+            textSize = 20f
+            color = Color.rgb(20, 35, 48)
+        }
+        private val sectionPaint = Paint(boldPaint).apply {
+            textSize = 13f
+            color = Color.rgb(35, 75, 95)
+        }
         private val imagePaint = Paint(Paint.ANTI_ALIAS_FLAG).apply { isFilterBitmap = true }
+        private val photoNumberPaint = Paint(bodyPaint).apply {
+            textSize = 9f
+            color = Color.DKGRAY
+        }
         private var pageNumber = 0
         private var page: PdfDocument.Page
         private var y = 0f
@@ -114,7 +127,12 @@ object ReportPdfGenerator {
             pageNumber++
             val info = PdfDocument.PageInfo.Builder(pageWidth, pageHeight, pageNumber).create()
             val newPage = document.startPage(info)
-            newPage.canvas.drawText("VLADI MTV  •  VALVONTAPÖYTÄKIRJA", margin, 24f, Paint(boldPaint).apply { textSize = 8f; color = android.graphics.Color.GRAY })
+            newPage.canvas.drawText(
+                "VLADI MTV  •  VALVONTAPÖYTÄKIRJA",
+                margin,
+                24f,
+                Paint(boldPaint).apply { textSize = 8f; color = Color.GRAY }
+            )
             y = 52f
             return newPage
         }
@@ -133,7 +151,7 @@ object ReportPdfGenerator {
             page.canvas.drawText(value, margin, y + 17f, titlePaint)
             y += 32f
             page.canvas.drawLine(margin, y, pageWidth - margin, y, Paint().apply {
-                color = android.graphics.Color.rgb(170, 185, 195)
+                color = Color.rgb(170, 185, 195)
                 strokeWidth = 1f
             })
             y += 13f
@@ -147,8 +165,7 @@ object ReportPdfGenerator {
         }
 
         fun field(label: String, value: String) {
-            val text = "$label: ${value.ifBlank { "—" }}"
-            drawWrapped(text, bodyPaint, 14f)
+            drawWrapped("$label: ${value.ifBlank { "—" }}", bodyPaint, 14f)
         }
 
         private fun drawWrapped(value: String, paint: Paint, lineHeight: Float) {
@@ -173,36 +190,137 @@ object ReportPdfGenerator {
             }
         }
 
-        fun photo(number: Int, path: String, caption: String) {
-            val bitmap = BitmapFactory.decodeFile(path)
-            if (bitmap == null) {
-                field("Kuva $number", "Kuvaa ei voitu lukea: $path")
-                return
-            }
-            val boxWidth = 240f
-            val boxHeight = 150f
-            ensureSpace(boxHeight + 35f)
-            val left = margin
-            val top = y + 4f
-            val ratio = minOf(boxWidth / bitmap.width, boxHeight / bitmap.height)
-            val drawWidth = bitmap.width * ratio
-            val drawHeight = bitmap.height * ratio
-            val rect = RectF(
-                left + (boxWidth - drawWidth) / 2f,
-                top + (boxHeight - drawHeight) / 2f,
-                left + (boxWidth + drawWidth) / 2f,
-                top + (boxHeight + drawHeight) / 2f
-            )
-            page.canvas.drawBitmap(bitmap, null, rect, imagePaint)
-            page.canvas.drawRect(left, top, left + boxWidth, top + boxHeight, Paint().apply {
+        fun signature(strokes: List<SignatureStroke>) {
+            if (strokes.isEmpty()) return
+            ensureSpace(100f)
+
+            page.canvas.drawText("Allekirjoitus", margin, y + 12f, boldPaint)
+            val bitmap = Bitmap.createBitmap(1800, 540, Bitmap.Config.ARGB_8888)
+            val signatureCanvas = Canvas(bitmap)
+            val signaturePaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+                color = Color.BLACK
                 style = Paint.Style.STROKE
-                color = android.graphics.Color.LTGRAY
-                strokeWidth = 0.7f
-            })
-            y += boxHeight + 5f
-            drawWrapped("Kuva $number: ${caption.ifBlank { "Ei kuvatekstiä" }}", bodyPaint, 13f)
-            y += 10f
+                strokeWidth = 15f
+                strokeCap = Paint.Cap.ROUND
+                strokeJoin = Paint.Join.ROUND
+            }
+
+            strokes.forEach { stroke ->
+                if (stroke.points.isNotEmpty()) {
+                    val path = Path()
+                    stroke.points.forEachIndexed { index, point ->
+                        val px = point.x.coerceIn(0f, 1f) * bitmap.width
+                        val py = point.y.coerceIn(0f, 1f) * bitmap.height
+                        if (index == 0) path.moveTo(px, py) else path.lineTo(px, py)
+                    }
+                    if (stroke.points.size == 1) {
+                        val point = stroke.points.first()
+                        signatureCanvas.drawCircle(
+                            point.x.coerceIn(0f, 1f) * bitmap.width,
+                            point.y.coerceIn(0f, 1f) * bitmap.height,
+                            8f,
+                            Paint(Paint.ANTI_ALIAS_FLAG).apply { color = Color.BLACK }
+                        )
+                    } else {
+                        signatureCanvas.drawPath(path, signaturePaint)
+                    }
+                }
+            }
+
+            // The bitmap stays transparent: no grey or coloured signature background.
+            page.canvas.drawBitmap(
+                bitmap,
+                null,
+                RectF(margin, y + 18f, margin + 230f, y + 87f),
+                imagePaint
+            )
+            y += 96f
             bitmap.recycle()
+        }
+
+        fun photos(photos: List<ReportPhoto>) {
+            photos.chunked(9).forEachIndexed { pageIndex, pagePhotos ->
+                nextPage()
+                page.canvas.drawText(
+                    if (pageIndex == 0) "VALOKUVAT" else "VALOKUVAT (JATKUU)",
+                    margin,
+                    y + 15f,
+                    titlePaint
+                )
+
+                val gap = 10f
+                val columns = 3
+                val topStart = y + 28f
+                val cellWidth = (pageWidth - margin * 2 - gap * (columns - 1)) / columns.toFloat()
+                val cellHeight = (pageHeight - topStart - 30f - gap * 2) / 3f
+
+                pagePhotos.forEachIndexed { index, photo ->
+                    val column = index % columns
+                    val row = index / columns
+                    val left = margin + column * (cellWidth + gap)
+                    val top = topStart + row * (cellHeight + gap)
+                    drawPhotoCell(photo, pageIndex * 9 + index + 1, left, top, cellWidth, cellHeight)
+                }
+            }
+        }
+
+        private fun drawPhotoCell(
+            photo: ReportPhoto,
+            number: Int,
+            left: Float,
+            top: Float,
+            cellWidth: Float,
+            cellHeight: Float
+        ) {
+            val canvas = page.canvas
+            canvas.drawText("Kuva $number", left, top + 10f, photoNumberPaint)
+
+            val imageRect = RectF(left, top + 17f, left + cellWidth, top + cellHeight - 48f)
+            val bitmap = BitmapFactory.decodeFile(photo.filePath)
+            if (bitmap != null) {
+                val ratio = minOf(imageRect.width() / bitmap.width, imageRect.height() / bitmap.height)
+                val drawWidth = bitmap.width * ratio
+                val drawHeight = bitmap.height * ratio
+                val destination = RectF(
+                    imageRect.centerX() - drawWidth / 2f,
+                    imageRect.centerY() - drawHeight / 2f,
+                    imageRect.centerX() + drawWidth / 2f,
+                    imageRect.centerY() + drawHeight / 2f
+                )
+                canvas.drawBitmap(bitmap, null, destination, imagePaint)
+                canvas.drawRect(imageRect, Paint().apply {
+                    style = Paint.Style.STROKE
+                    color = Color.LTGRAY
+                    strokeWidth = 0.6f
+                })
+                bitmap.recycle()
+            } else {
+                canvas.drawText("Kuvaa ei voitu ladata", left + 2f, imageRect.centerY(), bodyPaint)
+            }
+
+            if (photo.caption.isNotBlank()) {
+                val captionPaint = Paint(bodyPaint).apply { textSize = 9.5f }
+                val lines = wrapCaption(photo.caption, captionPaint, cellWidth).take(2)
+                lines.forEachIndexed { lineIndex, line ->
+                    canvas.drawText(line, left, top + cellHeight - 27f + lineIndex * 11f, captionPaint)
+                }
+            }
+        }
+
+        private fun wrapCaption(value: String, paint: Paint, maxWidth: Float): List<String> {
+            val lines = mutableListOf<String>()
+            var line = ""
+            value.replace("\n", " ").split(Regex("\\s+")).forEach { word ->
+                val candidate = if (line.isEmpty()) word else "$line $word"
+                if (paint.measureText(candidate) > maxWidth && line.isNotEmpty()) {
+                    lines += line
+                    line = word
+                } else {
+                    line = candidate
+                }
+            }
+            if (line.isNotEmpty()) lines += line
+            return lines
         }
 
         fun finish() {
