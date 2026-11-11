@@ -23,7 +23,7 @@ object MaterialCatalog {
                 "TT Seinätasoite", "60 Pikalattiamassa", "70 Lattiamassa", "80 Oikaisutasoite",
                 "Floor Heat DF Lattialämmitystasoite", "TopPlan DF Lattiatasoite",
                 "Maxirapid Erikoisnopea tasoite", "Pro Easyrapid Erikoisnopea hienotasoite")
-            "pohjuste (primer)" -> products("Kiilto", "PrimerOne", "Pro Keraprimer", "Pro Start Primer")
+            "pohjuste (primer)" -> products("Kiilto", "PrimerOne", "Pro Keraprimer")
             "vedeneriste" -> products("Kiilto", "Kerafiber", "KeraPro", "Keramix", "KeraSafe+", "Pro KeraSafe Project")
             "kaivolaippa / lattiakaivovahvike" -> products("Kiilto", "Easy Kaivolaippa", "KeraSafe Kaivolaippa", "Lattiakaivovahvike")
             "nurkkavahvike / vahvikenauha" -> products("Kiilto", "Nurkkavahvikenauha")
