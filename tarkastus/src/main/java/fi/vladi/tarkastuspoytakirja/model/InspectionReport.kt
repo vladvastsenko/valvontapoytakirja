@@ -14,19 +14,19 @@ data class InspectionReport(
     val clientOrRepresentative: String = "",
     val clientPhone: String = "",
     val clientEmail: String = "",
-    val description: String = "",
+    val purposeAndScope: String = "",
+    val generalObservations: String = "",
     val customFields: List<CustomReportField> = emptyList(),
-    val inspectionResult: String = "",
+    val observations: List<InspectionObservation> = emptyList(),
+    val summary: String = "",
     val inspectorName: String = "",
     val inspectorCertificateNumber: String = "",
     val inspectorPhone: String = "",
     val inspectorEmail: String = "",
     val inspectionDate: String = LocalDate.now().toString(),
-    val additionalNotes: String = "",
     val signatureStrokes: List<SignatureStroke> = emptyList(),
     val logoPath: String = "",
-    val footerText: String = "",
-    val photos: List<ReportPhoto> = emptyList()
+    val footerText: String = ""
 )
 
 @Serializable
@@ -34,6 +34,15 @@ data class CustomReportField(
     val id: String = UUID.randomUUID().toString(),
     val label: String = "",
     val value: String = ""
+)
+
+@Serializable
+data class InspectionObservation(
+    val id: String = UUID.randomUUID().toString(),
+    val location: String = "",
+    val description: String = "",
+    val recommendedAction: String = "",
+    val photos: List<ReportPhoto> = emptyList()
 )
 
 @Serializable
