@@ -42,6 +42,7 @@ import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -344,6 +345,28 @@ private fun EditorScreen(
                 it.manufacturer == familyManufacturer &&
                 familyManufacturer.isNotBlank()
         }
+
+        // Clean up legacy reports that may contain products from another manufacturer.
+        LaunchedEffect(report.id, familyManufacturer, report.materials) {
+            if (familyManufacturer.isNotBlank()) {
+                val normalizedMaterials = report.materials.map { item ->
+                    if (isWaterproofingFamilyCategory(item.category)) {
+                        val validProduct = MaterialCatalog.productsFor(
+                            item.category,
+                            familyManufacturer
+                        ).any { it.name == item.productName }
+                        item.copy(
+                            manufacturer = familyManufacturer,
+                            productName = if (validProduct) item.productName else ""
+                        )
+                    } else item
+                }
+                if (normalizedMaterials != report.materials) {
+                    onChange(report.copy(materials = normalizedMaterials))
+                }
+            }
+        }
+
         report.materials.forEachIndexed { index, material ->
             MaterialCard(
                 material = material,
@@ -370,8 +393,7 @@ private fun EditorScreen(
                                     familyItem.category,
                                     selectedFamilyManufacturer
                                 ).any { it.name == familyItem.productName }
-                                val alreadyUsesFamily = familyItem.manufacturer == selectedFamilyManufacturer
-                                val keepPosition = familyIndex == index || productBelongsToFamily || alreadyUsesFamily
+                                val keepPosition = familyIndex == index || productBelongsToFamily
                                 updatedMaterials[familyIndex] = familyItem.copy(
                                     manufacturer = if (keepPosition) selectedFamilyManufacturer else "",
                                     productName = if (keepPosition) familyItem.productName else ""
@@ -419,15 +441,25 @@ private fun EditorScreen(
 
         SectionTitle("5. PINTA-ALAT JA MENEKKI")
         Field("Seinien pinta-ala (m²)", report.wallAreaM2) { onChange(report.copy(wallAreaM2 = it)) }
-        Field("Seinien vedeneristeen menekki (l)", report.wallWaterproofingConsumptionLitres) { onChange(report.copy(wallWaterproofingConsumptionLitres = it)) }
+        Field("Seinät – valmistajan vaatima vedeneristeen menekki (kg/m² tai l/m²)", report.wallRequiredWaterproofingConsumptionPerM2) {
+            onChange(report.copy(wallRequiredWaterproofingConsumptionPerM2 = it))
+        }
+        Field("Seinät – käytetty vedeneristeen kokonaismäärä (kg tai l)", report.wallWaterproofingConsumptionLitres) {
+            onChange(report.copy(wallWaterproofingConsumptionLitres = it))
+        }
         Field("Lattian pinta-ala (m²)", report.floorAreaM2) { onChange(report.copy(floorAreaM2 = it)) }
-        Field("Lattian vedeneristeen menekki (l)", report.floorWaterproofingConsumptionLitres) { onChange(report.copy(floorWaterproofingConsumptionLitres = it)) }
+        Field("Lattia – valmistajan vaatima vedeneristeen menekki (kg/m² tai l/m²)", report.floorRequiredWaterproofingConsumptionPerM2) {
+            onChange(report.copy(floorRequiredWaterproofingConsumptionPerM2 = it))
+        }
+        Field("Lattia – käytetty vedeneristeen kokonaismäärä (kg tai l)", report.floorWaterproofingConsumptionLitres) {
+            onChange(report.copy(floorWaterproofingConsumptionLitres = it))
+        }
 
         SectionTitle("6. KUIVAKALVON PAKSUUS")
-        Field("Seinät – mitattu paksuus (mm)", report.wallDryFilmThicknessMm) { onChange(report.copy(wallDryFilmThicknessMm = it)) }
-        Field("Seinät – vaadittu vähimmäispaksuus (mm)", report.wallRequiredMinimumThicknessMm) { onChange(report.copy(wallRequiredMinimumThicknessMm = it)) }
-        Field("Lattia – mitattu paksuus (mm)", report.floorDryFilmThicknessMm) { onChange(report.copy(floorDryFilmThicknessMm = it)) }
-        Field("Lattia – vaadittu vähimmäispaksuus (mm)", report.floorRequiredMinimumThicknessMm) { onChange(report.copy(floorRequiredMinimumThicknessMm = it)) }
+        Field("Seinät – mitattu kuivakalvon paksuus (mm)", report.wallDryFilmThicknessMm) { onChange(report.copy(wallDryFilmThicknessMm = it)) }
+        Field("Seinät – valmistajan vaatima kuivakalvon vähimmäispaksuus (mm)", report.wallRequiredMinimumThicknessMm) { onChange(report.copy(wallRequiredMinimumThicknessMm = it)) }
+        Field("Lattia – mitattu kuivakalvon paksuus (mm)", report.floorDryFilmThicknessMm) { onChange(report.copy(floorDryFilmThicknessMm = it)) }
+        Field("Lattia – valmistajan vaatima kuivakalvon vähimmäispaksuus (mm)", report.floorRequiredMinimumThicknessMm) { onChange(report.copy(floorRequiredMinimumThicknessMm = it)) }
 
         SectionTitle("7. VALOKUVAT")
         Text("Voit ottaa kuvan kameralla tai valita useita kuvia galleriasta.")
@@ -600,6 +632,9 @@ private fun MaterialCard(
         if (lockedFamilyManufacturer && !isFamilyAnchor) listOf(familyManufacturer) else options
     }
     val productOptions = MaterialCatalog.productsFor(material.category, effectiveManufacturer)
+    val selectedProductName = material.productName.takeIf { name ->
+        productOptions.any { it.name == name }
+    }.orEmpty()
     Card(modifier = Modifier.fillMaxWidth()) {
         Column(Modifier.padding(12.dp), verticalArrangement = Arrangement.spacedBy(7.dp)) {
             Row(verticalAlignment = Alignment.CenterVertically) {
@@ -626,7 +661,7 @@ private fun MaterialCard(
             if (productOptions.isNotEmpty()) {
                 Box {
                     OutlinedButton(onClick = { expanded = true }) {
-                        Text(material.productName.ifBlank { "Valitse tuote" })
+                        Text(selectedProductName.ifBlank { "Valitse tuote" })
                     }
                     DropdownMenu(
                         expanded = expanded,
@@ -641,7 +676,7 @@ private fun MaterialCard(
                                 }
                             )
                         }
-                        if (!lockedFamilyManufacturer) {
+                        if (!isFamilyMaterial && !lockedFamilyManufacturer) {
                             DropdownMenuItem(
                                 text = { Text("Muu / oma tuote") },
                                 onClick = {
@@ -653,10 +688,12 @@ private fun MaterialCard(
                     }
                 }
             }
-            if (!isFamilyMaterial || !lockedFamilyManufacturer) {
+            if (!isFamilyMaterial) {
                 Field("Valmistaja", material.manufacturer) { onChange(material.copy(manufacturer = it)) }
+                Field("Tuotteen nimi", material.productName) { onChange(material.copy(productName = it)) }
+            } else if (productOptions.isEmpty()) {
+                Text("Tälle valmistajalle ei ole tuotetta tässä kategoriassa. Valitse vain valmistajan järjestelmään kuuluva tuote toisesta sopivasta kohdasta.")
             }
-            Field("Tuotteen nimi", material.productName) { onChange(material.copy(productName = it)) }
             Field("Lisätiedot", material.notes) { onChange(material.copy(notes = it)) }
         }
     }
