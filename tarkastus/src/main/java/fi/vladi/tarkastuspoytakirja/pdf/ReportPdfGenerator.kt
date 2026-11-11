@@ -117,8 +117,13 @@ object ReportPdfGenerator {
             y = 42f
             if (headerText.isNotBlank()) {
                 val headerPaint = Paint(bodyPaint).apply { textSize = 8.5f; color = Color.DKGRAY }
-                val lines = wrapCaption(headerText, headerPaint, pageWidth - margin * 2).take(1)
-                lines.forEach { line -> newPage.canvas.drawText(line, margin, 27f, headerPaint) }
+                val headerWidth = if (logoPath.isNotBlank() && pageNumber == 1) pageWidth / 2f - margin else pageWidth - margin * 2
+                val lines = wrapCaption(headerText, headerPaint, headerWidth).take(1)
+                lines.forEach { line ->
+                    val x = if (logoPath.isNotBlank() && pageNumber == 1) pageWidth - margin - headerPaint.measureText(line)
+                        else margin
+                    newPage.canvas.drawText(line, x, 27f, headerPaint)
+                }
                 y = 48f
             }
             return newPage
