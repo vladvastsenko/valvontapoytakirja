@@ -10,7 +10,56 @@ data class CatalogProduct(
     val name: String
 )
 
+data class WaterproofingSpec(
+    val wallConsumptionPerM2: String,
+    val floorConsumptionPerM2: String,
+    val wallDryFilmThicknessMm: String,
+    val floorDryFilmThicknessMm: String,
+    val source: String
+)
+
 object MaterialCatalog {
+    /**
+     * Values are copied from current Finnish manufacturer product pages,
+     * technical datasheets or installation instructions. Unknown products
+     * deliberately return null instead of guessing.
+     */
+    fun waterproofingSpec(manufacturer: String, productName: String): WaterproofingSpec? {
+        val manufacturerKey = manufacturer.trim().lowercase()
+        val productKey = productName.trim().lowercase()
+        return when (manufacturerKey to productKey) {
+            "kiilto" to "kerafiber" -> WaterproofingSpec(
+                "0,8 kg/m²", "1,0 kg/m²", "0,4", "0,5",
+                "Kiilto Kerafiber – tuotetiedot ja käyttöohje (kiilto.fi)"
+            )
+            "kiilto" to "kerapro" -> WaterproofingSpec(
+                "1,0 kg/m²", "1,0 kg/m²", "0,5", "0,5",
+                "Kiilto KeraPro – tuotetiedot ja käyttöohje (kiilto.fi)"
+            )
+            "kiilto" to "keramix" -> WaterproofingSpec(
+                "1,5 kg/m²", "1,5 kg/m²", "0,8", "0,8",
+                "Kiilto Pro Keramix A+X – tuotetiedot ja käyttöohje (kiilto.fi)"
+            )
+            "kiilto" to "kerasafe+" -> WaterproofingSpec(
+                "", "", "0,5", "0,5",
+                "Kiilto KeraSafe+ – tuotetiedot (kiilto.fi); kalvotuote, massamenekkiä ei ilmoiteta kg/m²"
+            )
+            "weber" to "wp+ vedeneristysmassa" -> WaterproofingSpec(
+                "0,9 kg/m²", "0,9 kg/m²", "0,4", "0,4",
+                "weber WP+ – tuotekortti ja weberSafe-työohje (fi.weber)"
+            )
+            "mapei" to "mapegum wps" -> WaterproofingSpec(
+                "1,0 kg/m²", "1,0 kg/m²", "0,5", "0,5",
+                "Mapei Mapegum WPS – Suomen asennusohje (mapei.fi)"
+            )
+            "ardex" to "s 1-k plus" -> WaterproofingSpec(
+                "1,2 kg/m²", "1,2 kg/m²", "0,5", "0,5",
+                "ARDEX S 1-K PLUS – tuotekortti ja sertifikaatti (ardex.fi)"
+            )
+            else -> null
+        }
+    }
+
     private fun products(manufacturer: String, vararg names: String): List<CatalogProduct> =
         names.map { CatalogProduct(manufacturer = manufacturer, name = it) }
 
