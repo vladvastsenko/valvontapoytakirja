@@ -55,5 +55,6 @@ data class SignaturePoint(val x: Float, val y: Float)
 data class ReportPhoto(
     val id: String = UUID.randomUUID().toString(),
     val filePath: String,
-    val caption: String = ""
+    val caption: String = "",
+    val annotatedPath: String = ""
 )
