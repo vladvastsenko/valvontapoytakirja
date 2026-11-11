@@ -20,7 +20,7 @@ import java.io.FileOutputStream
 object ReportPdfGenerator {
     fun generate(context: Context, report: InspectionReport, settings: AppSettings = AppSettings()): File {
         val document = PdfDocument()
-        val writer = PdfWriter(document, settings.logoPath.ifBlank { report.logoPath }, settings.headerText)
+        val writer = PdfWriter(document, report.logoPath.ifBlank { settings.logoPath }, report.headerText.ifBlank { settings.headerText })
 
         writer.title("TARKASTUSPÖYTÄKIRJA")
         if (report.customerName.isNotBlank()) writer.field("Tilaaja", report.customerName)
@@ -58,14 +58,14 @@ object ReportPdfGenerator {
 
         writer.spacer(18f)
         writer.section("TARKASTAJA")
-        writer.field("Nimi", settings.inspectorName.ifBlank { report.inspectorName })
-        writer.field("Sertifikaattinumero", settings.inspectorCertificateNumber.ifBlank { report.inspectorCertificateNumber })
-        writer.field("Puhelin", settings.inspectorPhone.ifBlank { report.inspectorPhone })
-        writer.field("Sähköposti", settings.inspectorEmail.ifBlank { report.inspectorEmail })
+        writer.field("Nimi", report.inspectorName.ifBlank { settings.inspectorName })
+        writer.field("Sertifikaattinumero", report.inspectorCertificateNumber.ifBlank { settings.inspectorCertificateNumber })
+        writer.field("Puhelin", report.inspectorPhone.ifBlank { settings.inspectorPhone })
+        writer.field("Sähköposti", report.inspectorEmail.ifBlank { settings.inspectorEmail })
         writer.field("Tarkastuspäivä", report.inspectionDate)
-        writer.signature(settings.signatureStrokes.ifEmpty { report.signatureStrokes })
+        writer.signature(if (report.settingsSnapshotCreated) report.signatureStrokes else report.signatureStrokes.ifEmpty { settings.signatureStrokes })
 
-        writer.finish(settings.footerText.ifBlank { report.footerText })
+        writer.finish(report.footerText.ifBlank { settings.footerText })
         val exportDirectory = File(context.cacheDir, "exports").apply { mkdirs() }
         val safeName = report.siteAddress
             .replace(Regex("[^A-Za-z0-9ÄÖÅäöå_-]+"), "_")
