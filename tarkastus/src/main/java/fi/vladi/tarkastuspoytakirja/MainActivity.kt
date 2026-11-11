@@ -58,6 +58,9 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.core.content.FileProvider
 import fi.vladi.tarkastuspoytakirja.data.ReportRepository
+import fi.vladi.tarkastuspoytakirja.model.AppSettings
+import fi.vladi.tarkastuspoytakirja.model.CustomerProfile
+import fi.vladi.tarkastuspoytakirja.model.CustomerSite
 import fi.vladi.tarkastuspoytakirja.model.CustomReportField
 import fi.vladi.tarkastuspoytakirja.model.InspectionObservation
 import fi.vladi.tarkastuspoytakirja.model.InspectionReport
@@ -88,6 +91,10 @@ private fun TarkastusApp() {
     val repository = remember { ReportRepository(context) }
     var reports by remember { mutableStateOf(repository.listReports()) }
     var templates by remember { mutableStateOf(repository.listTemplates()) }
+    var appSettings by remember { mutableStateOf(repository.loadSettings()) }
+    var customers by remember { mutableStateOf(repository.listCustomers()) }
+    var sites by remember { mutableStateOf(repository.listSites()) }
+    var showSettings by remember { mutableStateOf(false) }
     var currentReport by remember { mutableStateOf<InspectionReport?>(null) }
     var pendingCameraFile by remember { mutableStateOf<File?>(null) }
     var pendingCameraObservationId by remember { mutableStateOf<String?>(null) }
@@ -97,6 +104,10 @@ private fun TarkastusApp() {
         currentReport = report
         repository.save(report)
         reports = repository.listReports()
+    }
+    fun saveAppSettings(settings: AppSettings) {
+        appSettings = settings
+        repository.saveSettings(settings)
     }
 
     val cameraLauncher = rememberLauncherForActivityResult(
@@ -142,16 +153,29 @@ private fun TarkastusApp() {
     val logoLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.PickVisualMedia()
     ) { uri ->
-        val report = currentReport ?: return@rememberLauncherForActivityResult
         if (uri != null) {
-            repository.importLogo(report.id, uri)?.let { logo ->
-                saveReport(report.copy(logoPath = logo.absolutePath))
+            repository.importSettingsLogo(uri)?.let { logo ->
+                saveAppSettings(appSettings.copy(logoPath = logo.absolutePath))
             }
         }
     }
 
     val active = currentReport
-    if (active == null) {
+    if (active == null && showSettings) {
+        SettingsScreen(
+            settings = appSettings,
+            customers = customers,
+            sites = sites,
+            onSettingsChange = ::saveAppSettings,
+            onSaveCustomer = { customer -> repository.saveCustomer(customer); customers = repository.listCustomers() },
+            onDeleteCustomer = { id -> repository.deleteCustomer(id); customers = repository.listCustomers(); sites = repository.listSites() },
+            onSaveSite = { site -> repository.saveSite(site); sites = repository.listSites() },
+            onDeleteSite = { id -> repository.deleteSite(id); sites = repository.listSites() },
+            onPickLogo = { logoLauncher.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)) },
+            onRemoveLogo = { if (appSettings.logoPath.isNotBlank()) repository.deletePhoto(appSettings.logoPath); saveAppSettings(appSettings.copy(logoPath = "")) },
+            onBack = { showSettings = false }
+        )
+    } else if (active == null) {
         HomeScreen(
             reports = reports,
             templates = templates,
@@ -171,11 +195,14 @@ private fun TarkastusApp() {
                     observations = listOf(InspectionObservation())
                 ))
             },
-            onOpen = { currentReport = it }
+            onOpen = { currentReport = it },
+            onSettings = { showSettings = true }
         )
     } else {
         EditorScreen(
             report = active,
+            customers = customers,
+            sites = sites,
             onChange = ::saveReport,
             onBack = {
                 repository.save(active)
@@ -202,7 +229,7 @@ private fun TarkastusApp() {
                 saveReport(active.copy(logoPath = ""))
             },
             onExport = {
-                val pdf = ReportPdfGenerator.generate(context, active)
+                val pdf = ReportPdfGenerator.generate(context, active, appSettings)
                 val uri = FileProvider.getUriForFile(context, "${context.packageName}.fileprovider", pdf)
                 val sendIntent = Intent(Intent.ACTION_SEND).apply {
                     type = "application/pdf"
@@ -230,7 +257,8 @@ private fun HomeScreen(
     templates: List<InspectionReport>,
     onCreateFromTemplate: (InspectionReport) -> Unit,
     onCreate: () -> Unit,
-    onOpen: (InspectionReport) -> Unit
+    onOpen: (InspectionReport) -> Unit,
+    onSettings: () -> Unit
 ) {
     Column(
         modifier = Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(20.dp),
@@ -240,6 +268,9 @@ private fun HomeScreen(
         Text("Yleiset tarkastusraportit")
         Button(onClick = onCreate, modifier = Modifier.fillMaxWidth()) {
             Text("Uusi pöytäkirja")
+        }
+        OutlinedButton(onClick = onSettings, modifier = Modifier.fillMaxWidth()) {
+            Text("Asetukset")
         }
         if (templates.isNotEmpty()) {
             Text("Pöytäkirjamallit", style = MaterialTheme.typography.titleLarge)
@@ -275,6 +306,8 @@ private fun HomeScreen(
 @Composable
 private fun EditorScreen(
     report: InspectionReport,
+    customers: List<CustomerProfile>,
+    sites: List<CustomerSite>,
     onChange: (InspectionReport) -> Unit,
     onBack: () -> Unit,
     onCamera: (String) -> Unit,
