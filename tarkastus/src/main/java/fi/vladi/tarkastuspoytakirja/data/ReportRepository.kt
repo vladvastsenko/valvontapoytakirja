@@ -42,7 +42,7 @@ class ReportRepository(private val context: Context) {
             id = java.util.UUID.randomUUID().toString(),
             createdAt = Instant.now().toString(),
             templateName = name.trim(),
-            photos = emptyList(),
+            observations = report.observations.map { it.copy(photos = emptyList()) },
             signatureStrokes = emptyList()
         )
         File(templatesDirectory(), template.id + ".json")
