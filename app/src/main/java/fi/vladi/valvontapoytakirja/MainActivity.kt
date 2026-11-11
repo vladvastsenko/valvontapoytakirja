@@ -303,6 +303,7 @@ private fun EditorScreen(
         }
         Field("Kohteen osoite", report.siteAddress) { onChange(report.copy(siteAddress = it)) }
         Field("Tilaaja / kohteen edustaja", report.clientOrRepresentative) { onChange(report.copy(clientOrRepresentative = it)) }
+        Field("Tilaajan puhelinnumero", report.clientPhone) { onChange(report.copy(clientPhone = it)) }
         Field("Tilaajan sähköposti", report.clientEmail) { onChange(report.copy(clientEmail = it)) }
         Field("Vedeneristäjän nimi", report.installerName) { onChange(report.copy(installerName = it)) }
         Field("Sertifikaattinumero", report.installerCertificateNumber) { onChange(report.copy(installerCertificateNumber = it)) }
@@ -364,6 +365,39 @@ private fun EditorScreen(
                 if (normalizedMaterials != report.materials) {
                     onChange(report.copy(materials = normalizedMaterials))
                 }
+            }
+        }
+
+        val waterproofingMaterial = report.materials.firstOrNull {
+            it.category.trim().equals("vedeneriste", ignoreCase = true)
+        }
+        val waterproofingSpecKey = waterproofingMaterial
+            ?.takeIf { it.productName.isNotBlank() }
+            ?.let { "${it.manufacturer.trim()}|${it.productName.trim()}" }
+            .orEmpty()
+
+        // Apply manufacturer figures when the selected membrane product changes.
+        // User edits remain intact until a different product is selected.
+        LaunchedEffect(report.id, waterproofingSpecKey, report.waterproofingSpecProductKey) {
+            if (waterproofingSpecKey.isNotBlank() &&
+                waterproofingSpecKey != report.waterproofingSpecProductKey
+            ) {
+                val selected = waterproofingMaterial
+                val spec = selected?.let {
+                    MaterialCatalog.waterproofingSpec(it.manufacturer, it.productName)
+                }
+                onChange(
+                    report.copy(
+                        wallRequiredWaterproofingConsumptionPerM2 = spec?.wallConsumptionPerM2.orEmpty(),
+                        floorRequiredWaterproofingConsumptionPerM2 = spec?.floorConsumptionPerM2.orEmpty(),
+                        wallRequiredMinimumThicknessMm = spec?.wallDryFilmThicknessMm.orEmpty(),
+                        floorRequiredMinimumThicknessMm = spec?.floorDryFilmThicknessMm.orEmpty(),
+                        waterproofingSpecProductKey = waterproofingSpecKey,
+                        waterproofingSpecSource = spec?.source.orEmpty()
+                    )
+                )
+            } else if (waterproofingSpecKey.isBlank() && report.waterproofingSpecProductKey.isNotBlank()) {
+                onChange(report.copy(waterproofingSpecProductKey = "", waterproofingSpecSource = ""))
             }
         }
 
@@ -440,6 +474,12 @@ private fun EditorScreen(
         }
 
         SectionTitle("5. PINTA-ALAT JA MENEKKI")
+        if (report.waterproofingSpecSource.isNotBlank()) {
+            Text(
+                "Valmistajan tuotetietojen mukaan esitäytetyt arvot: ${report.waterproofingSpecSource}. Tarkista aina tuotteen ajantasainen työohje.",
+                style = MaterialTheme.typography.bodySmall
+            )
+        }
         Field("Seinien pinta-ala (m²)", report.wallAreaM2) { onChange(report.copy(wallAreaM2 = it)) }
         Field("Seinät – valmistajan vaatima vedeneristeen menekki (kg/m² tai l/m²)", report.wallRequiredWaterproofingConsumptionPerM2) {
             onChange(report.copy(wallRequiredWaterproofingConsumptionPerM2 = it))
