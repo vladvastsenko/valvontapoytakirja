@@ -1,16 +1,23 @@
 package fi.vladi.tarkastuspoytakirja
 
 import android.content.Intent
+import android.graphics.Bitmap
 import android.graphics.BitmapFactory
+import android.graphics.Paint
+import android.graphics.Path
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.compose.setContent
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.gestures.detectDragGestures
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -36,7 +43,15 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Path as ComposePath
+import androidx.compose.ui.graphics.StrokeCap
+import androidx.compose.ui.graphics.StrokeJoin
 import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
@@ -196,11 +211,12 @@ private fun TarkastusApp() {
                 }
                 context.startActivity(Intent.createChooser(sendIntent, "Jaa tarkastuspöytäkirja"))
             },
-            onDeletePhoto = { observationId, path ->
-                repository.deletePhoto(path)
+            onDeletePhoto = { observationId, photo ->
+                repository.deletePhoto(photo.filePath)
+                if (photo.annotatedPath.isNotBlank()) repository.deletePhoto(photo.annotatedPath)
                 saveReport(active.copy(observations = active.observations.map { observation ->
                     if (observation.id == observationId) {
-                        observation.copy(photos = observation.photos.filterNot { it.filePath == path })
+                        observation.copy(photos = observation.photos.filterNot { it.id == photo.id })
                     } else observation
                 }))
             }
@@ -267,8 +283,26 @@ private fun EditorScreen(
     onRemoveLogo: () -> Unit,
     onSaveTemplate: (String) -> Unit,
     onExport: () -> Unit,
-    onDeletePhoto: (String, String) -> Unit
+    onDeletePhoto: (String, ReportPhoto) -> Unit
 ) {
+    var photoBeingEdited by remember(report.id) { mutableStateOf<ReportPhoto?>(null) }
+    if (photoBeingEdited != null) {
+        val photo = photoBeingEdited!!
+        PhotoMarkupEditor(
+            photo = photo,
+            onCancel = { photoBeingEdited = null },
+            onSave = { markedPath ->
+                if (photo.annotatedPath.isNotBlank()) File(photo.annotatedPath).delete()
+                onChange(report.copy(observations = report.observations.map { observation ->
+                    observation.copy(photos = observation.photos.map { item ->
+                        if (item.id == photo.id) item.copy(annotatedPath = markedPath) else item
+                    })
+                }))
+                photoBeingEdited = null
+            }
+        )
+        return
+    }
     Column(
         modifier = Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(16.dp),
         verticalArrangement = Arrangement.spacedBy(10.dp)
@@ -385,7 +419,8 @@ private fun EditorScreen(
                                     } else item
                                 }))
                             },
-                            onDelete = { onDeletePhoto(observation.id, photo.filePath) }
+                            onEdit = { photoBeingEdited = photo },
+                            onDelete = { onDeletePhoto(observation.id, photo) }
                         )
                     }
                     Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -397,7 +432,7 @@ private fun EditorScreen(
                         }
                         OutlinedButton(
                             onClick = {
-                                observation.photos.forEach { onDeletePhoto(observation.id, it.filePath) }
+                                observation.photos.forEach { onDeletePhoto(observation.id, it) }
                                 onChange(report.copy(observations = report.observations.filterNot { it.id == observation.id }))
                             },
                             modifier = Modifier.weight(1f)
@@ -466,10 +501,12 @@ private fun Field(
 private fun PhotoCard(
     photo: ReportPhoto,
     onCaptionChange: (String) -> Unit,
+    onEdit: () -> Unit,
     onDelete: () -> Unit
 ) {
-    val bitmap = remember(photo.filePath) {
-        BitmapFactory.decodeFile(photo.filePath)?.asImageBitmap()
+    val displayPath = photo.annotatedPath.takeIf { it.isNotBlank() && File(it).exists() } ?: photo.filePath
+    val bitmap = remember(displayPath) {
+        BitmapFactory.decodeFile(displayPath)?.asImageBitmap()
     }
     Card(modifier = Modifier.fillMaxWidth()) {
         Column(Modifier.padding(10.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
@@ -484,7 +521,155 @@ private fun PhotoCard(
                 Text("Kuvaa ei voitu näyttää: ${File(photo.filePath).name}")
             }
             Field("Kuvan kommentti (valinnainen)", photo.caption, minLines = 2, onValueChange = onCaptionChange)
-            TextButton(onClick = onDelete) { Text("Poista kuva") }
+            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                OutlinedButton(onClick = onEdit, modifier = Modifier.weight(1f)) { Text("Muokkaa kuvaa") }
+                TextButton(onClick = onDelete) { Text("Poista kuva") }
+            }
+        }
+    }
+}
+
+@Composable
+private fun PhotoMarkupEditor(
+    photo: ReportPhoto,
+    onCancel: () -> Unit,
+    onSave: (String) -> Unit
+) {
+    val context = LocalContext.current
+    val sourcePath = photo.annotatedPath.takeIf { it.isNotBlank() && File(it).exists() } ?: photo.filePath
+    val bitmap = remember(sourcePath) { BitmapFactory.decodeFile(sourcePath) }
+    var strokes by remember(photo.id) { mutableStateOf<List<List<Offset>>>(emptyList()) }
+
+    Column(
+        modifier = Modifier.fillMaxSize().padding(12.dp),
+        verticalArrangement = Arrangement.spacedBy(10.dp)
+    ) {
+        Text("Muokkaa valokuvaa", style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.Bold)
+        Text("Piirrä sormella tai kynällä kuvan päälle. Punainen viiva näkyy myös PDF-raportissa.")
+        if (bitmap != null) {
+            Canvas(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .aspectRatio(bitmap.width.toFloat() / bitmap.height.toFloat())
+                    .pointerInput(photo.id, bitmap.width, bitmap.height) {
+                        detectDragGestures(
+                            onDragStart = { point ->
+                                strokes = strokes + listOf(listOf(
+                                    Offset(
+                                        (point.x / size.width).coerceIn(0f, 1f),
+                                        (point.y / size.height).coerceIn(0f, 1f)
+                                    )
+                                ))
+                            },
+                            onDrag = { change, _ ->
+                                change.consume()
+                                val point = Offset(
+                                    (change.position.x / size.width).coerceIn(0f, 1f),
+                                    (change.position.y / size.height).coerceIn(0f, 1f)
+                                )
+                                if (strokes.isNotEmpty()) {
+                                    strokes = strokes.dropLast(1) + listOf(strokes.last() + point)
+                                }
+                            }
+                        )
+                    }
+            ) {
+                drawImage(
+                    image = bitmap.asImageBitmap(),
+                    dstSize = IntSize(size.width.toInt(), size.height.toInt())
+                )
+                strokes.forEach { points ->
+                    if (points.isNotEmpty()) {
+                        val path = ComposePath()
+                        points.forEachIndexed { index, point ->
+                            val x = point.x * size.width
+                            val y = point.y * size.height
+                            if (index == 0) path.moveTo(x, y) else path.lineTo(x, y)
+                        }
+                        if (points.size == 1) {
+                            drawCircle(
+                                color = Color.Red,
+                                radius = size.minDimension * 0.006f,
+                                center = Offset(points.first().x * size.width, points.first().y * size.height)
+                            )
+                        } else {
+                            drawPath(
+                                path = path,
+                                color = Color.Red,
+                                style = Stroke(
+                                    width = size.minDimension * 0.009f,
+                                    cap = StrokeCap.Round,
+                                    join = StrokeJoin.Round
+                                )
+                            )
+                        }
+                    }
+                }
+            }
+        } else {
+            Text("Kuvaa ei voitu avata.")
+        }
+        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            OutlinedButton(
+                onClick = { if (strokes.isNotEmpty()) strokes = strokes.dropLast(1) },
+                enabled = strokes.isNotEmpty(),
+                modifier = Modifier.weight(1f)
+            ) { Text("Kumoa") }
+            OutlinedButton(
+                onClick = { strokes = emptyList() },
+                enabled = strokes.isNotEmpty(),
+                modifier = Modifier.weight(1f)
+            ) { Text("Tyhjennä") }
+        }
+        Spacer(Modifier.weight(1f))
+        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            OutlinedButton(onClick = onCancel, modifier = Modifier.weight(1f)) { Text("Peruuta") }
+            Button(
+                onClick = {
+                    val base = bitmap
+                    if (base != null) {
+                        val outputBitmap = base.copy(Bitmap.Config.ARGB_8888, true)
+                        val canvas = android.graphics.Canvas(outputBitmap)
+                        val paint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+                            color = android.graphics.Color.RED
+                            style = Paint.Style.STROKE
+                            strokeWidth = minOf(base.width, base.height) * 0.009f
+                            strokeCap = Paint.Cap.ROUND
+                            strokeJoin = Paint.Join.ROUND
+                        }
+                        strokes.forEach { points ->
+                            if (points.isNotEmpty()) {
+                                val path = Path()
+                                points.forEachIndexed { index, point ->
+                                    val x = point.x * outputBitmap.width
+                                    val y = point.y * outputBitmap.height
+                                    if (index == 0) path.moveTo(x, y) else path.lineTo(x, y)
+                                }
+                                if (points.size == 1) {
+                                    val point = points.first()
+                                    canvas.drawCircle(
+                                        point.x * outputBitmap.width,
+                                        point.y * outputBitmap.height,
+                                        paint.strokeWidth / 2f,
+                                        Paint(Paint.ANTI_ALIAS_FLAG).apply { color = android.graphics.Color.RED }
+                                    )
+                                } else {
+                                    canvas.drawPath(path, paint)
+                                }
+                            }
+                        }
+                        val outputFile = File(
+                            File(photo.filePath).parentFile,
+                            "marked_${System.currentTimeMillis()}_${photo.id.take(8)}.png"
+                        )
+                        outputFile.outputStream().use { outputBitmap.compress(Bitmap.CompressFormat.PNG, 100, it) }
+                        outputBitmap.recycle()
+                        onSave(outputFile.absolutePath)
+                    }
+                },
+                enabled = bitmap != null,
+                modifier = Modifier.weight(1f)
+            ) { Text("Tallenna merkinnät") }
         }
     }
 }
