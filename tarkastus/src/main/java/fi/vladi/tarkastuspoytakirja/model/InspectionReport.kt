@@ -17,6 +17,8 @@ data class InspectionReport(
     val customerPostalCode: String = "",
     val customerCity: String = "",
     val siteName: String = "",
+    val headerText: String = "",
+    val settingsSnapshotCreated: Boolean = false,
     val templateName: String = "",
     val siteAddress: String = "",
     val clientOrRepresentative: String = "",
