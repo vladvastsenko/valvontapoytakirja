@@ -41,8 +41,10 @@ data class InspectionReport(
 
     // Pinta-alat ja menekit
     val wallAreaM2: String = "",
+    val wallRequiredWaterproofingConsumptionPerM2: String = "",
     val wallWaterproofingConsumptionLitres: String = "",
     val floorAreaM2: String = "",
+    val floorRequiredWaterproofingConsumptionPerM2: String = "",
     val floorWaterproofingConsumptionLitres: String = "",
 
     // Kalvon paksuudet
