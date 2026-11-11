@@ -112,6 +112,18 @@ private fun TarkastusApp() {
         repository.saveSettings(settings)
     }
 
+    fun applySettingsSnapshot(report: InspectionReport): InspectionReport = report.copy(
+        inspectorName = appSettings.inspectorName,
+        inspectorCertificateNumber = appSettings.inspectorCertificateNumber,
+        inspectorPhone = appSettings.inspectorPhone,
+        inspectorEmail = appSettings.inspectorEmail,
+        signatureStrokes = appSettings.signatureStrokes,
+        logoPath = appSettings.logoPath,
+        headerText = appSettings.headerText,
+        footerText = appSettings.footerText,
+        settingsSnapshotCreated = true
+    )
+
     val cameraLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.TakePicture()
     ) { success ->
@@ -181,20 +193,19 @@ private fun TarkastusApp() {
             reports = reports,
             templates = templates,
             onCreateFromTemplate = { template ->
-                saveReport(template.copy(
+                saveReport(applySettingsSnapshot(template.copy(
                     id = java.util.UUID.randomUUID().toString(),
                     createdAt = LocalDate.now().toString(),
                     templateName = "",
                     observations = if (template.observations.isEmpty()) listOf(InspectionObservation())
-                        else template.observations.map { it.copy(photos = emptyList()) },
-                    signatureStrokes = emptyList()
-                ))
+                        else template.observations.map { it.copy(photos = emptyList()) }
+                )))
             },
             onCreate = {
-                saveReport(InspectionReport(
+                saveReport(applySettingsSnapshot(InspectionReport(
                     inspectionDate = LocalDate.now().toString(),
                     observations = listOf(InspectionObservation())
-                ))
+                )))
             },
             onOpen = { currentReport = it },
             onSettings = { showSettings = true }
