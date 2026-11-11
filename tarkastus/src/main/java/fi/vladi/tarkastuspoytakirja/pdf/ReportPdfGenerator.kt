@@ -34,7 +34,6 @@ object ReportPdfGenerator {
         }
 
         if (report.photos.isNotEmpty()) {
-            writer.section("VALOKUVAT")
             writer.photos(report.photos)
         }
 
@@ -262,12 +261,13 @@ object ReportPdfGenerator {
         fun photos(photos: List<ReportPhoto>) {
             photos.chunked(9).forEach { pagePhotos ->
                 nextPage()
+                page.canvas.drawText("VALOKUVAT", margin, 28f, sectionPaint)
 
                 // Always reserve the same 3 x 3 layout, regardless of the number of photos.
                 val columns = 3
                 val rows = 3
                 val gap = 8f
-                val topStart = 40f
+                val topStart = 48f
                 val bottomReserved = 42f
                 val cellWidth = (pageWidth - margin * 2 - gap * (columns - 1)) / columns.toFloat()
                 val cellHeight = (pageHeight - topStart - bottomReserved - gap * (rows - 1)) / rows.toFloat()
