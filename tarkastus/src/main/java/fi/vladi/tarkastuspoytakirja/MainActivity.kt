@@ -359,7 +359,7 @@ private fun EditorScreen(
                 shape = RoundedCornerShape(16.dp)
             ) {
                 Column(Modifier.padding(12.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                    Text("HAVAinto ${index + 1}", style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold)
+                    Text("HAVAINTO ${index + 1}", style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold)
                     Field("Tila / sijainti", observation.location) { value ->
                         onChange(report.copy(observations = report.observations.map {
                             if (it.id == observation.id) it.copy(location = value) else it
@@ -489,6 +489,7 @@ private fun PhotoCard(
     }
 }
 
+@OptIn(androidx.compose.material3.ExperimentalMaterial3Api::class)
 @Composable
 private fun DateField(
     label: String,
