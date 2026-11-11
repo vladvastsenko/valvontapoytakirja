@@ -30,6 +30,8 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
@@ -171,7 +173,6 @@ private fun TarkastusApp() {
             onDeleteCustomer = { id -> repository.deleteCustomer(id); customers = repository.listCustomers(); sites = repository.listSites() },
             onSaveSite = { site -> repository.saveSite(site); sites = repository.listSites() },
             onDeleteSite = { id -> repository.deleteSite(id); sites = repository.listSites() },
-            onPickLogo = { logoLauncher.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)) },
             onRemoveLogo = { if (appSettings.logoPath.isNotBlank()) repository.deletePhoto(appSettings.logoPath); saveAppSettings(appSettings.copy(logoPath = "")) },
             onBack = { showSettings = false }
         )
@@ -223,10 +224,6 @@ private fun TarkastusApp() {
             onSaveTemplate = { name ->
                 repository.saveTemplate(active, name)
                 templates = repository.listTemplates()
-            },
-            onRemoveLogo = {
-                if (active.logoPath.isNotBlank()) repository.deletePhoto(active.logoPath)
-                saveReport(active.copy(logoPath = ""))
             },
             onExport = {
                 val pdf = ReportPdfGenerator.generate(context, active, appSettings)
@@ -312,8 +309,6 @@ private fun EditorScreen(
     onBack: () -> Unit,
     onCamera: (String) -> Unit,
     onGallery: (String) -> Unit,
-    onPickLogo: () -> Unit,
-    onRemoveLogo: () -> Unit,
     onSaveTemplate: (String) -> Unit,
     onExport: () -> Unit,
     onDeletePhoto: (String, ReportPhoto) -> Unit
@@ -348,41 +343,79 @@ private fun EditorScreen(
         Text("TARKASTUSPÖYTÄKIRJA", style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.Bold)
         Text("Täytä tiedot. Muutokset tallentuvat automaattisesti tähän puhelimeen.", style = MaterialTheme.typography.bodySmall)
 
-        SectionTitle("PDF:N ULKOASU")
-        Text("Oma logo ensimmäisen sivun yläosaan")
-        if (report.logoPath.isNotBlank()) {
-            val logoBitmap = remember(report.logoPath) {
-                BitmapFactory.decodeFile(report.logoPath)?.asImageBitmap()
-            }
-            if (logoBitmap != null) {
-                Image(
-                    bitmap = logoBitmap,
-                    contentDescription = "Oma logo",
-                    modifier = Modifier.fillMaxWidth().height(76.dp),
-                    contentScale = ContentScale.Fit
-                )
-            }
-        }
-        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-            OutlinedButton(onClick = onPickLogo, modifier = Modifier.weight(1f)) {
-                Text(if (report.logoPath.isBlank()) "Valitse logo" else "Vaihda logo")
-            }
-            if (report.logoPath.isNotBlank()) {
-                OutlinedButton(onClick = onRemoveLogo) { Text("Poista logo") }
-            }
-        }
-        Field("Alatunniste PDF:n viimeisellä sivulla", report.footerText, minLines = 2) {
-            onChange(report.copy(footerText = it))
-        }
-
         SectionTitle("1. TYÖMAA JA OSAPUOLET")
         Field("Kansio / alikansio (esim. Asiakkaat/Helsinki/Kohde)", report.folderPath) {
             onChange(report.copy(folderPath = it.trim('/')))
         }
-        Field("Kohteen osoite", report.siteAddress) { onChange(report.copy(siteAddress = it)) }
-        Field("Tilaaja / kohteen edustaja", report.clientOrRepresentative) { onChange(report.copy(clientOrRepresentative = it)) }
-        Field("Tilaajan puhelinnumero", report.clientPhone) { onChange(report.copy(clientPhone = it)) }
-        Field("Tilaajan sähköposti", report.clientEmail) { onChange(report.copy(clientEmail = it)) }
+        ChoiceField(
+            label = "Vakioasiakas",
+            selectedId = report.customerId,
+            options = customers.map { it.id to it.name },
+            onSelected = { id ->
+                val customer = customers.firstOrNull { it.id == id }
+                onChange(report.copy(
+                    customerId = id,
+                    siteId = "",
+                    customerName = customer?.name.orEmpty(),
+                    customerBusinessId = customer?.businessId.orEmpty(),
+                    customerAddress = customer?.address.orEmpty(),
+                    customerPostalCode = customer?.postalCode.orEmpty(),
+                    customerCity = customer?.city.orEmpty(),
+                    clientOrRepresentative = customer?.contactPerson.orEmpty(),
+                    clientPhone = customer?.phone.orEmpty(),
+                    clientEmail = customer?.email.orEmpty(),
+                    siteName = "",
+                    siteAddress = "",
+                    customFields = emptyList()
+                ))
+            }
+        )
+        if (customers.isEmpty()) {
+            Text("Lisää vakioasiakkaat ensin Asetukset-osiossa.")
+        } else if (report.customerId.isNotBlank()) {
+            val selectedCustomer = customers.firstOrNull { it.id == report.customerId }
+            if (selectedCustomer != null) {
+                Text("Asiakas: ${selectedCustomer.name}", fontWeight = FontWeight.SemiBold)
+                val customerSites = sites.filter { it.customerId == selectedCustomer.id }
+                ChoiceField(
+                    label = "Kohde",
+                    selectedId = report.siteId,
+                    options = customerSites.map { it.id to (it.name + " — " + it.address) },
+                    onSelected = { id ->
+                        val site = customerSites.firstOrNull { it.id == id }
+                        onChange(report.copy(
+                            siteId = id,
+                            siteName = site?.name.orEmpty(),
+                            siteAddress = site?.address.orEmpty(),
+                            customFields = site?.fieldDefinitions?.map { definition ->
+                                CustomReportField(label = definition.label, sourceDefinitionId = definition.id)
+                            }.orEmpty()
+                        ))
+                    }
+                )
+                if (customerSites.isEmpty()) Text("Lisää tälle asiakkaalle kohteita Asetukset-osiossa.")
+            }
+        }
+        if (report.customerName.isNotBlank()) {
+            Card(modifier = Modifier.fillMaxWidth()) {
+                Column(Modifier.padding(12.dp), verticalArrangement = Arrangement.spacedBy(3.dp)) {
+                    Text(report.customerName, fontWeight = FontWeight.SemiBold)
+                    if (report.customerBusinessId.isNotBlank()) Text("Y-tunnus: " + report.customerBusinessId)
+                    if (report.customerAddress.isNotBlank()) Text(report.customerAddress)
+                    val cityLine = listOf(report.customerPostalCode, report.customerCity).filter { it.isNotBlank() }.joinToString(" ")
+                    if (cityLine.isNotBlank()) Text(cityLine)
+                    if (report.clientOrRepresentative.isNotBlank()) Text("Yhteyshenkilö: " + report.clientOrRepresentative)
+                    if (report.clientPhone.isNotBlank()) Text(report.clientPhone)
+                    if (report.clientEmail.isNotBlank()) Text(report.clientEmail)
+                }
+            }
+        }
+        if (report.customerId.isBlank()) {
+            Field("Kohteen osoite", report.siteAddress) { onChange(report.copy(siteAddress = it)) }
+            Field("Tilaaja / kohteen edustaja", report.clientOrRepresentative) { onChange(report.copy(clientOrRepresentative = it)) }
+            Field("Tilaajan puhelinnumero", report.clientPhone) { onChange(report.copy(clientPhone = it)) }
+            Field("Tilaajan sähköposti", report.clientEmail) { onChange(report.copy(clientEmail = it)) }
+        }
 
         SectionTitle("2. TARKASTUKSEN TARKOITUS JA LAAJUUS")
         Field("Tarkastuksen tarkoitus ja laajuus", report.purposeAndScope, minLines = 4) {
@@ -398,10 +431,14 @@ private fun EditorScreen(
         report.customFields.forEach { customField ->
             Card(modifier = Modifier.fillMaxWidth()) {
                 Column(Modifier.padding(12.dp), verticalArrangement = Arrangement.spacedBy(7.dp)) {
-                    Field("Kentän otsikko", customField.label) { value ->
-                        onChange(report.copy(customFields = report.customFields.map {
-                            if (it.id == customField.id) it.copy(label = value) else it
-                        }))
+                    if (customField.sourceDefinitionId.isBlank()) {
+                        Field("Kentän otsikko", customField.label) { value ->
+                            onChange(report.copy(customFields = report.customFields.map {
+                                if (it.id == customField.id) it.copy(label = value) else it
+                            }))
+                        }
+                    } else {
+                        Text(customField.label, fontWeight = FontWeight.SemiBold)
                     }
                     Field("Sisältö", customField.value, minLines = 3) { value ->
                         onChange(report.copy(customFields = report.customFields.map {
@@ -484,18 +521,9 @@ private fun EditorScreen(
             onChange(report.copy(summary = it))
         }
 
-        SectionTitle("7. TARKASTAJA")
-        Field("Tarkastajan nimi", report.inspectorName) { onChange(report.copy(inspectorName = it)) }
-        Field("Sertifikaattinumero", report.inspectorCertificateNumber) { onChange(report.copy(inspectorCertificateNumber = it)) }
-        Field("Puhelin", report.inspectorPhone) { onChange(report.copy(inspectorPhone = it)) }
-        Field("Sähköposti", report.inspectorEmail) { onChange(report.copy(inspectorEmail = it)) }
         DateField("Tarkastuspäivä", report.inspectionDate) {
             onChange(report.copy(inspectionDate = it))
         }
-        SignaturePad(
-            strokes = report.signatureStrokes,
-            onChange = { onChange(report.copy(signatureStrokes = it)) }
-        )
 
         Spacer(Modifier.height(12.dp))
         OutlinedButton(onClick = { onSaveTemplate(report.siteAddress.ifBlank { "Uusi malli" }) }, modifier = Modifier.fillMaxWidth()) {
@@ -504,6 +532,37 @@ private fun EditorScreen(
         Button(onClick = onExport, modifier = Modifier.fillMaxWidth()) { Text("Luo ja jaa PDF-raportti") }
         OutlinedButton(onClick = onBack, modifier = Modifier.fillMaxWidth()) { Text("Tallenna ja sulje") }
         Spacer(Modifier.height(28.dp))
+    }
+}
+
+
+@Composable
+private fun ChoiceField(
+    label: String,
+    selectedId: String,
+    options: List<Pair<String, String>>,
+    onSelected: (String) -> Unit
+) {
+    var expanded by remember(label, selectedId) { mutableStateOf(false) }
+    val selectedLabel = options.firstOrNull { it.first == selectedId }?.second ?: "Valitse"
+    Column {
+        OutlinedButton(onClick = { expanded = true }, modifier = Modifier.fillMaxWidth(), enabled = options.isNotEmpty()) {
+            Column(Modifier.fillMaxWidth()) {
+                Text(label, style = MaterialTheme.typography.labelSmall)
+                Text(selectedLabel)
+            }
+        }
+        DropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
+            options.forEach { option ->
+                DropdownMenuItem(
+                    text = { Text(option.second) },
+                    onClick = {
+                        onSelected(option.first)
+                        expanded = false
+                    }
+                )
+            }
+        }
     }
 }
 
