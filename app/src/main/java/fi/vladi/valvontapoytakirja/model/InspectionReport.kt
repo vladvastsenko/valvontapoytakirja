@@ -14,6 +14,7 @@ data class InspectionReport(
     // Työmaa ja osapuolet
     val siteAddress: String = "",
     val clientOrRepresentative: String = "",
+    val clientPhone: String = "",
     val clientEmail: String = "",
     val installerName: String = "",
     val installerCertificateNumber: String = "",
@@ -52,6 +53,8 @@ data class InspectionReport(
     val wallRequiredMinimumThicknessMm: String = "",
     val floorDryFilmThicknessMm: String = "",
     val floorRequiredMinimumThicknessMm: String = "",
+    val waterproofingSpecProductKey: String = "",
+    val waterproofingSpecSource: String = "",
     // Tarkastuksen tulos ja tarkastaja
     val inspectionResult: String = "",
     val inspectorName: String = "",
