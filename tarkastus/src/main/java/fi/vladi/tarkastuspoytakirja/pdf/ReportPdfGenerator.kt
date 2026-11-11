@@ -33,10 +33,6 @@ object ReportPdfGenerator {
             writer.field(field.label.ifBlank { "Lisäkenttä" }, field.value)
         }
 
-        if (report.photos.isNotEmpty()) {
-            writer.photos(report.photos)
-        }
-
         writer.section("TARKASTUKSEN TULOS")
         writer.field("Tulos", report.inspectionResult)
         writer.field("Lisähuomiot", report.additionalNotes)
@@ -49,6 +45,10 @@ object ReportPdfGenerator {
         writer.field("Sähköposti", report.inspectorEmail)
         writer.field("Tarkastuspäivä", report.inspectionDate)
         writer.signature(report.signatureStrokes)
+
+        if (report.photos.isNotEmpty()) {
+            writer.photos(report.photos)
+        }
 
         writer.finish(report.footerText)
         val exportDirectory = File(context.cacheDir, "exports").apply { mkdirs() }
