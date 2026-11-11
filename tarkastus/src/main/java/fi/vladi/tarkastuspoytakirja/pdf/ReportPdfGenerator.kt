@@ -9,6 +9,7 @@ import android.graphics.Paint
 import android.graphics.Path
 import android.graphics.RectF
 import android.graphics.pdf.PdfDocument
+import fi.vladi.tarkastuspoytakirja.model.InspectionObservation
 import fi.vladi.tarkastuspoytakirja.model.InspectionReport
 import fi.vladi.tarkastuspoytakirja.model.ReportPhoto
 import fi.vladi.tarkastuspoytakirja.model.SignatureStroke
@@ -27,17 +28,30 @@ object ReportPdfGenerator {
         writer.field("Tilaajan puhelinnumero", report.clientPhone)
         writer.field("Tilaajan sähköposti", report.clientEmail)
 
-        writer.section("TARKASTUKSEN SISÄLTÖ")
-        writer.field("Tarkastuksen kuvaus", report.description)
-        report.customFields.forEach { field ->
-            writer.field(field.label.ifBlank { "Lisäkenttä" }, field.value)
+        writer.section("TARKASTUKSEN TARKOITUS JA LAAJUUS")
+        writer.field("Tarkastuksen tarkoitus ja laajuus", report.purposeAndScope)
+
+        writer.section("YLEISET HUOMIOT")
+        writer.field("Yleiset huomiot", report.generalObservations)
+
+        if (report.customFields.isNotEmpty()) {
+            writer.section("OMAT LISÄKENTÄT")
+            report.customFields.forEach { field ->
+                writer.field(field.label.ifBlank { "Lisäkenttä" }, field.value)
+            }
         }
 
-        writer.section("TARKASTUKSEN TULOS")
-        writer.field("Tulos", report.inspectionResult)
-        writer.field("Lisähuomiot", report.additionalNotes)
+        if (report.observations.isNotEmpty()) {
+            writer.section("HAVAITUT PUUTTEET JA VIRHEET")
+            report.observations.forEachIndexed { index, observation ->
+                writer.observation(observation, index + 1)
+            }
+        }
 
-        writer.spacer(24f)
+        writer.section("YHTEENVETO")
+        writer.field("Johtopäätökset ja tarvittavat toimenpiteet", report.summary)
+
+        writer.spacer(18f)
         writer.section("TARKASTAJA")
         writer.field("Nimi", report.inspectorName)
         writer.field("Sertifikaattinumero", report.inspectorCertificateNumber)
@@ -45,10 +59,6 @@ object ReportPdfGenerator {
         writer.field("Sähköposti", report.inspectorEmail)
         writer.field("Tarkastuspäivä", report.inspectionDate)
         writer.signature(report.signatureStrokes)
-
-        if (report.photos.isNotEmpty()) {
-            writer.photos(report.photos)
-        }
 
         writer.finish(report.footerText)
         val exportDirectory = File(context.cacheDir, "exports").apply { mkdirs() }
@@ -110,12 +120,7 @@ object ReportPdfGenerator {
             val scale = minOf(maxWidth / bitmap.width, maxHeight / bitmap.height)
             val width = bitmap.width * scale
             val height = bitmap.height * scale
-            val destination = RectF(
-                margin,
-                22f,
-                margin + width,
-                22f + height
-            )
+            val destination = RectF(margin, 22f, margin + width, 22f + height)
             page.canvas.drawBitmap(bitmap, null, destination, imagePaint)
             y = maxOf(y, 92f)
             bitmap.recycle()
@@ -127,10 +132,7 @@ object ReportPdfGenerator {
                 color = Color.DKGRAY
             }
             page.canvas.drawLine(
-                margin,
-                pageHeight - 34f,
-                pageWidth - margin,
-                pageHeight - 34f,
+                margin, pageHeight - 34f, pageWidth - margin, pageHeight - 34f,
                 Paint(Paint.ANTI_ALIAS_FLAG).apply {
                     color = Color.LTGRAY
                     strokeWidth = 0.6f
@@ -188,6 +190,52 @@ object ReportPdfGenerator {
             drawWrapped("$label: ${value.ifBlank { "—" }}", bodyPaint, 14f)
         }
 
+        fun observation(observation: InspectionObservation, number: Int) {
+            section("HAVAINTO $number")
+            field("Tila / sijainti", observation.location)
+            field("Havaitun puutteen kuvaus", observation.description)
+            field("Suositeltu korjaustoimenpide", observation.recommendedAction)
+            if (observation.photos.isNotEmpty()) {
+                ensureSpace(14f)
+                observation.photos.chunked(2).forEach { row ->
+                    ensureSpace(205f)
+                    val gap = 12f
+                    val cellWidth = (pageWidth - margin * 2 - gap) / 2f
+                    row.forEachIndexed { index, photo ->
+                        val left = margin + index * (cellWidth + gap)
+                        drawObservationPhoto(photo, left, y, cellWidth, 180f)
+                    }
+                    y += 190f
+                }
+            }
+            spacer(8f)
+        }
+
+        private fun drawObservationPhoto(photo: ReportPhoto, left: Float, top: Float, width: Float, height: Float) {
+            val captionHeight = 28f
+            val imageRect = RectF(left, top, left + width, top + height - captionHeight)
+            val bitmap = BitmapFactory.decodeFile(photo.filePath)
+            if (bitmap != null) {
+                val scale = minOf(imageRect.width() / bitmap.width, imageRect.height() / bitmap.height)
+                val drawWidth = bitmap.width * scale
+                val drawHeight = bitmap.height * scale
+                val destination = RectF(
+                    imageRect.centerX() - drawWidth / 2f,
+                    imageRect.centerY() - drawHeight / 2f,
+                    imageRect.centerX() + drawWidth / 2f,
+                    imageRect.centerY() + drawHeight / 2f
+                )
+                page.canvas.drawBitmap(bitmap, null, destination, imagePaint)
+                bitmap.recycle()
+            }
+            if (photo.caption.isNotBlank()) {
+                val captionPaint = Paint(bodyPaint).apply { textSize = 9f }
+                wrapCaption(photo.caption, captionPaint, width).take(2).forEachIndexed { index, line ->
+                    page.canvas.drawText(line, left, top + height - 12f + index * 10f, captionPaint)
+                }
+            }
+        }
+
         private fun drawWrapped(value: String, paint: Paint, lineHeight: Float) {
             val maxWidth = pageWidth - margin * 2
             val words = value.replace("\n", " ").split(Regex("\\s+"))
@@ -213,7 +261,6 @@ object ReportPdfGenerator {
         fun signature(strokes: List<SignatureStroke>) {
             if (strokes.isEmpty()) return
             ensureSpace(100f)
-
             page.canvas.drawText("Allekirjoitus", margin, y + 12f, boldPaint)
             val bitmap = Bitmap.createBitmap(1800, 540, Bitmap.Config.ARGB_8888)
             val signatureCanvas = Canvas(bitmap)
@@ -224,7 +271,6 @@ object ReportPdfGenerator {
                 strokeCap = Paint.Cap.ROUND
                 strokeJoin = Paint.Join.ROUND
             }
-
             strokes.forEach { stroke ->
                 if (stroke.points.isNotEmpty()) {
                     val path = Path()
@@ -246,75 +292,13 @@ object ReportPdfGenerator {
                     }
                 }
             }
-
-            // The bitmap stays transparent: no grey or coloured signature background.
             page.canvas.drawBitmap(
-                bitmap,
-                null,
+                bitmap, null,
                 RectF(margin, y + 18f, margin + 230f, y + 87f),
                 imagePaint
             )
             y += 96f
             bitmap.recycle()
-        }
-
-        fun photos(photos: List<ReportPhoto>) {
-            photos.chunked(9).forEach { pagePhotos ->
-                nextPage()
-                page.canvas.drawText("VALOKUVAT", margin, 28f, sectionPaint)
-
-                // Always reserve the same 3 x 3 layout, regardless of the number of photos.
-                val columns = 3
-                val rows = 3
-                val gap = 8f
-                val topStart = 48f
-                val bottomReserved = 42f
-                val cellWidth = (pageWidth - margin * 2 - gap * (columns - 1)) / columns.toFloat()
-                val cellHeight = (pageHeight - topStart - bottomReserved - gap * (rows - 1)) / rows.toFloat()
-
-                pagePhotos.forEachIndexed { index, photo ->
-                    val column = index % columns
-                    val row = index / columns
-                    val left = margin + column * (cellWidth + gap)
-                    val top = topStart + row * (cellHeight + gap)
-                    drawPhotoCell(photo, left, top, cellWidth, cellHeight)
-                }
-            }
-        }
-
-        private fun drawPhotoCell(
-            photo: ReportPhoto,
-            left: Float,
-            top: Float,
-            cellWidth: Float,
-            cellHeight: Float
-        ) {
-            val canvas = page.canvas
-            // Reserve identical caption space for every cell so image areas stay equal-sized.
-            val captionSpace = 25f
-            val imageRect = RectF(left, top, left + cellWidth, top + cellHeight - captionSpace)
-            val bitmap = BitmapFactory.decodeFile(photo.filePath)
-            if (bitmap != null) {
-                val ratio = minOf(imageRect.width() / bitmap.width, imageRect.height() / bitmap.height)
-                val drawWidth = bitmap.width * ratio
-                val drawHeight = bitmap.height * ratio
-                val destination = RectF(
-                    imageRect.centerX() - drawWidth / 2f,
-                    imageRect.centerY() - drawHeight / 2f,
-                    imageRect.centerX() + drawWidth / 2f,
-                    imageRect.centerY() + drawHeight / 2f
-                )
-                canvas.drawBitmap(bitmap, null, destination, imagePaint)
-                bitmap.recycle()
-            }
-
-            if (photo.caption.isNotBlank()) {
-                val captionPaint = Paint(bodyPaint).apply { textSize = 9.5f }
-                val lines = wrapCaption(photo.caption, captionPaint, cellWidth).take(2)
-                lines.forEachIndexed { lineIndex, line ->
-                    canvas.drawText(line, left, top + cellHeight - 15f + lineIndex * 10f, captionPaint)
-                }
-            }
         }
 
         private fun wrapCaption(value: String, paint: Paint, maxWidth: Float): List<String> {
