@@ -9,6 +9,7 @@ import android.graphics.Paint
 import android.graphics.Path
 import android.graphics.RectF
 import android.graphics.pdf.PdfDocument
+import fi.vladi.tarkastuspoytakirja.model.AppSettings
 import fi.vladi.tarkastuspoytakirja.model.InspectionObservation
 import fi.vladi.tarkastuspoytakirja.model.InspectionReport
 import fi.vladi.tarkastuspoytakirja.model.ReportPhoto
@@ -17,14 +18,18 @@ import java.io.File
 import java.io.FileOutputStream
 
 object ReportPdfGenerator {
-    fun generate(context: Context, report: InspectionReport): File {
+    fun generate(context: Context, report: InspectionReport, settings: AppSettings = AppSettings()): File {
         val document = PdfDocument()
-        val writer = PdfWriter(document, report.logoPath)
+        val writer = PdfWriter(document, settings.logoPath.ifBlank { report.logoPath }, settings.headerText)
 
         writer.title("TARKASTUSPÖYTÄKIRJA")
-        if (report.folderPath.isNotBlank()) writer.field("Kansio / alikansio", report.folderPath)
-        writer.field("Kohde", report.siteAddress)
-        writer.field("Tilaaja / kohteen edustaja", report.clientOrRepresentative)
+        if (report.customerName.isNotBlank()) writer.field("Tilaaja", report.customerName)
+        if (report.customerBusinessId.isNotBlank()) writer.field("Y-tunnus", report.customerBusinessId)
+        if (report.customerAddress.isNotBlank() || report.customerPostalCode.isNotBlank() || report.customerCity.isNotBlank()) {
+            writer.field("Tilaajan osoite", listOf(report.customerAddress, report.customerPostalCode, report.customerCity).filter { it.isNotBlank() }.joinToString(", "))
+        }
+        writer.field("Kohde", listOf(report.siteName, report.siteAddress).filter { it.isNotBlank() }.joinToString(" – "))
+        writer.field("Yhteyshenkilö", report.clientOrRepresentative)
         writer.field("Tilaajan puhelinnumero", report.clientPhone)
         writer.field("Tilaajan sähköposti", report.clientEmail)
 
@@ -53,14 +58,14 @@ object ReportPdfGenerator {
 
         writer.spacer(18f)
         writer.section("TARKASTAJA")
-        writer.field("Nimi", report.inspectorName)
-        writer.field("Sertifikaattinumero", report.inspectorCertificateNumber)
-        writer.field("Puhelin", report.inspectorPhone)
-        writer.field("Sähköposti", report.inspectorEmail)
+        writer.field("Nimi", settings.inspectorName.ifBlank { report.inspectorName })
+        writer.field("Sertifikaattinumero", settings.inspectorCertificateNumber.ifBlank { report.inspectorCertificateNumber })
+        writer.field("Puhelin", settings.inspectorPhone.ifBlank { report.inspectorPhone })
+        writer.field("Sähköposti", settings.inspectorEmail.ifBlank { report.inspectorEmail })
         writer.field("Tarkastuspäivä", report.inspectionDate)
-        writer.signature(report.signatureStrokes)
+        writer.signature(settings.signatureStrokes.ifEmpty { report.signatureStrokes })
 
-        writer.finish(report.footerText)
+        writer.finish(settings.footerText.ifBlank { report.footerText })
         val exportDirectory = File(context.cacheDir, "exports").apply { mkdirs() }
         val safeName = report.siteAddress
             .replace(Regex("[^A-Za-z0-9ÄÖÅäöå_-]+"), "_")
@@ -74,7 +79,8 @@ object ReportPdfGenerator {
 
     private class PdfWriter(
         private val document: PdfDocument,
-        private val logoPath: String
+        private val logoPath: String,
+        private val headerText: String
     ) {
         private val pageWidth = 595
         private val pageHeight = 842
@@ -109,6 +115,12 @@ object ReportPdfGenerator {
             val info = PdfDocument.PageInfo.Builder(pageWidth, pageHeight, pageNumber).create()
             val newPage = document.startPage(info)
             y = 42f
+            if (headerText.isNotBlank()) {
+                val headerPaint = Paint(bodyPaint).apply { textSize = 8.5f; color = Color.DKGRAY }
+                val lines = wrapCaption(headerText, headerPaint, pageWidth - margin * 2).take(1)
+                lines.forEach { line -> newPage.canvas.drawText(line, margin, 27f, headerPaint) }
+                y = 48f
+            }
             return newPage
         }
 
