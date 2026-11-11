@@ -22,7 +22,8 @@ object ReportPdfGenerator {
         val document = PdfDocument()
         val logoPath = if (report.settingsSnapshotCreated) report.logoPath else report.logoPath.ifBlank { settings.logoPath }
         val headerText = if (report.settingsSnapshotCreated) report.headerText else report.headerText.ifBlank { settings.headerText }
-        val writer = PdfWriter(document, logoPath, headerText)
+        val footerText = if (report.settingsSnapshotCreated) report.footerText else report.footerText.ifBlank { settings.footerText }
+        val writer = PdfWriter(document, logoPath, headerText, footerText)
 
         writer.title("TARKASTUSPÖYTÄKIRJA")
         if (report.customerName.isNotBlank()) writer.field("Tilaaja", report.customerName)
@@ -67,7 +68,7 @@ object ReportPdfGenerator {
         writer.field("Tarkastuspäivä", report.inspectionDate)
         writer.signature(if (report.settingsSnapshotCreated) report.signatureStrokes else report.signatureStrokes.ifEmpty { settings.signatureStrokes })
 
-        writer.finish(if (report.settingsSnapshotCreated) report.footerText else report.footerText.ifBlank { settings.footerText })
+        writer.finish()
         val exportDirectory = File(context.cacheDir, "exports").apply { mkdirs() }
         val safeName = report.siteAddress
             .replace(Regex("[^A-Za-z0-9ÄÖÅäöå_-]+"), "_")
@@ -82,7 +83,8 @@ object ReportPdfGenerator {
     private class PdfWriter(
         private val document: PdfDocument,
         private val logoPath: String,
-        private val headerText: String
+        private val headerText: String,
+        private val footerText: String
     ) {
         private val pageWidth = 595
         private val pageHeight = 842
@@ -145,7 +147,7 @@ object ReportPdfGenerator {
             bitmap.recycle()
         }
 
-        private fun finishCurrentPage(footerText: String = "") {
+        private fun finishCurrentPage() {
             val footerPaint = Paint(bodyPaint).apply {
                 textSize = 8.5f
                 color = Color.DKGRAY
@@ -354,8 +356,8 @@ object ReportPdfGenerator {
             return lines
         }
 
-        fun finish(footerText: String) {
-            finishCurrentPage(footerText)
+        fun finish() {
+            finishCurrentPage()
         }
     }
 }
