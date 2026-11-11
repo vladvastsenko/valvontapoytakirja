@@ -241,7 +241,7 @@ private fun HomeScreen(
             }
         }
         Spacer(Modifier.height(20.dp))
-        Text("Valvoja 0.4.5 • Tallennus tapahtuu tässä puhelimessa.", style = MaterialTheme.typography.bodySmall)
+        Text("Valvoja 0.4.7 • Tallennus tapahtuu tässä puhelimessa.", style = MaterialTheme.typography.bodySmall)
     }
 }
 
