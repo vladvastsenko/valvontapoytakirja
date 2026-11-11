@@ -86,7 +86,7 @@ fun SettingsScreen(
                 TextButton(onClick = onRemoveLogo) { Text("Poista") }
             }
         }
-        SettingField("Yläkolontti / otsikkoteksti", settings.headerText, minLines = 2) {
+        SettingField("Ylätunniste / otsikkoteksti", settings.headerText, minLines = 2) {
             onSettingsChange(settings.copy(headerText = it))
         }
         SettingField("Alatunniste / yhteystiedot", settings.footerText, minLines = 2) {
