@@ -185,6 +185,7 @@ private fun TarkastusApp() {
             onDeleteCustomer = { id -> repository.deleteCustomer(id); customers = repository.listCustomers(); sites = repository.listSites() },
             onSaveSite = { site -> repository.saveSite(site); sites = repository.listSites() },
             onDeleteSite = { id -> repository.deleteSite(id); sites = repository.listSites() },
+            onPickLogo = { logoLauncher.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)) },
             onRemoveLogo = { saveAppSettings(appSettings.copy(logoPath = "")) },
             onBack = { showSettings = false }
         )
@@ -231,7 +232,6 @@ private fun TarkastusApp() {
                 pendingGalleryObservationId = observationId
                 galleryLauncher.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly))
             },
-            onPickLogo = { logoLauncher.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)) },
             onSaveTemplate = { name ->
                 repository.saveTemplate(active, name)
                 templates = repository.listTemplates()
