@@ -20,7 +20,9 @@ import java.io.FileOutputStream
 object ReportPdfGenerator {
     fun generate(context: Context, report: InspectionReport, settings: AppSettings = AppSettings()): File {
         val document = PdfDocument()
-        val writer = PdfWriter(document, report.logoPath.ifBlank { settings.logoPath }, report.headerText.ifBlank { settings.headerText })
+        val logoPath = if (report.settingsSnapshotCreated) report.logoPath else report.logoPath.ifBlank { settings.logoPath }
+        val headerText = if (report.settingsSnapshotCreated) report.headerText else report.headerText.ifBlank { settings.headerText }
+        val writer = PdfWriter(document, logoPath, headerText)
 
         writer.title("TARKASTUSPÖYTÄKIRJA")
         if (report.customerName.isNotBlank()) writer.field("Tilaaja", report.customerName)
@@ -58,14 +60,14 @@ object ReportPdfGenerator {
 
         writer.spacer(18f)
         writer.section("TARKASTAJA")
-        writer.field("Nimi", report.inspectorName.ifBlank { settings.inspectorName })
-        writer.field("Sertifikaattinumero", report.inspectorCertificateNumber.ifBlank { settings.inspectorCertificateNumber })
-        writer.field("Puhelin", report.inspectorPhone.ifBlank { settings.inspectorPhone })
-        writer.field("Sähköposti", report.inspectorEmail.ifBlank { settings.inspectorEmail })
+        writer.field("Nimi", if (report.settingsSnapshotCreated) report.inspectorName else report.inspectorName.ifBlank { settings.inspectorName })
+        writer.field("Sertifikaattinumero", if (report.settingsSnapshotCreated) report.inspectorCertificateNumber else report.inspectorCertificateNumber.ifBlank { settings.inspectorCertificateNumber })
+        writer.field("Puhelin", if (report.settingsSnapshotCreated) report.inspectorPhone else report.inspectorPhone.ifBlank { settings.inspectorPhone })
+        writer.field("Sähköposti", if (report.settingsSnapshotCreated) report.inspectorEmail else report.inspectorEmail.ifBlank { settings.inspectorEmail })
         writer.field("Tarkastuspäivä", report.inspectionDate)
         writer.signature(if (report.settingsSnapshotCreated) report.signatureStrokes else report.signatureStrokes.ifEmpty { settings.signatureStrokes })
 
-        writer.finish(report.footerText.ifBlank { settings.footerText })
+        writer.finish(if (report.settingsSnapshotCreated) report.footerText else report.footerText.ifBlank { settings.footerText })
         val exportDirectory = File(context.cacheDir, "exports").apply { mkdirs() }
         val safeName = report.siteAddress
             .replace(Regex("[^A-Za-z0-9ÄÖÅäöå_-]+"), "_")
