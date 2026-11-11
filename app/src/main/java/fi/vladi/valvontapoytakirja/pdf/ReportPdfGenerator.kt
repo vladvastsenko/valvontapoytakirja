@@ -62,15 +62,17 @@ object ReportPdfGenerator {
 
         writer.section("PINTA-ALAT JA VEDENERISTEEN MENEKKI")
         writer.field("Seinien pinta-ala (m²)", report.wallAreaM2)
-        writer.field("Seinien vedeneristeen menekki (l)", report.wallWaterproofingConsumptionLitres)
+        writer.field("Seinät – valmistajan vaatima menekki (kg/m² tai l/m²)", report.wallRequiredWaterproofingConsumptionPerM2)
+        writer.field("Seinät – käytetty kokonaismäärä (kg tai l)", report.wallWaterproofingConsumptionLitres)
         writer.field("Lattian pinta-ala (m²)", report.floorAreaM2)
-        writer.field("Lattian vedeneristeen menekki (l)", report.floorWaterproofingConsumptionLitres)
+        writer.field("Lattia – valmistajan vaatima menekki (kg/m² tai l/m²)", report.floorRequiredWaterproofingConsumptionPerM2)
+        writer.field("Lattia – käytetty kokonaismäärä (kg tai l)", report.floorWaterproofingConsumptionLitres)
 
         writer.section("KUIVAKALVON PAKSUUS")
-        writer.field("Seinät – mitattu paksuus (mm)", report.wallDryFilmThicknessMm)
-        writer.field("Seinät – vaadittu vähimmäispaksuus (mm)", report.wallRequiredMinimumThicknessMm)
-        writer.field("Lattia – mitattu paksuus (mm)", report.floorDryFilmThicknessMm)
-        writer.field("Lattia – vaadittu vähimmäispaksuus (mm)", report.floorRequiredMinimumThicknessMm)
+        writer.field("Seinät – mitattu kuivakalvon paksuus (mm)", report.wallDryFilmThicknessMm)
+        writer.field("Seinät – valmistajan vaatima kuivakalvon vähimmäispaksuus (mm)", report.wallRequiredMinimumThicknessMm)
+        writer.field("Lattia – mitattu kuivakalvon paksuus (mm)", report.floorDryFilmThicknessMm)
+        writer.field("Lattia – valmistajan vaatima kuivakalvon vähimmäispaksuus (mm)", report.floorRequiredMinimumThicknessMm)
 
         writer.section("TARKASTUKSEN TULOS")
         writer.field("Tulos", report.inspectionResult)
