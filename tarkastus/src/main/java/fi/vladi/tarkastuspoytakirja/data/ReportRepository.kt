@@ -4,6 +4,9 @@ import android.content.Context
 import android.net.Uri
 import androidx.core.content.FileProvider
 import fi.vladi.tarkastuspoytakirja.model.InspectionReport
+import fi.vladi.tarkastuspoytakirja.model.AppSettings
+import fi.vladi.tarkastuspoytakirja.model.CustomerProfile
+import fi.vladi.tarkastuspoytakirja.model.CustomerSite
 import kotlinx.serialization.json.Json
 import java.io.File
 import java.time.Instant
@@ -13,6 +16,73 @@ class ReportRepository(private val context: Context) {
         prettyPrint = true
         encodeDefaults = true
         ignoreUnknownKeys = true
+    }
+
+
+    private fun settingsFile(): File = File(context.filesDir, "app_settings.json")
+    fun loadSettings(): AppSettings =
+        runCatching { json.decodeFromString(AppSettings.serializer(), settingsFile().readText()) }
+            .getOrDefault(AppSettings())
+
+    fun saveSettings(settings: AppSettings) {
+        settingsFile().writeText(json.encodeToString(AppSettings.serializer(), settings))
+    }
+
+    private fun customersDirectory(): File =
+        File(context.filesDir, "customers").apply { mkdirs() }
+
+    fun listCustomers(): List<CustomerProfile> =
+        customersDirectory().listFiles { it.extension == "json" }
+            ?.mapNotNull { file ->
+                runCatching { json.decodeFromString(CustomerProfile.serializer(), file.readText()) }.getOrNull()
+            }
+            ?.sortedBy { it.name.lowercase() }
+            ?: emptyList()
+
+    fun saveCustomer(customer: CustomerProfile) {
+        File(customersDirectory(), "${customer.id}.json")
+            .writeText(json.encodeToString(CustomerProfile.serializer(), customer))
+    }
+
+    fun deleteCustomer(customerId: String) {
+        File(customersDirectory(), "${customerId}.json").delete()
+        listSites().filter { it.customerId == customerId }.forEach { deleteSite(it.id) }
+    }
+
+    private fun sitesDirectory(): File =
+        File(context.filesDir, "customer_sites").apply { mkdirs() }
+
+    fun listSites(customerId: String? = null): List<CustomerSite> =
+        sitesDirectory().listFiles { it.extension == "json" }
+            ?.mapNotNull { file ->
+                runCatching { json.decodeFromString(CustomerSite.serializer(), file.readText()) }.getOrNull()
+            }
+            ?.filter { customerId == null || it.customerId == customerId }
+            ?.sortedBy { it.name.lowercase() }
+            ?: emptyList()
+
+    fun saveSite(site: CustomerSite) {
+        File(sitesDirectory(), "${site.id}.json")
+            .writeText(json.encodeToString(CustomerSite.serializer(), site))
+    }
+
+    fun deleteSite(siteId: String) {
+        File(sitesDirectory(), "${siteId}.json").delete()
+    }
+
+    fun importSettingsLogo(uri: Uri): File? {
+        return runCatching {
+            val directory = File(context.filesDir, "settings").apply { mkdirs() }
+            val extension = when (context.contentResolver.getType(uri)) {
+                "image/png" -> "png"
+                "image/webp" -> "webp"
+                else -> "jpg"
+            }
+            val destination = File(directory, "logo.$extension")
+            val input = context.contentResolver.openInputStream(uri) ?: error("Unable to open selected logo")
+            input.use { source -> destination.outputStream().use { output -> source.copyTo(output) } }
+            destination
+        }.getOrNull()
     }
 
     private fun reportsDirectory(): File =
