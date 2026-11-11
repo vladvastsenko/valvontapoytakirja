@@ -11,6 +11,12 @@ data class InspectionReport(
     val folderPath: String = "",
     val customerId: String = "",
     val siteId: String = "",
+    val customerName: String = "",
+    val customerBusinessId: String = "",
+    val customerAddress: String = "",
+    val customerPostalCode: String = "",
+    val customerCity: String = "",
+    val siteName: String = "",
     val templateName: String = "",
     val siteAddress: String = "",
     val clientOrRepresentative: String = "",
@@ -35,7 +41,8 @@ data class InspectionReport(
 data class CustomReportField(
     val id: String = UUID.randomUUID().toString(),
     val label: String = "",
-    val value: String = ""
+    val value: String = "",
+    val sourceDefinitionId: String = ""
 )
 
 @Serializable
