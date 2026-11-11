@@ -185,7 +185,7 @@ private fun TarkastusApp() {
             onDeleteCustomer = { id -> repository.deleteCustomer(id); customers = repository.listCustomers(); sites = repository.listSites() },
             onSaveSite = { site -> repository.saveSite(site); sites = repository.listSites() },
             onDeleteSite = { id -> repository.deleteSite(id); sites = repository.listSites() },
-            onRemoveLogo = { if (appSettings.logoPath.isNotBlank()) repository.deletePhoto(appSettings.logoPath); saveAppSettings(appSettings.copy(logoPath = "")) },
+            onRemoveLogo = { saveAppSettings(appSettings.copy(logoPath = "")) },
             onBack = { showSettings = false }
         )
     } else if (active == null) {
