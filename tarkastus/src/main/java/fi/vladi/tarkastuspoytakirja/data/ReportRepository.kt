@@ -78,7 +78,7 @@ class ReportRepository(private val context: Context) {
                 "image/webp" -> "webp"
                 else -> "jpg"
             }
-            val destination = File(directory, "logo.$extension")
+            val destination = File(directory, "logo_${Instant.now().toEpochMilli()}.$extension")
             val input = context.contentResolver.openInputStream(uri) ?: error("Unable to open selected logo")
             input.use { source -> destination.outputStream().use { output -> source.copyTo(output) } }
             destination
