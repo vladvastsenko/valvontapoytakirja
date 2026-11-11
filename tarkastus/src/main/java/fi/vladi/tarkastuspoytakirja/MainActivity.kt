@@ -11,7 +11,6 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -19,30 +18,18 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
-import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.Checkbox
-import androidx.compose.material3.DropdownMenu
-import androidx.compose.material3.DropdownMenuItem
-import androidx.compose.material3.DatePicker
-import androidx.compose.material3.DatePickerDialog
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Surface
-import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -57,6 +44,7 @@ import androidx.compose.ui.unit.dp
 import androidx.core.content.FileProvider
 import fi.vladi.tarkastuspoytakirja.data.ReportRepository
 import fi.vladi.tarkastuspoytakirja.model.CustomReportField
+import fi.vladi.tarkastuspoytakirja.model.InspectionObservation
 import fi.vladi.tarkastuspoytakirja.model.InspectionReport
 import fi.vladi.tarkastuspoytakirja.model.ReportPhoto
 import fi.vladi.tarkastuspoytakirja.pdf.ReportPdfGenerator
@@ -87,6 +75,8 @@ private fun TarkastusApp() {
     var templates by remember { mutableStateOf(repository.listTemplates()) }
     var currentReport by remember { mutableStateOf<InspectionReport?>(null) }
     var pendingCameraFile by remember { mutableStateOf<File?>(null) }
+    var pendingCameraObservationId by remember { mutableStateOf<String?>(null) }
+    var pendingGalleryObservationId by remember { mutableStateOf<String?>(null) }
 
     fun saveReport(report: InspectionReport) {
         currentReport = report
@@ -98,23 +88,40 @@ private fun TarkastusApp() {
         contract = ActivityResultContracts.TakePicture()
     ) { success ->
         val file = pendingCameraFile
+        val observationId = pendingCameraObservationId
         val report = currentReport
-        if (success && file != null && report != null && file.exists() && file.length() > 0) {
-            saveReport(report.copy(photos = report.photos + ReportPhoto(filePath = file.absolutePath)))
+        if (success && file != null && observationId != null && report != null && file.exists() && file.length() > 0) {
+            val updated = report.copy(observations = report.observations.map { observation ->
+                if (observation.id == observationId) {
+                    observation.copy(photos = observation.photos + ReportPhoto(filePath = file.absolutePath))
+                } else observation
+            })
+            saveReport(updated)
         } else if (file != null) {
             file.delete()
         }
         pendingCameraFile = null
+        pendingCameraObservationId = null
     }
 
     val galleryLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.PickMultipleVisualMedia(12)
     ) { uris ->
-        val report = currentReport ?: return@rememberLauncherForActivityResult
-        val imported = uris.mapNotNull { uri ->
-            repository.importPhoto(report.id, uri)?.let { ReportPhoto(filePath = it.absolutePath) }
+        val report = currentReport
+        val observationId = pendingGalleryObservationId
+        if (report != null && observationId != null) {
+            val imported = uris.mapNotNull { uri ->
+                repository.importPhoto(report.id, uri)?.let { ReportPhoto(filePath = it.absolutePath) }
+            }
+            if (imported.isNotEmpty()) {
+                saveReport(report.copy(observations = report.observations.map { observation ->
+                    if (observation.id == observationId) {
+                        observation.copy(photos = observation.photos + imported)
+                    } else observation
+                }))
+            }
         }
-        if (imported.isNotEmpty()) saveReport(report.copy(photos = report.photos + imported))
+        pendingGalleryObservationId = null
     }
 
     val logoLauncher = rememberLauncherForActivityResult(
@@ -133,12 +140,21 @@ private fun TarkastusApp() {
         HomeScreen(
             reports = reports,
             templates = templates,
-            onCreateFromTemplate = { template -> saveReport(template.copy(id = java.util.UUID.randomUUID().toString(), createdAt = LocalDate.now().toString(), templateName = "", photos = emptyList(), signatureStrokes = emptyList())) },
+            onCreateFromTemplate = { template ->
+                saveReport(template.copy(
+                    id = java.util.UUID.randomUUID().toString(),
+                    createdAt = LocalDate.now().toString(),
+                    templateName = "",
+                    observations = if (template.observations.isEmpty()) listOf(InspectionObservation())
+                        else template.observations.map { it.copy(photos = emptyList()) },
+                    signatureStrokes = emptyList()
+                ))
+            },
             onCreate = {
-                val newReport = InspectionReport(
+                saveReport(InspectionReport(
                     inspectionDate = LocalDate.now().toString(),
-                    )
-                saveReport(newReport)
+                    observations = listOf(InspectionObservation())
+                ))
             },
             onOpen = { currentReport = it }
         )
@@ -151,14 +167,21 @@ private fun TarkastusApp() {
                 reports = repository.listReports()
                 currentReport = null
             },
-            onCamera = {
+            onCamera = { observationId ->
                 val file = repository.createCameraPhotoFile(active.id)
                 pendingCameraFile = file
+                pendingCameraObservationId = observationId
                 cameraLauncher.launch(repository.cameraUri(file))
             },
-            onGallery = { galleryLauncher.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)) },
+            onGallery = { observationId ->
+                pendingGalleryObservationId = observationId
+                galleryLauncher.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly))
+            },
             onPickLogo = { logoLauncher.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)) },
-            onSaveTemplate = { name -> repository.saveTemplate(active, name); templates = repository.listTemplates() },
+            onSaveTemplate = { name ->
+                repository.saveTemplate(active, name)
+                templates = repository.listTemplates()
+            },
             onRemoveLogo = {
                 if (active.logoPath.isNotBlank()) repository.deletePhoto(active.logoPath)
                 saveReport(active.copy(logoPath = ""))
@@ -173,9 +196,13 @@ private fun TarkastusApp() {
                 }
                 context.startActivity(Intent.createChooser(sendIntent, "Jaa tarkastuspöytäkirja"))
             },
-            onDeletePhoto = { path ->
+            onDeletePhoto = { observationId, path ->
                 repository.deletePhoto(path)
-                saveReport(active.copy(photos = active.photos.filterNot { it.filePath == path }))
+                saveReport(active.copy(observations = active.observations.map { observation ->
+                    if (observation.id == observationId) {
+                        observation.copy(photos = observation.photos.filterNot { it.filePath == path })
+                    } else observation
+                }))
             }
         )
     }
@@ -215,12 +242,11 @@ private fun HomeScreen(
                     modifier = Modifier.fillMaxWidth().clickable { onOpen(report) },
                     shape = RoundedCornerShape(12.dp)
                 ) {
-                    Column(Modifier.padding(16.dp)) {
+                    Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
                         Text(report.siteAddress.ifBlank { "Uusi pöytäkirja" }, fontWeight = FontWeight.SemiBold)
                         if (report.folderPath.isNotBlank()) Text("Kansio: " + report.folderPath, style = MaterialTheme.typography.bodySmall)
                         Text("Tarkastuspäivä: ${report.inspectionDate.ifBlank { "—" }}")
-                        Text("Tulos: ${report.inspectionResult.ifBlank { "Ei valittu" }}")
-                        Text("${report.photos.size} valokuvaa", style = MaterialTheme.typography.bodySmall)
+                        Text("${report.observations.size} havaintoa", style = MaterialTheme.typography.bodySmall)
                     }
                 }
             }
@@ -235,13 +261,13 @@ private fun EditorScreen(
     report: InspectionReport,
     onChange: (InspectionReport) -> Unit,
     onBack: () -> Unit,
-    onCamera: () -> Unit,
-    onGallery: () -> Unit,
+    onCamera: (String) -> Unit,
+    onGallery: (String) -> Unit,
     onPickLogo: () -> Unit,
     onRemoveLogo: () -> Unit,
     onSaveTemplate: (String) -> Unit,
     onExport: () -> Unit,
-    onDeletePhoto: (String) -> Unit
+    onDeletePhoto: (String, String) -> Unit
 ) {
     Column(
         modifier = Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(16.dp),
@@ -290,10 +316,18 @@ private fun EditorScreen(
         Field("Tilaaja / kohteen edustaja", report.clientOrRepresentative) { onChange(report.copy(clientOrRepresentative = it)) }
         Field("Tilaajan puhelinnumero", report.clientPhone) { onChange(report.copy(clientPhone = it)) }
         Field("Tilaajan sähköposti", report.clientEmail) { onChange(report.copy(clientEmail = it)) }
-        SectionTitle("2. TARKASTUKSEN SISÄLTÖ")
-        Field("Tarkastuksen kuvaus", report.description, minLines = 5) {
-            onChange(report.copy(description = it))
+
+        SectionTitle("2. TARKASTUKSEN TARKOITUS JA LAAJUUS")
+        Field("Tarkastuksen tarkoitus ja laajuus", report.purposeAndScope, minLines = 4) {
+            onChange(report.copy(purposeAndScope = it))
         }
+
+        SectionTitle("3. YLEISET HUOMIOT")
+        Field("Yleiset huomiot", report.generalObservations, minLines = 4) {
+            onChange(report.copy(generalObservations = it))
+        }
+
+        SectionTitle("4. OMAT LISÄKENTÄT")
         report.customFields.forEach { customField ->
             Card(modifier = Modifier.fillMaxWidth()) {
                 Column(Modifier.padding(12.dp), verticalArrangement = Arrangement.spacedBy(7.dp)) {
@@ -316,54 +350,73 @@ private fun EditorScreen(
         OutlinedButton(
             onClick = { onChange(report.copy(customFields = report.customFields + CustomReportField(label = "Uusi kenttä"))) },
             modifier = Modifier.fillMaxWidth()
-        ) { Text("+ Lisää kenttä") }
+        ) { Text("+ Lisää oma kenttä") }
 
-        SectionTitle("3. VALOKUVAT")
-        Text("Voit ottaa kuvan kameralla tai valita useita kuvia galleriasta.")
-        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-            OutlinedButton(onClick = onCamera, modifier = Modifier.weight(1f)) { Text("Avaa kamera") }
-            OutlinedButton(onClick = onGallery, modifier = Modifier.weight(1f)) { Text("Galleria") }
-        }
-        report.photos.forEach { photo ->
-            PhotoCard(
-                photo = photo,
-                onCaptionChange = { caption ->
-                    onChange(report.copy(photos = report.photos.map { if (it.id == photo.id) it.copy(caption = caption) else it }))
-                },
-                onDelete = { onDeletePhoto(photo.filePath) }
-            )
-        }
-
-        SectionTitle("4. TARKASTUKSEN TULOS")
-        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-            if (report.inspectionResult == "HYVÄKSYTTY") {
-                Button(
-                    onClick = { onChange(report.copy(inspectionResult = "HYVÄKSYTTY")) },
-                    modifier = Modifier.weight(1f),
-                    colors = ButtonDefaults.buttonColors(containerColor = androidx.compose.ui.graphics.Color(0xFF168447))
-                ) { Text("Hyväksytty") }
-            } else {
-                OutlinedButton(
-                    onClick = { onChange(report.copy(inspectionResult = "HYVÄKSYTTY")) },
-                    modifier = Modifier.weight(1f)
-                ) { Text("Hyväksytty") }
+        SectionTitle("5. HAVAITUT PUUTTEET JA VIRHEET")
+        report.observations.forEachIndexed { index, observation ->
+            Card(
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(16.dp)
+            ) {
+                Column(Modifier.padding(12.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                    Text("HAVAinto ${index + 1}", style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold)
+                    Field("Tila / sijainti", observation.location) { value ->
+                        onChange(report.copy(observations = report.observations.map {
+                            if (it.id == observation.id) it.copy(location = value) else it
+                        }))
+                    }
+                    Field("Havaitun puutteen kuvaus", observation.description, minLines = 2) { value ->
+                        onChange(report.copy(observations = report.observations.map {
+                            if (it.id == observation.id) it.copy(description = value) else it
+                        }))
+                    }
+                    Field("Suositeltu korjaustoimenpide", observation.recommendedAction, minLines = 2) { value ->
+                        onChange(report.copy(observations = report.observations.map {
+                            if (it.id == observation.id) it.copy(recommendedAction = value) else it
+                        }))
+                    }
+                    observation.photos.forEach { photo ->
+                        PhotoCard(
+                            photo = photo,
+                            onCaptionChange = { caption ->
+                                onChange(report.copy(observations = report.observations.map { item ->
+                                    if (item.id == observation.id) {
+                                        item.copy(photos = item.photos.map { if (it.id == photo.id) it.copy(caption = caption) else it })
+                                    } else item
+                                }))
+                            },
+                            onDelete = { onDeletePhoto(observation.id, photo.filePath) }
+                        )
+                    }
+                    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                        OutlinedButton(onClick = { onCamera(observation.id) }, modifier = Modifier.weight(1f)) {
+                            Text("Ota kuva")
+                        }
+                        OutlinedButton(onClick = { onGallery(observation.id) }, modifier = Modifier.weight(1f)) {
+                            Text("Galleriasta")
+                        }
+                        OutlinedButton(
+                            onClick = {
+                                observation.photos.forEach { onDeletePhoto(observation.id, it.filePath) }
+                                onChange(report.copy(observations = report.observations.filterNot { it.id == observation.id }))
+                            },
+                            modifier = Modifier.weight(1f)
+                        ) { Text("Poista") }
+                    }
+                }
             }
-            if (report.inspectionResult == "HYLÄTTY") {
-                Button(
-                    onClick = { onChange(report.copy(inspectionResult = "HYLÄTTY")) },
-                    modifier = Modifier.weight(1f),
-                    colors = ButtonDefaults.buttonColors(containerColor = androidx.compose.ui.graphics.Color(0xFFC62828))
-                ) { Text("Hylätty") }
-            } else {
-                OutlinedButton(
-                    onClick = { onChange(report.copy(inspectionResult = "HYLÄTTY")) },
-                    modifier = Modifier.weight(1f)
-                ) { Text("Hylätty") }
-            }
         }
-        Field("Lisähuomiot", report.additionalNotes, minLines = 3) { onChange(report.copy(additionalNotes = it)) }
+        OutlinedButton(
+            onClick = { onChange(report.copy(observations = report.observations + InspectionObservation())) },
+            modifier = Modifier.fillMaxWidth()
+        ) { Text("+ Lisää havainto") }
 
-        SectionTitle("5. TARKASTAJA")
+        SectionTitle("6. YHTEENVETO")
+        Field("Johtopäätökset ja tarvittavat toimenpiteet", report.summary, minLines = 4) {
+            onChange(report.copy(summary = it))
+        }
+
+        SectionTitle("7. TARKASTAJA")
         Field("Tarkastajan nimi", report.inspectorName) { onChange(report.copy(inspectorName = it)) }
         Field("Sertifikaattinumero", report.inspectorCertificateNumber) { onChange(report.copy(inspectorCertificateNumber = it)) }
         Field("Puhelin", report.inspectorPhone) { onChange(report.copy(inspectorPhone = it)) }
@@ -390,69 +443,6 @@ private fun EditorScreen(
 private fun SectionTitle(title: String) {
     Spacer(Modifier.height(10.dp))
     Text(title, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
-}
-
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-private fun DateField(
-    label: String,
-    value: String,
-    onDateSelected: (String) -> Unit
-) {
-    var showPicker by remember { mutableStateOf(false) }
-    val dateFormatter = remember { DateTimeFormatter.ofPattern("dd.MM.yyyy") }
-    val initialMillis = remember(value) {
-        runCatching {
-            LocalDate.parse(value).atStartOfDay(ZoneOffset.UTC).toInstant().toEpochMilli()
-        }.getOrElse {
-            LocalDate.now().atStartOfDay(ZoneOffset.UTC).toInstant().toEpochMilli()
-        }
-    }
-    val displayDate = remember(value) {
-        runCatching { LocalDate.parse(value).format(dateFormatter) }.getOrDefault("")
-    }
-
-    OutlinedButton(
-        onClick = { showPicker = true },
-        modifier = Modifier.fillMaxWidth()
-    ) {
-        Column(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalAlignment = Alignment.Start
-        ) {
-            Text(label, style = MaterialTheme.typography.labelSmall)
-            Text(displayDate.ifBlank { "Valitse päivämäärä" })
-        }
-    }
-
-    if (showPicker) {
-        val pickerState = rememberDatePickerState(initialSelectedDateMillis = initialMillis)
-        DatePickerDialog(
-            onDismissRequest = { showPicker = false },
-            confirmButton = {
-                TextButton(
-                    onClick = {
-                        pickerState.selectedDateMillis?.let { millis ->
-                            val selectedDate = Instant.ofEpochMilli(millis)
-                                .atZone(ZoneOffset.UTC)
-                                .toLocalDate()
-                            onDateSelected(selectedDate.toString())
-                        }
-                        showPicker = false
-                    }
-                ) {
-                    Text("Valitse")
-                }
-            },
-            dismissButton = {
-                TextButton(onClick = { showPicker = false }) {
-                    Text("Peruuta")
-                }
-            }
-        ) {
-            DatePicker(state = pickerState)
-        }
-    }
 }
 
 @Composable
@@ -486,15 +476,61 @@ private fun PhotoCard(
             if (bitmap != null) {
                 Image(
                     bitmap = bitmap,
-                    contentDescription = "Valokuva",
+                    contentDescription = "Havaintokuva",
                     modifier = Modifier.fillMaxWidth().height(180.dp),
                     contentScale = ContentScale.Crop
                 )
             } else {
                 Text("Kuvaa ei voitu näyttää: ${File(photo.filePath).name}")
             }
-            Field("Kommentti (valinnainen)", photo.caption, minLines = 2, onValueChange = onCaptionChange)
+            Field("Kuvan kommentti (valinnainen)", photo.caption, minLines = 2, onValueChange = onCaptionChange)
             TextButton(onClick = onDelete) { Text("Poista kuva") }
+        }
+    }
+}
+
+@Composable
+private fun DateField(
+    label: String,
+    value: String,
+    onDateSelected: (String) -> Unit
+) {
+    var showPicker by remember { mutableStateOf(false) }
+    val dateFormatter = remember { DateTimeFormatter.ofPattern("dd.MM.yyyy") }
+    val initialMillis = remember(value) {
+        runCatching {
+            LocalDate.parse(value).atStartOfDay(ZoneOffset.UTC).toInstant().toEpochMilli()
+        }.getOrElse {
+            LocalDate.now().atStartOfDay(ZoneOffset.UTC).toInstant().toEpochMilli()
+        }
+    }
+    val displayDate = remember(value) {
+        runCatching { LocalDate.parse(value).format(dateFormatter) }.getOrDefault("")
+    }
+
+    OutlinedButton(onClick = { showPicker = true }, modifier = Modifier.fillMaxWidth()) {
+        Column(modifier = Modifier.fillMaxWidth(), horizontalAlignment = Alignment.Start) {
+            Text(label, style = MaterialTheme.typography.labelSmall)
+            Text(displayDate.ifBlank { "Valitse päivämäärä" })
+        }
+    }
+
+    if (showPicker) {
+        val pickerState = androidx.compose.material3.rememberDatePickerState(initialSelectedDateMillis = initialMillis)
+        androidx.compose.material3.DatePickerDialog(
+            onDismissRequest = { showPicker = false },
+            confirmButton = {
+                TextButton(onClick = {
+                    pickerState.selectedDateMillis?.let { millis ->
+                        val selectedDate = Instant.ofEpochMilli(millis).atZone(ZoneOffset.UTC).toLocalDate()
+                        onDateSelected(selectedDate.toString())
+                    }
+                    showPicker = false
+                }) { Text("Valitse") }
+            },
+            dismissButton = { TextButton(onClick = { showPicker = false }) { Text("Peruuta") } }
+        ) {
+            androidx.compose.material3.DatePicker(state = pickerState)
         }
     }
 }
