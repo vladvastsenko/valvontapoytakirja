@@ -26,6 +26,7 @@ object ReportPdfGenerator {
         }
         writer.field("Kohde", report.siteAddress)
         writer.field("Tilaaja / kohteen edustaja", report.clientOrRepresentative)
+        writer.field("Tilaajan puhelinnumero", report.clientPhone)
         writer.field("Tilaajan sähköposti", report.clientEmail)
         writer.field("Vedeneristäjän nimi", report.installerName)
         writer.field("Sertifikaattinumero", report.installerCertificateNumber)
@@ -67,6 +68,9 @@ object ReportPdfGenerator {
         writer.field("Lattian pinta-ala (m²)", report.floorAreaM2)
         writer.field("Lattia – valmistajan vaatima menekki (kg/m² tai l/m²)", report.floorRequiredWaterproofingConsumptionPerM2)
         writer.field("Lattia – käytetty kokonaismäärä (kg tai l)", report.floorWaterproofingConsumptionLitres)
+        if (report.waterproofingSpecSource.isNotBlank()) {
+            writer.field("Valmistajan tuotetietojen lähde", report.waterproofingSpecSource)
+        }
 
         writer.section("KUIVAKALVON PAKSUUS")
         writer.field("Seinät – mitattu kuivakalvon paksuus (mm)", report.wallDryFilmThicknessMm)
@@ -162,8 +166,39 @@ object ReportPdfGenerator {
             bitmap.recycle()
         }
 
-        private fun nextPage() {
+        private fun finishCurrentPage(footerText: String = "") {
+            val footerPaint = Paint(bodyPaint).apply {
+                textSize = 8.5f
+                color = Color.DKGRAY
+            }
+            page.canvas.drawLine(
+                margin,
+                pageHeight - 34f,
+                pageWidth - margin,
+                pageHeight - 34f,
+                Paint(Paint.ANTI_ALIAS_FLAG).apply {
+                    color = Color.LTGRAY
+                    strokeWidth = 0.6f
+                }
+            )
+            if (footerText.isNotBlank()) {
+                val lines = wrapCaption(footerText, footerPaint, pageWidth - margin * 2 - 70f).take(2)
+                lines.forEachIndexed { index, line ->
+                    page.canvas.drawText(line, margin, pageHeight - 18f + index * 10f, footerPaint)
+                }
+            }
+            val pageLabel = "Sivu $pageNumber"
+            page.canvas.drawText(
+                pageLabel,
+                pageWidth - margin - footerPaint.measureText(pageLabel),
+                pageHeight - 18f,
+                footerPaint
+            )
             document.finishPage(page)
+        }
+
+        private fun nextPage() {
+            finishCurrentPage()
             page = startPage()
         }
 
@@ -343,27 +378,7 @@ object ReportPdfGenerator {
         }
 
         fun finish(footerText: String) {
-            if (footerText.isNotBlank()) {
-                val footerPaint = Paint(bodyPaint).apply {
-                    textSize = 8.5f
-                    color = Color.DKGRAY
-                }
-                val lines = wrapCaption(footerText, footerPaint, pageWidth - margin * 2).take(2)
-                page.canvas.drawLine(
-                    margin,
-                    pageHeight - 34f,
-                    pageWidth - margin,
-                    pageHeight - 34f,
-                    Paint(Paint.ANTI_ALIAS_FLAG).apply {
-                        color = Color.LTGRAY
-                        strokeWidth = 0.6f
-                    }
-                )
-                lines.forEachIndexed { index, line ->
-                    page.canvas.drawText(line, margin, pageHeight - 18f + index * 10f, footerPaint)
-                }
-            }
-            document.finishPage(page)
+            finishCurrentPage(footerText)
         }
     }
 }
