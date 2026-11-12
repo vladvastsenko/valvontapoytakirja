@@ -193,6 +193,55 @@ private fun ValvontaApp() {
             onPickLogo = {
                 settingsLogoLauncher.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly))
             },
+            onRemoveLogo = { saveAppSettings(appSettings.copy(logoPath = "")) },
+            onBack = { showSettings = false }
+        )
+    } else if (active == null) {
+        HomeScreen(
+            reports = reports,
+            templates = templates,
+            onCreateFromTemplate = { template ->
+                saveReport(applySettingsSnapshot(template.copy(
+                    id = java.util.UUID.randomUUID().toString(),
+                    createdAt = LocalDate.now().toString(),
+                    templateName = "",
+                    photos = emptyList(),
+                    signatureStrokes = emptyList()
+                )))
+            },
+            onCreate = {
+                val newReport = InspectionReport(
+                    inspectionDate = LocalDate.now().toString(),
+                    workStartDate = LocalDate.now().toString()
+                )
+                saveReport(applySettingsSnapshot(newReport))
+            },
+            onOpen = { currentReport = it },
+            onSettings = { showSettings = true }
+        )
+    } else {
+        EditorScreen(
+            report = active,
+            customers = customers,
+            sites = sites,
+            onChange = ::saveReport,
+            onBack = {
+                repository.save(active)
+                reports = repository.listReports()
+                currentReport = null
+            },
+            onCamera = {
+                val file = repository.createCameraPhotoFile(active.id)
+                pendingCameraFile = file
+                cameraLauncher.launch(repository.cameraUri(file))
+            },
+            onGallery = {
+                galleryLauncher.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly))
+            },
+            onSaveTemplate = { name ->
+                repository.saveTemplate(active, name)
+                templates = repository.listTemplates()
+            },
             onExport = {
                 val pdf = ReportPdfGenerator.generate(context, active)
                 val uri = FileProvider.getUriForFile(context, "${context.packageName}.fileprovider", pdf)
@@ -203,9 +252,9 @@ private fun ValvontaApp() {
                 }
                 context.startActivity(Intent.createChooser(sendIntent, "Jaa valvontapöytäkirja"))
             },
-            onDeletePhoto = { path ->
-                repository.deletePhoto(path)
-                saveReport(active.copy(photos = active.photos.filterNot { it.filePath == path }))
+            onDeletePhoto = { photoPath ->
+                repository.deletePhoto(photoPath)
+                saveReport(active.copy(photos = active.photos.filterNot { it.filePath == photoPath }))
             }
         )
     }
