@@ -107,6 +107,7 @@ private fun UnifiedApp() {
     var customers by remember { mutableStateOf(repository.listCustomers()) }
     var sites by remember { mutableStateOf(repository.listSites()) }
     var selectedModule by remember { mutableStateOf<String?>(null) }
+    var showSettings by remember { mutableStateOf(false) }
 
     BackHandler(enabled = selectedModule != null || showSettings) {
         if (showSettings) showSettings = false else selectedModule = null
@@ -214,7 +215,6 @@ private fun ValvontaApp(onExit: () -> Unit, onOpenSettings: () -> Unit) {
     var appSettings by remember { mutableStateOf(repository.loadSettings()) }
     var customers by remember { mutableStateOf(repository.listCustomers()) }
     var sites by remember { mutableStateOf(repository.listSites()) }
-    var showSettings by remember { mutableStateOf(false) }
     var currentReport by remember { mutableStateOf<InspectionReport?>(null) }
     var pendingCameraFile by remember { mutableStateOf<File?>(null) }
 
