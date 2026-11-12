@@ -55,6 +55,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.core.content.FileProvider
+import fi.vladi.tarkastuspoytakirja.MainActivity as TarkastusMainActivity
 import fi.vladi.valvontapoytakirja.data.MaterialCatalog
 import fi.vladi.valvontapoytakirja.data.ReportRepository
 import fi.vladi.valvontapoytakirja.model.AppSettings
@@ -90,7 +91,7 @@ class MainActivity : ComponentActivity() {
         setContent {
             MaterialTheme {
                 Surface(modifier = Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background) {
-                    ValvontaApp()
+                    UnifiedLauncher()
                 }
             }
         }
@@ -98,7 +99,67 @@ class MainActivity : ComponentActivity() {
 }
 
 @Composable
-private fun ValvontaApp() {
+private fun UnifiedLauncher() {
+    val context = LocalContext.current
+    var showValvoja by remember { mutableStateOf(false) }
+    var openSettings by remember { mutableStateOf(false) }
+
+    if (showValvoja) {
+        ValvontaApp(
+            initialShowSettings = openSettings,
+            onBackToLauncher = {
+                showValvoja = false
+                openSettings = false
+            }
+        )
+    } else {
+        UnifiedStartScreen(
+            onValvoja = {
+                openSettings = false
+                showValvoja = true
+            },
+            onTarkastus = {
+                context.startActivity(Intent(context, TarkastusMainActivity::class.java))
+            },
+            onSettings = {
+                openSettings = true
+                showValvoja = true
+            }
+        )
+    }
+}
+
+@Composable
+private fun UnifiedStartScreen(
+    onValvoja: () -> Unit,
+    onTarkastus: () -> Unit,
+    onSettings: () -> Unit
+) {
+    Column(
+        modifier = Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(24.dp),
+        verticalArrangement = Arrangement.spacedBy(16.dp)
+    ) {
+        Spacer(Modifier.height(28.dp))
+        Text("Valvoja", style = MaterialTheme.typography.headlineLarge, fontWeight = FontWeight.Bold)
+        Text("Valitse luotavan pöytäkirjan tyyppi.")
+        Button(onClick = onValvoja, modifier = Modifier.fillMaxWidth()) {
+            Text("Valvontapöytäkirja")
+        }
+        OutlinedButton(onClick = onTarkastus, modifier = Modifier.fillMaxWidth()) {
+            Text("Tarkastuspöytäkirja")
+        }
+        Spacer(Modifier.height(8.dp))
+        OutlinedButton(onClick = onSettings, modifier = Modifier.fillMaxWidth()) {
+            Text("Yhteiset asetukset")
+        }
+    }
+}
+
+@Composable
+private fun ValvontaApp(
+    initialShowSettings: Boolean = false,
+    onBackToLauncher: () -> Unit = {}
+) {
     val context = LocalContext.current
     val repository = remember { ReportRepository(context) }
     var reports by remember { mutableStateOf(repository.listReports()) }
@@ -106,7 +167,7 @@ private fun ValvontaApp() {
     var appSettings by remember { mutableStateOf(repository.loadSettings()) }
     var customers by remember { mutableStateOf(repository.listCustomers()) }
     var sites by remember { mutableStateOf(repository.listSites()) }
-    var showSettings by remember { mutableStateOf(false) }
+    var showSettings by remember { mutableStateOf(initialShowSettings) }
     var currentReport by remember { mutableStateOf<InspectionReport?>(null) }
     var pendingCameraFile by remember { mutableStateOf<File?>(null) }
 
@@ -217,7 +278,8 @@ private fun ValvontaApp() {
                 saveReport(applySettingsSnapshot(newReport))
             },
             onOpen = { currentReport = it },
-            onSettings = { showSettings = true }
+            onSettings = { showSettings = true },
+            onBackToLauncher = onBackToLauncher
         )
     } else {
         EditorScreen(
@@ -267,7 +329,8 @@ private fun HomeScreen(
     onCreateFromTemplate: (InspectionReport) -> Unit,
     onCreate: () -> Unit,
     onOpen: (InspectionReport) -> Unit,
-    onSettings: () -> Unit
+    onSettings: () -> Unit,
+    onBackToLauncher: () -> Unit
 ) {
     Column(
         modifier = Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(20.dp),
@@ -275,6 +338,7 @@ private fun HomeScreen(
     ) {
         Text("Valvoja", style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.Bold)
         Text("Märkätilojen vedeneristyksen tarkastusraportit")
+        TextButton(onClick = onBackToLauncher) { Text("← Takaisin asiakirjan valintaan") }
         Button(onClick = onCreate, modifier = Modifier.fillMaxWidth()) {
             Text("Uusi pöytäkirja")
         }
