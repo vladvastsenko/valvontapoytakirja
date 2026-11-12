@@ -15,6 +15,7 @@ import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.gestures.detectDragGestures
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.aspectRatio
@@ -25,6 +26,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
@@ -638,79 +640,92 @@ private fun PhotoMarkupEditor(
     onCancel: () -> Unit,
     onSave: (String) -> Unit
 ) {
-    val context = LocalContext.current
     val sourcePath = photo.annotatedPath.takeIf { it.isNotBlank() && File(it).exists() } ?: photo.filePath
     val bitmap = remember(sourcePath) { BitmapFactory.decodeFile(sourcePath) }
     var strokes by remember(photo.id) { mutableStateOf<List<List<Offset>>>(emptyList()) }
 
     Column(
         modifier = Modifier.fillMaxSize().padding(12.dp),
-        verticalArrangement = Arrangement.spacedBy(10.dp)
+        verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
-        Text("Muokkaa valokuvaa", style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.Bold)
-        Text("Piirrä sormella tai kynällä kuvan päälle. Punainen viiva näkyy myös PDF-raportissa.")
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Text("Muokkaa valokuvaa", style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.Bold)
+            Spacer(Modifier.weight(1f))
+            TextButton(onClick = onCancel) { Text("Takaisin") }
+        }
+        Text("Piirrä sormella tai kynällä kuvan päälle. Merkinnät näkyvät myös PDF-raportissa.")
         if (bitmap != null) {
-            Canvas(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .aspectRatio(bitmap.width.toFloat() / bitmap.height.toFloat())
-                    .pointerInput(photo.id, bitmap.width, bitmap.height) {
+            BoxWithConstraints(
+                modifier = Modifier.fillMaxWidth().weight(1f),
+                contentAlignment = Alignment.Center
+            ) {
+                val scale = minOf(
+                    constraints.maxWidth.toFloat() / bitmap.width,
+                    constraints.maxHeight.toFloat() / bitmap.height
+                ).coerceAtMost(1f)
+                val imageWidth = (bitmap.width * scale).toInt().coerceAtLeast(1)
+                val imageHeight = (bitmap.height * scale).toInt().coerceAtLeast(1)
+                Canvas(
+                    modifier = Modifier.size(
+                        with(androidx.compose.ui.platform.LocalDensity.current) { imageWidth.toDp() },
+                        with(androidx.compose.ui.platform.LocalDensity.current) { imageHeight.toDp() }
+                    ).pointerInput(photo.id, imageWidth, imageHeight) {
                         detectDragGestures(
                             onDragStart = { point ->
-                                strokes = strokes + listOf(listOf(
-                                    Offset(
-                                        (point.x / size.width).coerceIn(0f, 1f),
-                                        (point.y / size.height).coerceIn(0f, 1f)
-                                    )
-                                ))
+                                val normalized = Offset(
+                                    (point.x / size.width).coerceIn(0f, 1f),
+                                    (point.y / size.height).coerceIn(0f, 1f)
+                                )
+                                strokes = strokes + listOf(listOf(normalized))
                             },
                             onDrag = { change, _ ->
                                 change.consume()
-                                val point = Offset(
+                                val normalized = Offset(
                                     (change.position.x / size.width).coerceIn(0f, 1f),
                                     (change.position.y / size.height).coerceIn(0f, 1f)
                                 )
                                 if (strokes.isNotEmpty()) {
-                                    strokes = strokes.dropLast(1) + listOf(strokes.last() + point)
+                                    strokes = strokes.dropLast(1) + listOf(strokes.last() + normalized)
                                 }
                             }
                         )
                     }
-            ) {
-                drawImage(
-                    image = bitmap.asImageBitmap(),
-                    dstSize = IntSize(size.width.toInt(), size.height.toInt())
-                )
-                strokes.forEach { points ->
-                    if (points.isNotEmpty()) {
-                        val path = ComposePath()
-                        points.forEachIndexed { index, point ->
-                            val x = point.x * size.width
-                            val y = point.y * size.height
-                            if (index == 0) path.moveTo(x, y) else path.lineTo(x, y)
-                        }
-                        if (points.size == 1) {
-                            drawCircle(
-                                color = Color.Red,
-                                radius = size.minDimension * 0.006f,
-                                center = Offset(points.first().x * size.width, points.first().y * size.height)
-                            )
-                        } else {
-                            drawPath(
-                                path = path,
-                                color = Color.Red,
-                                style = Stroke(
-                                    width = size.minDimension * 0.009f,
-                                    cap = StrokeCap.Round,
-                                    join = StrokeJoin.Round
+                ) {
+                    drawImage(
+                        image = bitmap.asImageBitmap(),
+                        dstSize = IntSize(size.width.toInt(), size.height.toInt())
+                    )
+                    strokes.forEach { points ->
+                        if (points.isNotEmpty()) {
+                            val path = ComposePath()
+                            points.forEachIndexed { index, point ->
+                                val x = point.x * size.width
+                                val y = point.y * size.height
+                                if (index == 0) path.moveTo(x, y) else path.lineTo(x, y)
+                            }
+                            if (points.size == 1) {
+                                drawCircle(
+                                    color = Color.Red,
+                                    radius = size.minDimension * 0.006f,
+                                    center = Offset(points.first().x * size.width, points.first().y * size.height)
                                 )
-                            )
+                            } else {
+                                drawPath(
+                                    path = path,
+                                    color = Color.Red,
+                                    style = Stroke(
+                                        width = size.minDimension * 0.009f,
+                                        cap = StrokeCap.Round,
+                                        join = StrokeJoin.Round
+                                    )
+                                )
+                            }
                         }
                     }
                 }
             }
         } else {
-            Text("Kuvaa ei voitu avata.")
+            Text("Kuvaa ei voitu avata.", modifier = Modifier.weight(1f))
         }
         Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
             OutlinedButton(
@@ -724,7 +739,6 @@ private fun PhotoMarkupEditor(
                 modifier = Modifier.weight(1f)
             ) { Text("Tyhjennä") }
         }
-        Spacer(Modifier.weight(1f))
         Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
             OutlinedButton(onClick = onCancel, modifier = Modifier.weight(1f)) { Text("Peruuta") }
             Button(
@@ -765,7 +779,9 @@ private fun PhotoMarkupEditor(
                             File(photo.filePath).parentFile,
                             "marked_${System.currentTimeMillis()}_${photo.id.take(8)}.png"
                         )
-                        outputFile.outputStream().use { outputBitmap.compress(Bitmap.CompressFormat.PNG, 100, it) }
+                        outputFile.outputStream().use {
+                            outputBitmap.compress(Bitmap.CompressFormat.PNG, 100, it)
+                        }
                         outputBitmap.recycle()
                         onSave(outputFile.absolutePath)
                     }
