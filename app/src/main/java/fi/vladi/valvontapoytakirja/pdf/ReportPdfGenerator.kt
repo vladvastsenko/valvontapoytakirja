@@ -18,13 +18,17 @@ import java.io.FileOutputStream
 object ReportPdfGenerator {
     fun generate(context: Context, report: InspectionReport): File {
         val document = PdfDocument()
-        val writer = PdfWriter(document, report.logoPath)
+        val writer = PdfWriter(document, report.logoPath, report.headerText, report.footerText)
 
         writer.title("VALVONTAPÖYTÄKIRJA")
         if (report.folderPath.isNotBlank()) {
             writer.field("Kansio / alikansio", report.folderPath)
         }
-        writer.field("Kohde", report.siteAddress)
+        writer.field("Tilaaja", report.customerName)
+        writer.field("Y-tunnus", report.customerBusinessId)
+        writer.field("Tilaajan osoite", listOf(report.customerAddress, report.customerPostalCode, report.customerCity).filter { it.isNotBlank() }.joinToString(", "))
+        writer.field("Kohde", listOf(report.siteName, report.siteAddress).filter { it.isNotBlank() }.joinToString(" – "))
+        report.siteFieldValues.filter { it.label.isNotBlank() && it.value.isNotBlank() }.forEach { writer.field(it.label, it.value) }
         writer.field("Tilaaja / kohteen edustaja", report.clientOrRepresentative)
         writer.field("Tilaajan puhelinnumero", report.clientPhone)
         writer.field("Tilaajan sähköposti", report.clientEmail)
@@ -95,7 +99,7 @@ object ReportPdfGenerator {
             writer.photos(report.photos)
         }
 
-        writer.finish(report.footerText)
+        writer.finish()
         val exportDirectory = File(context.cacheDir, "exports").apply { mkdirs() }
         val safeName = report.siteAddress
             .replace(Regex("[^A-Za-z0-9ÄÖÅäöå_-]+"), "_")
@@ -109,7 +113,9 @@ object ReportPdfGenerator {
 
     private class PdfWriter(
         private val document: PdfDocument,
-        private val logoPath: String
+        private val logoPath: String,
+        private val headerText: String,
+        private val footerText: String
     ) {
         private val pageWidth = 595
         private val pageHeight = 842
@@ -144,6 +150,16 @@ object ReportPdfGenerator {
             val info = PdfDocument.PageInfo.Builder(pageWidth, pageHeight, pageNumber).create()
             val newPage = document.startPage(info)
             y = 42f
+            if (headerText.isNotBlank()) {
+                val headerPaint = Paint(bodyPaint).apply { textSize = 8.5f; color = Color.DKGRAY }
+                val headerWidth = if (logoPath.isNotBlank() && pageNumber == 1) pageWidth / 2f - margin else pageWidth - margin * 2
+                val lines = wrapCaption(headerText, headerPaint, headerWidth).take(1)
+                lines.forEach { line ->
+                    val x = if (logoPath.isNotBlank() && pageNumber == 1) pageWidth - margin - headerPaint.measureText(line) else margin
+                    newPage.canvas.drawText(line, x, 27f, headerPaint)
+                }
+                y = 48f
+            }
             return newPage
         }
 
@@ -166,7 +182,7 @@ object ReportPdfGenerator {
             bitmap.recycle()
         }
 
-        private fun finishCurrentPage(footerText: String = "") {
+        private fun finishCurrentPage() {
             val footerPaint = Paint(bodyPaint).apply {
                 textSize = 8.5f
                 color = Color.DKGRAY
@@ -377,8 +393,8 @@ object ReportPdfGenerator {
             return lines
         }
 
-        fun finish(footerText: String) {
-            finishCurrentPage(footerText)
+        fun finish() {
+            finishCurrentPage()
         }
     }
 }
