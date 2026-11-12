@@ -57,6 +57,9 @@ import androidx.compose.ui.unit.dp
 import androidx.core.content.FileProvider
 import fi.vladi.valvontapoytakirja.data.MaterialCatalog
 import fi.vladi.valvontapoytakirja.data.ReportRepository
+import fi.vladi.valvontapoytakirja.model.AppSettings
+import fi.vladi.valvontapoytakirja.model.CustomerProfile
+import fi.vladi.valvontapoytakirja.model.CustomerSite
 import fi.vladi.valvontapoytakirja.model.InspectionReport
 import fi.vladi.valvontapoytakirja.model.MaterialEntry
 import fi.vladi.valvontapoytakirja.model.ReportPhoto
@@ -99,8 +102,29 @@ private fun ValvontaApp() {
     val repository = remember { ReportRepository(context) }
     var reports by remember { mutableStateOf(repository.listReports()) }
     var templates by remember { mutableStateOf(repository.listTemplates()) }
+    var appSettings by remember { mutableStateOf(repository.loadSettings()) }
+    var customers by remember { mutableStateOf(repository.listCustomers()) }
+    var sites by remember { mutableStateOf(repository.listSites()) }
+    var showSettings by remember { mutableStateOf(false) }
     var currentReport by remember { mutableStateOf<InspectionReport?>(null) }
     var pendingCameraFile by remember { mutableStateOf<File?>(null) }
+
+    fun saveAppSettings(settings: AppSettings) {
+        appSettings = settings
+        repository.saveSettings(settings)
+    }
+
+    fun applySettingsSnapshot(report: InspectionReport): InspectionReport = report.copy(
+        inspectorName = appSettings.inspectorName,
+        inspectorCertificateNumber = appSettings.inspectorCertificateNumber,
+        inspectorPhone = appSettings.inspectorPhone,
+        inspectorEmail = appSettings.inspectorEmail,
+        signatureStrokes = appSettings.signatureStrokes,
+        logoPath = appSettings.logoPath,
+        headerText = appSettings.headerText,
+        footerText = appSettings.footerText,
+        settingsSnapshotCreated = true
+    )
 
     fun saveReport(report: InspectionReport) {
         currentReport = report
@@ -142,20 +166,68 @@ private fun ValvontaApp() {
         }
     }
 
+    val settingsLogoLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.PickVisualMedia()
+    ) { uri ->
+        if (uri != null) {
+            repository.importSettingsLogo(uri)?.let { logo ->
+                saveAppSettings(appSettings.copy(logoPath = logo.absolutePath))
+            }
+        }
+    }
+
     val active = currentReport
-    if (active == null) {
+    if (active == null && showSettings) {
+        SettingsScreen(
+            settings = appSettings,
+            customers = customers,
+            sites = sites,
+            onSettingsChange = ::saveAppSettings,
+            onSaveCustomer = { customer ->
+                repository.saveCustomer(customer)
+                customers = repository.listCustomers()
+            },
+            onDeleteCustomer = { id ->
+                repository.deleteCustomer(id)
+                customers = repository.listCustomers()
+                sites = repository.listSites()
+            },
+            onSaveSite = { site ->
+                repository.saveSite(site)
+                sites = repository.listSites()
+            },
+            onDeleteSite = { id ->
+                repository.deleteSite(id)
+                sites = repository.listSites()
+            },
+            onPickLogo = {
+                settingsLogoLauncher.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly))
+            },
+            onRemoveLogo = { saveAppSettings(appSettings.copy(logoPath = "")) },
+            onBack = { showSettings = false }
+        )
+    } else if (active == null) {
         HomeScreen(
             reports = reports,
             templates = templates,
-            onCreateFromTemplate = { template -> saveReport(template.copy(id = java.util.UUID.randomUUID().toString(), createdAt = LocalDate.now().toString(), templateName = "", photos = emptyList(), signatureStrokes = emptyList())) },
+            onCreateFromTemplate = { template ->
+                saveReport(applySettingsSnapshot(template.copy(
+                    id = java.util.UUID.randomUUID().toString(),
+                    createdAt = LocalDate.now().toString(),
+                    templateName = "",
+                    photos = emptyList(),
+                    signatureStrokes = emptyList()
+                )))
+            },
             onCreate = {
                 val newReport = InspectionReport(
                     inspectionDate = LocalDate.now().toString(),
                     workStartDate = LocalDate.now().toString()
                 )
-                saveReport(newReport)
+                saveReport(applySettingsSnapshot(newReport))
             },
-            onOpen = { currentReport = it }
+            onOpen = { currentReport = it },
+            onSettings = { showSettings = true }
         )
     } else {
         EditorScreen(
@@ -202,7 +274,8 @@ private fun HomeScreen(
     templates: List<InspectionReport>,
     onCreateFromTemplate: (InspectionReport) -> Unit,
     onCreate: () -> Unit,
-    onOpen: (InspectionReport) -> Unit
+    onOpen: (InspectionReport) -> Unit,
+    onSettings: () -> Unit
 ) {
     Column(
         modifier = Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(20.dp),
@@ -212,6 +285,9 @@ private fun HomeScreen(
         Text("Märkätilojen vedeneristyksen tarkastusraportit")
         Button(onClick = onCreate, modifier = Modifier.fillMaxWidth()) {
             Text("Uusi pöytäkirja")
+        }
+        OutlinedButton(onClick = onSettings, modifier = Modifier.fillMaxWidth()) {
+            Text("Asetukset")
         }
         if (templates.isNotEmpty()) {
             Text("Pöytäkirjamallit", style = MaterialTheme.typography.titleLarge)
