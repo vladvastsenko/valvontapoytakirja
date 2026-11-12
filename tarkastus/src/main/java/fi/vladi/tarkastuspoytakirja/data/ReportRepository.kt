@@ -86,7 +86,7 @@ class ReportRepository(private val context: Context) {
     }
 
     private fun reportsDirectory(): File =
-        File(context.filesDir, "reports").apply { mkdirs() }
+        File(context.filesDir, "tarkastus_reports").apply { mkdirs() }
 
     fun listReports(): List<InspectionReport> =
         reportsDirectory().listFiles { file -> file.extension == "json" }
@@ -97,7 +97,7 @@ class ReportRepository(private val context: Context) {
             ?: emptyList()
 
     private fun templatesDirectory(): File =
-        File(context.filesDir, "templates").apply { mkdirs() }
+        File(context.filesDir, "tarkastus_templates").apply { mkdirs() }
 
     fun listTemplates(): List<InspectionReport> =
         templatesDirectory().listFiles { file -> file.extension == "json" }
