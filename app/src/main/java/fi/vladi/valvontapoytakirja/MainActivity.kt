@@ -63,6 +63,7 @@ import fi.vladi.valvontapoytakirja.model.CustomerSite
 import fi.vladi.valvontapoytakirja.model.InspectionReport
 import fi.vladi.valvontapoytakirja.model.MaterialEntry
 import fi.vladi.valvontapoytakirja.model.ReportPhoto
+import fi.vladi.valvontapoytakirja.model.SiteFieldValue
 import fi.vladi.valvontapoytakirja.pdf.ReportPdfGenerator
 import java.io.File
 import java.time.Instant
@@ -232,6 +233,8 @@ private fun ValvontaApp() {
     } else {
         EditorScreen(
             report = active,
+            customers = customers,
+            sites = sites,
             onChange = ::saveReport,
             onBack = {
                 repository.save(active)
@@ -324,6 +327,8 @@ private fun HomeScreen(
 @Composable
 private fun EditorScreen(
     report: InspectionReport,
+    customers: List<CustomerProfile>,
+    sites: List<CustomerSite>,
     onChange: (InspectionReport) -> Unit,
     onBack: () -> Unit,
     onCamera: () -> Unit,
@@ -334,6 +339,11 @@ private fun EditorScreen(
     onExport: () -> Unit,
     onDeletePhoto: (String) -> Unit
 ) {
+    var customerMenuExpanded by remember(report.id) { mutableStateOf(false) }
+    var siteMenuExpanded by remember(report.id) { mutableStateOf(false) }
+    val selectedCustomer = customers.firstOrNull { it.id == report.customerId }
+    val availableSites = sites.filter { it.customerId == report.customerId }
+
     Column(
         modifier = Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(16.dp),
         verticalArrangement = Arrangement.spacedBy(10.dp)
@@ -345,6 +355,75 @@ private fun EditorScreen(
         }
         Text("VALVONTAPÖYTÄKIRJA", style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.Bold)
         Text("Täytä tiedot. Muutokset tallentuvat automaattisesti tähän puhelimeen.", style = MaterialTheme.typography.bodySmall)
+
+        SectionTitle("VAKIOASIAKAS JA KOHDE")
+        Box {
+            OutlinedButton(onClick = { customerMenuExpanded = true }, modifier = Modifier.fillMaxWidth()) {
+                Text(selectedCustomer?.name ?: "Valitse vakioasiakas")
+            }
+            DropdownMenu(expanded = customerMenuExpanded, onDismissRequest = { customerMenuExpanded = false }) {
+                customers.forEach { customer ->
+                    DropdownMenuItem(text = { Text(customer.name) }, onClick = {
+                        onChange(report.copy(
+                            customerId = customer.id,
+                            siteId = "",
+                            customerName = customer.name,
+                            customerBusinessId = customer.businessId,
+                            customerAddress = customer.address,
+                            customerPostalCode = customer.postalCode,
+                            customerCity = customer.city,
+                            siteName = "",
+                            siteAddress = "",
+                            clientOrRepresentative = customer.contactPerson,
+                            clientPhone = customer.phone,
+                            clientEmail = customer.email,
+                            siteFieldValues = emptyList()
+                        ))
+                        customerMenuExpanded = false
+                    })
+                }
+            }
+        }
+        if (selectedCustomer != null) {
+            Box {
+                OutlinedButton(
+                    onClick = { siteMenuExpanded = true },
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Text(report.siteName.ifBlank { "Valitse kohde" })
+                }
+                DropdownMenu(expanded = siteMenuExpanded, onDismissRequest = { siteMenuExpanded = false }) {
+                    availableSites.forEach { site ->
+                        DropdownMenuItem(text = { Text(site.name) }, onClick = {
+                            val previousValues = report.siteFieldValues.associateBy { it.definitionId }
+                            onChange(report.copy(
+                                siteId = site.id,
+                                siteName = site.name,
+                                siteAddress = site.address,
+                                siteFieldValues = site.fieldDefinitions.map { definition ->
+                                    SiteFieldValue(
+                                        definitionId = definition.id,
+                                        label = definition.label,
+                                        value = previousValues[definition.id]?.value.orEmpty()
+                                    )
+                                }
+                            ))
+                            siteMenuExpanded = false
+                        })
+                    }
+                }
+            }
+            if (report.siteFieldValues.isNotEmpty()) {
+                Text("Kohteen lisätiedot", style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.SemiBold)
+                report.siteFieldValues.forEachIndexed { index, field ->
+                    Field(field.label, field.value) { value ->
+                        onChange(report.copy(siteFieldValues = report.siteFieldValues.mapIndexed { fieldIndex, item ->
+                            if (fieldIndex == index) item.copy(value = value) else item
+                        }))
+                    }
+                }
+            }
+        }
 
         SectionTitle("PDF:N ULKOASU")
         Text("Oma logo ensimmäisen sivun yläosaan")
