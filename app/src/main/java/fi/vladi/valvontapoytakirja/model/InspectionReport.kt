@@ -70,6 +70,15 @@ data class InspectionReport(
     val footerText: String = "",
     val headerText: String = "",
     val settingsSnapshotCreated: Boolean = false,
+    val customerId: String = "",
+    val siteId: String = "",
+    val customerName: String = "",
+    val customerBusinessId: String = "",
+    val customerAddress: String = "",
+    val customerPostalCode: String = "",
+    val customerCity: String = "",
+    val siteName: String = "",
+    val siteFieldValues: List<SiteFieldValue> = emptyList(),
 
     // Valokuvat tallennetaan sovelluksen omaan tallennustilaan
     val photos: List<ReportPhoto> = emptyList()
@@ -160,4 +169,12 @@ data class CustomerSite(
 data class SiteFieldDefinition(
     val id: String = UUID.randomUUID().toString(),
     val label: String = ""
+)
+
+
+@Serializable
+data class SiteFieldValue(
+    val definitionId: String = "",
+    val label: String = "",
+    val value: String = ""
 )
