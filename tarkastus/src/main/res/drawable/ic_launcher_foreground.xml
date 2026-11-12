@@ -1,0 +1,79 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+
+    <!-- Building silhouette -->
+    <path
+        android:fillColor="#183653"
+        android:pathData="M77,30 L96,18 L105,25 L105,78 L77,78 Z" />
+    <path
+        android:strokeColor="#7793AE"
+        android:strokeWidth="2"
+        android:strokeLineCap="round"
+        android:fillColor="#00000000"
+        android:pathData="M82,36 L96,27 L100,30 L100,70 M88,42 L88,53 M96,38 L96,51 M88,60 L88,71 M96,58 L96,71" />
+
+    <!-- Clipboard -->
+    <path
+        android:fillColor="#12365A"
+        android:pathData="M23,17 H72 Q77,17 77,22 V88 Q77,93 72,93 H23 Q18,93 18,88 V22 Q18,17 23,17 Z" />
+    <path
+        android:fillColor="#F5F8FC"
+        android:pathData="M25,23 H69 Q72,23 72,26 V84 Q72,87 69,87 H25 Q22,87 22,84 V26 Q22,23 25,23 Z" />
+    <path
+        android:fillColor="#AAB8C8"
+        android:pathData="M38,13 H58 Q63,13 63,18 V25 H33 V18 Q33,13 38,13 Z" />
+    <path
+        android:fillColor="#DCE5EF"
+        android:pathData="M40,16 H56 V20 H40 Z" />
+
+    <!-- Checklist lines -->
+    <path
+        android:fillColor="#00000000"
+        android:strokeColor="#1B72C9"
+        android:strokeWidth="3.2"
+        android:strokeLineCap="round"
+        android:strokeLineJoin="round"
+        android:pathData="M28,39 L33,44 L42,33 M28,58 L33,63 L42,52" />
+    <path
+        android:fillColor="#8FA2B6"
+        android:pathData="M47,36 H65 Q67,36 67,38 Q67,40 65,40 H47 Q45,40 45,38 Q45,36 47,36 Z M47,55 H65 Q67,55 67,57 Q67,59 65,59 H47 Q45,59 45,57 Q45,55 47,55 Z M29,73 H65 Q67,73 67,75 Q67,77 65,77 H29 Q27,77 27,75 Q27,73 29,73 Z" />
+
+    <!-- Pen -->
+    <path
+        android:fillColor="#B7C8DA"
+        android:pathData="M10,34 Q10,31 13,30 L16,29 L22,74 L18,81 L14,75 Z" />
+    <path
+        android:fillColor="#254B70"
+        android:pathData="M13,34 L16,33 L21,73 L18,77 Z" />
+
+    <!-- Yellow safety helmet -->
+    <path
+        android:fillColor="#FFB91F"
+        android:pathData="M48,82 C49,67 60,56 74,56 C88,56 98,67 99,82 L103,85 L102,91 Q101,94 97,94 H53 Q49,94 48,91 L46,86 Z" />
+    <path
+        android:fillColor="#FFD45A"
+        android:pathData="M55,80 C57,67 64,60 74,60 C84,60 92,68 94,80 L87,83 H60 Z" />
+    <path
+        android:fillColor="#F39A0B"
+        android:pathData="M71,59 H77 V83 H71 Z M50,84 H99 V88 H50 Z" />
+    <path
+        android:fillColor="#FFE28A"
+        android:pathData="M59,69 C63,64 68,62 73,62 L68,80 H57 Z" />
+
+    <!-- Camera lens badge -->
+    <path
+        android:fillColor="#F4F7FB"
+        android:pathData="M9,82 H34 Q38,82 40,86 L43,91 V99 H7 V90 L9,82 Z" />
+    <path
+        android:fillColor="#17395D"
+        android:pathData="M16,87 H30 Q35,87 35,92 V95 H12 V92 Q12,87 16,87 Z" />
+    <path
+        android:fillColor="#6F91B4"
+        android:pathData="M18,89 H28 Q32,89 32,93 Q32,97 28,97 H18 Q14,97 14,93 Q14,89 18,89 Z" />
+    <path
+        android:fillColor="#17395D"
+        android:pathData="M20,91 H26 Q28,91 28,93 Q28,95 26,95 H20 Q18,95 18,93 Q18,91 20,91 Z" />
+</vector>
