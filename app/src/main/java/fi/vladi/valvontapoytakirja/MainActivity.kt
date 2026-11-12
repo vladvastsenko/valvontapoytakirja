@@ -156,17 +156,6 @@ private fun ValvontaApp() {
         if (imported.isNotEmpty()) saveReport(report.copy(photos = report.photos + imported))
     }
 
-    val logoLauncher = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.PickVisualMedia()
-    ) { uri ->
-        val report = currentReport ?: return@rememberLauncherForActivityResult
-        if (uri != null) {
-            repository.importLogo(report.id, uri)?.let { logo ->
-                saveReport(report.copy(logoPath = logo.absolutePath))
-            }
-        }
-    }
-
     val settingsLogoLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.PickVisualMedia()
     ) { uri ->
@@ -203,55 +192,6 @@ private fun ValvontaApp() {
             },
             onPickLogo = {
                 settingsLogoLauncher.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly))
-            },
-            onRemoveLogo = { saveAppSettings(appSettings.copy(logoPath = "")) },
-            onBack = { showSettings = false }
-        )
-    } else if (active == null) {
-        HomeScreen(
-            reports = reports,
-            templates = templates,
-            onCreateFromTemplate = { template ->
-                saveReport(applySettingsSnapshot(template.copy(
-                    id = java.util.UUID.randomUUID().toString(),
-                    createdAt = LocalDate.now().toString(),
-                    templateName = "",
-                    photos = emptyList(),
-                    signatureStrokes = emptyList()
-                )))
-            },
-            onCreate = {
-                val newReport = InspectionReport(
-                    inspectionDate = LocalDate.now().toString(),
-                    workStartDate = LocalDate.now().toString()
-                )
-                saveReport(applySettingsSnapshot(newReport))
-            },
-            onOpen = { currentReport = it },
-            onSettings = { showSettings = true }
-        )
-    } else {
-        EditorScreen(
-            report = active,
-            customers = customers,
-            sites = sites,
-            onChange = ::saveReport,
-            onBack = {
-                repository.save(active)
-                reports = repository.listReports()
-                currentReport = null
-            },
-            onCamera = {
-                val file = repository.createCameraPhotoFile(active.id)
-                pendingCameraFile = file
-                cameraLauncher.launch(repository.cameraUri(file))
-            },
-            onGallery = { galleryLauncher.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)) },
-            onPickLogo = { logoLauncher.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)) },
-            onSaveTemplate = { name -> repository.saveTemplate(active, name); templates = repository.listTemplates() },
-            onRemoveLogo = {
-                if (active.logoPath.isNotBlank()) repository.deletePhoto(active.logoPath)
-                saveReport(active.copy(logoPath = ""))
             },
             onExport = {
                 val pdf = ReportPdfGenerator.generate(context, active)
@@ -333,8 +273,6 @@ private fun EditorScreen(
     onBack: () -> Unit,
     onCamera: () -> Unit,
     onGallery: () -> Unit,
-    onPickLogo: () -> Unit,
-    onRemoveLogo: () -> Unit,
     onSaveTemplate: (String) -> Unit,
     onExport: () -> Unit,
     onDeletePhoto: (String) -> Unit
@@ -423,33 +361,6 @@ private fun EditorScreen(
                     }
                 }
             }
-        }
-
-        SectionTitle("PDF:N ULKOASU")
-        Text("Oma logo ensimmäisen sivun yläosaan")
-        if (report.logoPath.isNotBlank()) {
-            val logoBitmap = remember(report.logoPath) {
-                BitmapFactory.decodeFile(report.logoPath)?.asImageBitmap()
-            }
-            if (logoBitmap != null) {
-                Image(
-                    bitmap = logoBitmap,
-                    contentDescription = "Oma logo",
-                    modifier = Modifier.fillMaxWidth().height(76.dp),
-                    contentScale = ContentScale.Fit
-                )
-            }
-        }
-        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-            OutlinedButton(onClick = onPickLogo, modifier = Modifier.weight(1f)) {
-                Text(if (report.logoPath.isBlank()) "Valitse logo" else "Vaihda logo")
-            }
-            if (report.logoPath.isNotBlank()) {
-                OutlinedButton(onClick = onRemoveLogo) { Text("Poista logo") }
-            }
-        }
-        Field("Alatunniste PDF:n viimeisellä sivulla", report.footerText, minLines = 2) {
-            onChange(report.copy(footerText = it))
         }
 
         SectionTitle("1. TYÖMAA JA OSAPUOLET")
