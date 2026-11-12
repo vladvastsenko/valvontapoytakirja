@@ -235,15 +235,28 @@ object ReportPdfGenerator {
             field("Havaitun puutteen kuvaus", observation.description)
             field("Suositeltu korjaustoimenpide", observation.recommendedAction)
             if (observation.photos.isNotEmpty()) {
-                observation.photos.chunked(9).forEachIndexed { pageIndex, photos ->
-                    val rows = (photos.size + 2) / 3
-                    val verticalGaps = (rows - 1).coerceAtLeast(0) * 8f
-                    val minimumGridHeight = rows * 205f + verticalGaps
-                    ensureSpace(25f + minimumGridHeight + 10f)
-                    val availableHeight = pageHeight - 45f - y - 25f - verticalGaps - 10f
-                    val cellHeight = minOf(230f, availableHeight / rows)
-                    photoGridHeader(number, pageIndex + 1, (observation.photos.size + 8) / 9)
-                    drawPhotoGrid(photos, cellHeight)
+                var photoIndex = 0
+                var photoPageIndex = 0
+                while (photoIndex < observation.photos.size) {
+                    val remaining = observation.photos.size - photoIndex
+                    val remainingRows = (remaining + 2) / 3
+                    val availableHeight = pageHeight - 45f - y - 25f - 10f
+                    val rowsThatFitAtMinimumSize = kotlin.math.floor(
+                        (availableHeight + 8f) / (205f + 8f)
+                    ).toInt().coerceAtLeast(0)
+                    if (rowsThatFitAtMinimumSize == 0) {
+                        nextPage()
+                        continue
+                    }
+                    val rowsOnThisPage = minOf(remainingRows, rowsThatFitAtMinimumSize)
+                    val verticalGaps = (rowsOnThisPage - 1).coerceAtLeast(0) * 8f
+                    val cellHeight = minOf(230f, (availableHeight - verticalGaps) / rowsOnThisPage)
+                    val photosOnThisPage = minOf(remaining, rowsOnThisPage * 3)
+                    val pagePhotos = observation.photos.subList(photoIndex, photoIndex + photosOnThisPage)
+                    photoGridHeader(number, ++photoPageIndex, 0)
+                    drawPhotoGrid(pagePhotos, cellHeight)
+                    photoIndex += photosOnThisPage
+                    if (photoIndex < observation.photos.size) nextPage()
                 }
             }
             spacer(8f)
