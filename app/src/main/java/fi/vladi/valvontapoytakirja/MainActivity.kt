@@ -170,8 +170,7 @@ private fun UnifiedApp() {
         else -> ModuleSelectionScreen(
             onValvoja = { selectedModule = "valvoja" },
             onTarkastus = { selectedModule = "tarkastus" },
-            onSettings = onOpenSettings,
-            onExit = onExit
+            onSettings = { showSettings = true }
         )
     }
 }
@@ -281,7 +280,8 @@ private fun ValvontaApp(onExit: () -> Unit, onOpenSettings: () -> Unit) {
                 saveReport(applySettingsSnapshot(newReport))
             },
             onOpen = { currentReport = it },
-            onSettings = { showSettings = true }
+            onSettings = onOpenSettings,
+            onExit = onExit
         )
     } else {
         EditorScreen(
