@@ -68,6 +68,8 @@ data class InspectionReport(
     // PDF:n ulkoasu
     val logoPath: String = "",
     val footerText: String = "",
+    val headerText: String = "",
+    val settingsSnapshotCreated: Boolean = false,
 
     // Valokuvat tallennetaan sovelluksen omaan tallennustilaan
     val photos: List<ReportPhoto> = emptyList()
@@ -118,3 +120,44 @@ fun defaultMaterialEntries(): List<MaterialEntry> = listOf(
     val hasKiiltoProducts = category !in listOf("Kaivotyyppi", "Laatat")
     MaterialEntry(category = category, manufacturer = if (hasKiiltoProducts) "Kiilto" else "")
 }
+
+
+@Serializable
+data class AppSettings(
+    val logoPath: String = "",
+    val headerText: String = "",
+    val footerText: String = "",
+    val inspectorName: String = "",
+    val inspectorCertificateNumber: String = "",
+    val inspectorPhone: String = "",
+    val inspectorEmail: String = "",
+    val signatureStrokes: List<SignatureStroke> = emptyList()
+)
+
+@Serializable
+data class CustomerProfile(
+    val id: String = UUID.randomUUID().toString(),
+    val name: String = "",
+    val businessId: String = "",
+    val address: String = "",
+    val postalCode: String = "",
+    val city: String = "",
+    val contactPerson: String = "",
+    val phone: String = "",
+    val email: String = ""
+)
+
+@Serializable
+data class CustomerSite(
+    val id: String = UUID.randomUUID().toString(),
+    val customerId: String,
+    val name: String = "",
+    val address: String = "",
+    val fieldDefinitions: List<SiteFieldDefinition> = emptyList()
+)
+
+@Serializable
+data class SiteFieldDefinition(
+    val id: String = UUID.randomUUID().toString(),
+    val label: String = ""
+)
