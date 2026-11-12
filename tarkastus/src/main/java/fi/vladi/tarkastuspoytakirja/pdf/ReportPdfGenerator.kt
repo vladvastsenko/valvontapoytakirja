@@ -19,12 +19,28 @@ import java.io.FileOutputStream
 
 object ReportPdfGenerator {
     fun generate(context: Context, report: InspectionReport, settings: AppSettings = AppSettings()): File {
+        val firstPass = render(report, settings, totalPages = null)
+        val totalPages = firstPass.second
+        firstPass.first.close()
+
+        val finalPass = render(report, settings, totalPages)
+        val exportDirectory = File(context.cacheDir, "exports").apply { mkdirs() }
+        val safeName = report.siteAddress
+            .replace(Regex("[^A-Za-z0-9ÄÖÅäöå_-]+"), "_")
+            .trim('_')
+            .ifBlank { "kohde" }
+        val output = File(exportDirectory, "Tarkastuspoytakirja_$safeName.pdf")
+        FileOutputStream(output).use { finalPass.first.writeTo(it) }
+        finalPass.first.close()
+        return output
+    }
+
+    private fun render(report: InspectionReport, settings: AppSettings, totalPages: Int?): Pair<PdfDocument, Int> {
         val document = PdfDocument()
         val logoPath = if (report.settingsSnapshotCreated) report.logoPath else report.logoPath.ifBlank { settings.logoPath }
         val headerText = if (report.settingsSnapshotCreated) report.headerText else report.headerText.ifBlank { settings.headerText }
         val footerText = if (report.settingsSnapshotCreated) report.footerText else report.footerText.ifBlank { settings.footerText }
-        val writer = PdfWriter(document, logoPath, headerText, footerText)
-
+        val writer = PdfWriter(document, logoPath, headerText, footerText, totalPages)
         writer.title("TARKASTUSPÖYTÄKIRJA")
         if (report.customerName.isNotBlank()) writer.field("Tilaaja", report.customerName)
         if (report.customerBusinessId.isNotBlank()) writer.field("Y-tunnus", report.customerBusinessId)
@@ -36,56 +52,57 @@ object ReportPdfGenerator {
         writer.field("Tilaajan puhelinnumero", report.clientPhone)
         writer.field("Tilaajan sähköposti", report.clientEmail)
 
-        writer.section("TARKASTUKSEN TARKOITUS JA LAAJUUS")
-        writer.field("Tarkastuksen tarkoitus ja laajuus", report.purposeAndScope)
-
-        writer.section("YLEISET HUOMIOT")
-        writer.field("Yleiset huomiot", report.generalObservations)
-
-        if (report.customFields.isNotEmpty()) {
+        if (report.purposeAndScope.isNotBlank()) {
+            writer.section("TARKASTUKSEN TARKOITUS JA LAAJUUS")
+            writer.field("Tarkastuksen tarkoitus ja laajuus", report.purposeAndScope)
+        }
+        if (report.generalObservations.isNotBlank()) {
+            writer.section("YLEISET HUOMIOT")
+            writer.field("Yleiset huomiot", report.generalObservations)
+        }
+        val filledCustomFields = report.customFields.filter { it.label.isNotBlank() && it.value.isNotBlank() }
+        if (filledCustomFields.isNotEmpty()) {
             writer.section("OMAT LISÄKENTÄT")
-            report.customFields.forEach { field ->
-                writer.field(field.label.ifBlank { "Lisäkenttä" }, field.value)
-            }
+            filledCustomFields.forEach { field -> writer.field(field.label, field.value) }
         }
-
-        if (report.observations.isNotEmpty()) {
+        val filledObservations = report.observations.filter {
+            it.location.isNotBlank() || it.description.isNotBlank() || it.recommendedAction.isNotBlank() || it.photos.isNotEmpty()
+        }
+        if (filledObservations.isNotEmpty()) {
             writer.section("HAVAITUT PUUTTEET JA VIRHEET")
-            report.observations.forEachIndexed { index, observation ->
-                writer.observation(observation, index + 1)
-            }
+            filledObservations.forEachIndexed { index, observation -> writer.observation(observation, index + 1) }
+        }
+        if (report.summary.isNotBlank()) {
+            writer.section("YHTEENVETO")
+            writer.field("Johtopäätökset ja tarvittavat toimenpiteet", report.summary)
         }
 
-        writer.section("YHTEENVETO")
-        writer.field("Johtopäätökset ja tarvittavat toimenpiteet", report.summary)
-
-        writer.spacer(18f)
-        writer.section("TARKASTAJA")
-        writer.field("Nimi", if (report.settingsSnapshotCreated) report.inspectorName else report.inspectorName.ifBlank { settings.inspectorName })
-        writer.field("Sertifikaattinumero", if (report.settingsSnapshotCreated) report.inspectorCertificateNumber else report.inspectorCertificateNumber.ifBlank { settings.inspectorCertificateNumber })
-        writer.field("Puhelin", if (report.settingsSnapshotCreated) report.inspectorPhone else report.inspectorPhone.ifBlank { settings.inspectorPhone })
-        writer.field("Sähköposti", if (report.settingsSnapshotCreated) report.inspectorEmail else report.inspectorEmail.ifBlank { settings.inspectorEmail })
-        writer.field("Tarkastuspäivä", report.inspectionDate)
-        writer.signature(if (report.settingsSnapshotCreated) report.signatureStrokes else report.signatureStrokes.ifEmpty { settings.signatureStrokes })
-
+        val inspectorName = if (report.settingsSnapshotCreated) report.inspectorName else report.inspectorName.ifBlank { settings.inspectorName }
+        val inspectorCertificate = if (report.settingsSnapshotCreated) report.inspectorCertificateNumber else report.inspectorCertificateNumber.ifBlank { settings.inspectorCertificateNumber }
+        val inspectorPhone = if (report.settingsSnapshotCreated) report.inspectorPhone else report.inspectorPhone.ifBlank { settings.inspectorPhone }
+        val inspectorEmail = if (report.settingsSnapshotCreated) report.inspectorEmail else report.inspectorEmail.ifBlank { settings.inspectorEmail }
+        val signature = if (report.settingsSnapshotCreated) report.signatureStrokes else report.signatureStrokes.ifEmpty { settings.signatureStrokes }
+        if (inspectorName.isNotBlank() || inspectorCertificate.isNotBlank() || inspectorPhone.isNotBlank() || inspectorEmail.isNotBlank() || report.inspectionDate.isNotBlank() || signature.isNotEmpty()) {
+            writer.spacer(18f)
+            writer.section("TARKASTAJA")
+            writer.field("Nimi", inspectorName)
+            writer.field("Sertifikaattinumero", inspectorCertificate)
+            writer.field("Puhelin", inspectorPhone)
+            writer.field("Sähköposti", inspectorEmail)
+            writer.field("Tarkastuspäivä", report.inspectionDate)
+            writer.signature(signature)
+        }
         writer.finish()
-        val exportDirectory = File(context.cacheDir, "exports").apply { mkdirs() }
-        val safeName = report.siteAddress
-            .replace(Regex("[^A-Za-z0-9ÄÖÅäöå_-]+"), "_")
-            .trim('_')
-            .ifBlank { "kohde" }
-        val output = File(exportDirectory, "Tarkastuspoytakirja_$safeName.pdf")
-        FileOutputStream(output).use { document.writeTo(it) }
-        document.close()
-        return output
+        return document to writer.pageCount
     }
-
     private class PdfWriter(
         private val document: PdfDocument,
         private val logoPath: String,
         private val headerText: String,
-        private val footerText: String
+        private val footerText: String,
+        private val totalPages: Int?
     ) {
+        val pageCount: Int get() = pageNumber
         private val pageWidth = 595
         private val pageHeight = 842
         private val margin = 42f
@@ -165,7 +182,7 @@ object ReportPdfGenerator {
                     page.canvas.drawText(line, margin, pageHeight - 18f + index * 10f, footerPaint)
                 }
             }
-            val pageLabel = "Sivu $pageNumber"
+            val pageLabel = "$pageNumber/${totalPages ?: pageNumber}"
             page.canvas.drawText(
                 pageLabel,
                 pageWidth - margin - footerPaint.measureText(pageLabel),
@@ -208,7 +225,8 @@ object ReportPdfGenerator {
         }
 
         fun field(label: String, value: String) {
-            drawWrapped("$label: ${value.ifBlank { "—" }}", bodyPaint, 14f)
+            if (value.isBlank()) return
+            drawWrapped("$label: $value", bodyPaint, 14f)
         }
 
         fun observation(observation: InspectionObservation, number: Int) {
@@ -218,7 +236,9 @@ object ReportPdfGenerator {
             field("Suositeltu korjaustoimenpide", observation.recommendedAction)
             if (observation.photos.isNotEmpty()) {
                 observation.photos.chunked(9).forEachIndexed { pageIndex, photos ->
-                    nextPage()
+                    val rows = (photos.size + 2) / 3
+                    val gridHeight = rows * 176f + (rows - 1).coerceAtLeast(0) * 8f
+                    ensureSpace(28f + gridHeight + 10f)
                     photoGridHeader(number, pageIndex + 1, (observation.photos.size + 8) / 9)
                     drawPhotoGrid(photos)
                 }
@@ -229,16 +249,16 @@ object ReportPdfGenerator {
         private fun photoGridHeader(observationNumber: Int, pageIndex: Int, pageCount: Int) {
             val suffix = if (pageCount > 1) " ($pageIndex/$pageCount)" else ""
             page.canvas.drawText("HAVAINTO $observationNumber – VALOKUVAT$suffix", margin, y + 16f, sectionPaint)
-            y += 72f
+            y += 25f
         }
 
         private fun drawPhotoGrid(photos: List<ReportPhoto>) {
             val columns = 3
-            val rows = 3
+            val rows = (photos.size + columns - 1) / columns
             val horizontalGap = 8f
             val verticalGap = 8f
             val cellWidth = (pageWidth - margin * 2 - horizontalGap * (columns - 1)) / columns.toFloat()
-            val cellHeight = 218f
+            val cellHeight = 176f
             photos.forEachIndexed { index, photo ->
                 val row = index / columns
                 val column = index % columns
@@ -246,7 +266,7 @@ object ReportPdfGenerator {
                 val top = y + row * (cellHeight + verticalGap)
                 drawObservationPhoto(photo, left, top, cellWidth, cellHeight)
             }
-            y += rows * cellHeight + (rows - 1) * verticalGap
+            y += rows * cellHeight + (rows - 1).coerceAtLeast(0) * verticalGap + 10f
         }
 
         private fun drawObservationPhoto(photo: ReportPhoto, left: Float, top: Float, width: Float, height: Float) {
