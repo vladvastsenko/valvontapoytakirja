@@ -186,7 +186,7 @@ fun SettingsScreen(
             val draft = editingSite!!
             SettingsSection(if (draft.name.isBlank()) "UUSI KOHDE" else "KOHTEEN TIEDOT")
             SettingField("Kohteen nimi / tunniste", draft.name) { editingSite = draft.copy(name = it) }
-            SettingField("Kohteen osoite", draft.address, minLines = 2) { editingSite = draft.copy(address = it) }
+            SettingField("Kohteen tarkenne", draft.address, minLines = 2) { editingSite = draft.copy(address = it) }
             Text("Kohteen omat lisäkentät", style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.SemiBold)
             Text("Esimerkiksi huoneiston numero, rappu, kerros tai sopimusnumero. Nämä kentät tulevat näkyviin raporttiin.")
             draft.fieldDefinitions.forEach { definition ->
@@ -213,7 +213,7 @@ fun SettingsScreen(
                         onSaveSite(draft)
                         editingSite = null
                     },
-                    enabled = draft.name.isNotBlank() && draft.address.isNotBlank(),
+                    enabled = draft.name.isNotBlank(),
                     modifier = Modifier.weight(1f)
                 ) { Text("Tallenna kohde") }
                 TextButton(onClick = {
