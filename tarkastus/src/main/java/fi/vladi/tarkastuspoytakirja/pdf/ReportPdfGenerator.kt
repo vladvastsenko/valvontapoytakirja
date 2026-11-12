@@ -62,7 +62,7 @@ object ReportPdfGenerator {
         }
         val filledCustomFields = report.customFields.filter { it.label.isNotBlank() && it.value.isNotBlank() }
         if (filledCustomFields.isNotEmpty()) {
-            writer.section("OMAT LISÄKENTÄT")
+            if (report.customFieldsTitle.isNotBlank()) writer.section(report.customFieldsTitle.trim())
             filledCustomFields.forEach { field -> writer.field(field.label, field.value) }
         }
         val filledObservations = report.observations.filter {
@@ -237,10 +237,13 @@ object ReportPdfGenerator {
             if (observation.photos.isNotEmpty()) {
                 observation.photos.chunked(9).forEachIndexed { pageIndex, photos ->
                     val rows = (photos.size + 2) / 3
-                    val gridHeight = rows * 176f + (rows - 1).coerceAtLeast(0) * 8f
-                    ensureSpace(28f + gridHeight + 10f)
+                    val verticalGaps = (rows - 1).coerceAtLeast(0) * 8f
+                    val minimumGridHeight = rows * 205f + verticalGaps
+                    ensureSpace(25f + minimumGridHeight + 10f)
+                    val availableHeight = pageHeight - 45f - y - 25f - verticalGaps - 10f
+                    val cellHeight = minOf(230f, availableHeight / rows)
                     photoGridHeader(number, pageIndex + 1, (observation.photos.size + 8) / 9)
-                    drawPhotoGrid(photos)
+                    drawPhotoGrid(photos, cellHeight)
                 }
             }
             spacer(8f)
@@ -252,13 +255,12 @@ object ReportPdfGenerator {
             y += 25f
         }
 
-        private fun drawPhotoGrid(photos: List<ReportPhoto>) {
+        private fun drawPhotoGrid(photos: List<ReportPhoto>, cellHeight: Float) {
             val columns = 3
             val rows = (photos.size + columns - 1) / columns
             val horizontalGap = 8f
             val verticalGap = 8f
             val cellWidth = (pageWidth - margin * 2 - horizontalGap * (columns - 1)) / columns.toFloat()
-            val cellHeight = 176f
             photos.forEachIndexed { index, photo ->
                 val row = index / columns
                 val column = index % columns
@@ -270,7 +272,7 @@ object ReportPdfGenerator {
         }
 
         private fun drawObservationPhoto(photo: ReportPhoto, left: Float, top: Float, width: Float, height: Float) {
-            val captionHeight = 27f
+            val captionHeight = if (photo.caption.isBlank()) 0f else 27f
             val imageRect = RectF(left, top, left + width, top + height - captionHeight)
             val displayPath = photo.annotatedPath.takeIf { it.isNotBlank() && File(it).exists() } ?: photo.filePath
             val bitmap = BitmapFactory.decodeFile(displayPath)
