@@ -4,7 +4,7 @@ on:
   push:
     branches: [ main, android-app-mvp ]
   pull_request:
-    branches: [ main ]
+    branches: [ main, ci-base-unified ]
 
 jobs:
   build:
