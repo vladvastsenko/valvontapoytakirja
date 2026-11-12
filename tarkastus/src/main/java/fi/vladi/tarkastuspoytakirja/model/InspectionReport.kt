@@ -26,6 +26,7 @@ data class InspectionReport(
     val clientEmail: String = "",
     val purposeAndScope: String = "",
     val generalObservations: String = "",
+    val customFieldsTitle: String = "OMAT LISÄKENTÄT",
     val customFields: List<CustomReportField> = emptyList(),
     val observations: List<InspectionObservation> = emptyList(),
     val summary: String = "",
