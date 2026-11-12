@@ -424,7 +424,7 @@ private fun EditorScreen(
             }
         }
         if (report.customerId.isBlank()) {
-            Field("Kohteen osoite", report.siteAddress) { onChange(report.copy(siteAddress = it)) }
+            Field("Kohteen tarkenne", report.siteAddress) { onChange(report.copy(siteAddress = it)) }
             Field("Tilaaja / kohteen edustaja", report.clientOrRepresentative) { onChange(report.copy(clientOrRepresentative = it)) }
             Field("Tilaajan puhelinnumero", report.clientPhone) { onChange(report.copy(clientPhone = it)) }
             Field("Tilaajan sähköposti", report.clientEmail) { onChange(report.copy(clientEmail = it)) }
@@ -441,6 +441,9 @@ private fun EditorScreen(
         }
 
         SectionTitle("4. OMAT LISÄKENTÄT")
+        Field("Otsikko PDF-raportissa", report.customFieldsTitle) {
+            onChange(report.copy(customFieldsTitle = it))
+        }
         report.customFields.forEach { customField ->
             Card(modifier = Modifier.fillMaxWidth()) {
                 Column(Modifier.padding(12.dp), verticalArrangement = Arrangement.spacedBy(7.dp)) {
