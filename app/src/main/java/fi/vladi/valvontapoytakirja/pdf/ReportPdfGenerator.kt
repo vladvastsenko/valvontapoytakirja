@@ -30,7 +30,7 @@ object ReportPdfGenerator {
             .replace(Regex("[^A-Za-z0-9ÄÖÅäöå_-]+"), "_")
             .trim('_')
             .ifBlank { "kohde" }
-        val output = File(exportDirectory, "Valvontapoytakirja_$safeName.pdf")
+        val output = File(exportDirectory, "Valvontapoytakirja_${safeName}_${report.id.take(8)}.pdf")
         try {
             FileOutputStream(output).use { document.writeTo(it) }
         } finally {
