@@ -30,7 +30,7 @@ object ReportPdfGenerator {
             .replace(Regex("[^A-Za-z0-9ÄÖÅäöå_-]+"), "_")
             .trim('_')
             .ifBlank { "kohde" }
-        val output = File(exportDirectory, "Tarkastuspoytakirja_$safeName.pdf")
+        val output = File(exportDirectory, "Tarkastuspoytakirja_${safeName}_${report.id.take(8)}.pdf")
         FileOutputStream(output).use { finalPass.first.writeTo(it) }
         finalPass.first.close()
         PublicArchive.copyPdf(context, output)
