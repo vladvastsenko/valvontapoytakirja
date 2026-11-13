@@ -24,6 +24,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.ButtonDefaults
@@ -177,11 +178,6 @@ private fun ValvontaApp(
     }
 
     fun applySettingsSnapshot(report: InspectionReport): InspectionReport = report.copy(
-        inspectorName = appSettings.inspectorName,
-        inspectorCertificateNumber = appSettings.inspectorCertificateNumber,
-        inspectorPhone = appSettings.inspectorPhone,
-        inspectorEmail = appSettings.inspectorEmail,
-        signatureStrokes = appSettings.signatureStrokes,
         logoPath = appSettings.logoPath,
         headerText = appSettings.headerText,
         footerText = appSettings.footerText,
@@ -278,6 +274,10 @@ private fun ValvontaApp(
                 saveReport(applySettingsSnapshot(newReport))
             },
             onOpen = { currentReport = it },
+            onDeleteReport = { reportId ->
+                repository.deleteReport(reportId)
+                reports = repository.listReports()
+            },
             onSettings = { showSettings = true },
             onBackToLauncher = onBackToLauncher
         )
@@ -305,7 +305,7 @@ private fun ValvontaApp(
                 templates = repository.listTemplates()
             },
             onExport = {
-                val pdf = ReportPdfGenerator.generate(context, active)
+                val pdf = ReportPdfGenerator.generate(context, active, appSettings)
                 val uri = FileProvider.getUriForFile(context, "${context.packageName}.fileprovider", pdf)
                 val sendIntent = Intent(Intent.ACTION_SEND).apply {
                     type = "application/pdf"
@@ -329,9 +329,22 @@ private fun HomeScreen(
     onCreateFromTemplate: (InspectionReport) -> Unit,
     onCreate: () -> Unit,
     onOpen: (InspectionReport) -> Unit,
+    onDeleteReport: (String) -> Unit,
     onSettings: () -> Unit,
     onBackToLauncher: () -> Unit
 ) {
+    var sortMenuExpanded by remember { mutableStateOf(false) }
+    var sortMode by remember { mutableStateOf("newest") }
+    var reportToDelete by remember { mutableStateOf<InspectionReport?>(null) }
+    val sortedReports = remember(reports, sortMode) {
+        when (sortMode) {
+            "oldest" -> reports.sortedBy { it.createdAt }
+            "address_asc" -> reports.sortedBy { it.siteAddress.lowercase() }
+            "address_desc" -> reports.sortedByDescending { it.siteAddress.lowercase() }
+            else -> reports.sortedByDescending { it.createdAt }
+        }
+    }
+
     Column(
         modifier = Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(20.dp),
         verticalArrangement = Arrangement.spacedBy(12.dp)
@@ -353,24 +366,73 @@ private fun HomeScreen(
                 }
             }
         }
-        Text("Tallennetut pöytäkirjat", style = MaterialTheme.typography.titleLarge)
-        if (reports.isEmpty()) {
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Text("Tallennetut pöytäkirjat", style = MaterialTheme.typography.titleLarge, modifier = Modifier.weight(1f))
+            Box {
+                TextButton(onClick = { sortMenuExpanded = true }) { Text("Lajittelu") }
+                DropdownMenu(expanded = sortMenuExpanded, onDismissRequest = { sortMenuExpanded = false }) {
+                    DropdownMenuItem(text = { Text("Uusimmat ensin") }, onClick = {
+                        sortMode = "newest"
+                        sortMenuExpanded = false
+                    })
+                    DropdownMenuItem(text = { Text("Vanhimmat ensin") }, onClick = {
+                        sortMode = "oldest"
+                        sortMenuExpanded = false
+                    })
+                    DropdownMenuItem(text = { Text("Osoite A–Ö") }, onClick = {
+                        sortMode = "address_asc"
+                        sortMenuExpanded = false
+                    })
+                    DropdownMenuItem(text = { Text("Osoite Ö–A") }, onClick = {
+                        sortMode = "address_desc"
+                        sortMenuExpanded = false
+                    })
+                }
+            }
+        }
+        if (sortedReports.isEmpty()) {
             Text("Ei vielä tallennettuja pöytäkirjoja.")
         } else {
-            reports.forEach { report ->
+            sortedReports.forEach { report ->
                 Card(
-                    modifier = Modifier.fillMaxWidth().clickable { onOpen(report) },
+                    modifier = Modifier.fillMaxWidth(),
                     shape = RoundedCornerShape(12.dp)
                 ) {
-                    Column(Modifier.padding(16.dp)) {
-                        Text(report.siteAddress.ifBlank { "Uusi pöytäkirja" }, fontWeight = FontWeight.SemiBold)
-                        if (report.folderPath.isNotBlank()) Text("Kansio: " + report.folderPath, style = MaterialTheme.typography.bodySmall)
-                        Text("Tarkastuspäivä: ${report.inspectionDate.ifBlank { "—" }}")
-                        Text("Tulos: ${report.inspectionResult.ifBlank { "Ei valittu" }}")
-                        Text("${report.photos.size} valokuvaa", style = MaterialTheme.typography.bodySmall)
+                    Row(
+                        modifier = Modifier.padding(16.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        Column(
+                            modifier = Modifier.weight(1f).clickable { onOpen(report) },
+                            verticalArrangement = Arrangement.spacedBy(3.dp)
+                        ) {
+                            Text(report.siteAddress.ifBlank { "Uusi pöytäkirja" }, fontWeight = FontWeight.SemiBold)
+                            if (report.folderPath.isNotBlank()) Text("Kansio: " + report.folderPath, style = MaterialTheme.typography.bodySmall)
+                            Text("Tarkastuspäivä: ${report.inspectionDate.ifBlank { "—" }}")
+                            Text("Tulos: ${report.inspectionResult.ifBlank { "Ei valittu" }}")
+                            Text("${report.photos.size} valokuvaa", style = MaterialTheme.typography.bodySmall)
+                        }
+                        TextButton(onClick = { reportToDelete = report }) { Text("Poista") }
                     }
                 }
             }
+        }
+        reportToDelete?.let { report ->
+            AlertDialog(
+                onDismissRequest = { reportToDelete = null },
+                title = { Text("Poista pöytäkirja?") },
+                text = { Text("Haluatko varmasti poistaa raportin ”${report.siteAddress.ifBlank { "Uusi pöytäkirja" }}” ja siihen liittyvät valokuvat? Tätä ei voi perua.") },
+                confirmButton = {
+                    TextButton(onClick = {
+                        onDeleteReport(report.id)
+                        reportToDelete = null
+                    }) { Text("Poista") }
+                },
+                dismissButton = {
+                    TextButton(onClick = { reportToDelete = null }) { Text("Peruuta") }
+                }
+            )
         }
         Spacer(Modifier.height(20.dp))
         Text("Valvoja 0.4.7 • Tallennus tapahtuu tässä puhelimessa.", style = MaterialTheme.typography.bodySmall)
@@ -725,18 +787,10 @@ private fun EditorScreen(
         }
         Field("Lisähuomiot", report.additionalNotes, minLines = 3) { onChange(report.copy(additionalNotes = it)) }
 
-        SectionTitle("9. TARKASTAJA")
-        Field("Tarkastajan nimi", report.inspectorName) { onChange(report.copy(inspectorName = it)) }
-        Field("Sertifikaattinumero", report.inspectorCertificateNumber) { onChange(report.copy(inspectorCertificateNumber = it)) }
-        Field("Puhelin", report.inspectorPhone) { onChange(report.copy(inspectorPhone = it)) }
-        Field("Sähköposti", report.inspectorEmail) { onChange(report.copy(inspectorEmail = it)) }
+        SectionTitle("9. TARKASTUSPÄIVÄ")
         DateField("Tarkastuspäivä", report.inspectionDate) {
             onChange(report.copy(inspectionDate = it))
         }
-        SignaturePad(
-            strokes = report.signatureStrokes,
-            onChange = { onChange(report.copy(signatureStrokes = it)) }
-        )
 
         Spacer(Modifier.height(12.dp))
         OutlinedButton(onClick = { onSaveTemplate(report.siteAddress.ifBlank { "Uusi malli" }) }, modifier = Modifier.fillMaxWidth()) {
