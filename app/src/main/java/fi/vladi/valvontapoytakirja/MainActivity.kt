@@ -4,6 +4,7 @@ import android.content.Intent
 import android.graphics.BitmapFactory
 import android.os.Bundle
 import androidx.activity.ComponentActivity
+import androidx.activity.compose.BackHandler
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.compose.setContent
 import androidx.activity.result.PickVisualMediaRequest
@@ -65,6 +66,7 @@ import fi.vladi.valvontapoytakirja.model.MaterialEntry
 import fi.vladi.valvontapoytakirja.model.ReportPhoto
 import fi.vladi.valvontapoytakirja.model.SiteFieldValue
 import fi.vladi.valvontapoytakirja.pdf.ReportPdfGenerator
+import fi.vladi.tarkastuspoytakirja.TarkastusApp
 import java.io.File
 import java.time.Instant
 import java.time.LocalDate
@@ -90,7 +92,7 @@ class MainActivity : ComponentActivity() {
         setContent {
             MaterialTheme {
                 Surface(modifier = Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background) {
-                    ValvontaApp()
+                    UnifiedApp()
                 }
             }
         }
@@ -98,7 +100,113 @@ class MainActivity : ComponentActivity() {
 }
 
 @Composable
-private fun ValvontaApp() {
+private fun UnifiedApp() {
+    val context = LocalContext.current
+    val repository = remember { ReportRepository(context) }
+    var settings by remember { mutableStateOf(repository.loadSettings()) }
+    var customers by remember { mutableStateOf(repository.listCustomers()) }
+    var sites by remember { mutableStateOf(repository.listSites()) }
+    var selectedModule by remember { mutableStateOf<String?>(null) }
+    var showSettings by remember { mutableStateOf(false) }
+
+    BackHandler(enabled = selectedModule != null || showSettings) {
+        if (showSettings) showSettings = false else selectedModule = null
+    }
+
+    val logoLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.PickVisualMedia()
+    ) { uri ->
+        if (uri != null) {
+            repository.importSettingsLogo(uri)?.let { logo ->
+                settings = settings.copy(logoPath = logo.absolutePath)
+                repository.saveSettings(settings)
+            }
+        }
+    }
+
+    when {
+        showSettings -> SettingsScreen(
+            settings = settings,
+            customers = customers,
+            sites = sites,
+            onSettingsChange = {
+                settings = it
+                repository.saveSettings(it)
+            },
+            onSaveCustomer = {
+                repository.saveCustomer(it)
+                customers = repository.listCustomers()
+            },
+            onDeleteCustomer = { id ->
+                repository.deleteCustomer(id)
+                customers = repository.listCustomers()
+                sites = repository.listSites()
+            },
+            onSaveSite = {
+                repository.saveSite(it)
+                sites = repository.listSites()
+            },
+            onDeleteSite = {
+                repository.deleteSite(it)
+                sites = repository.listSites()
+            },
+            onPickLogo = {
+                logoLauncher.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly))
+            },
+            onRemoveLogo = {
+                settings = settings.copy(logoPath = "")
+                repository.saveSettings(settings)
+            },
+            onBack = { showSettings = false }
+        )
+        selectedModule == "valvoja" -> ValvontaApp(
+            onExit = { selectedModule = null },
+            onOpenSettings = { selectedModule = null; showSettings = true }
+        )
+        selectedModule == "tarkastus" -> TarkastusApp(
+            onExit = { selectedModule = null },
+            onOpenSettings = { selectedModule = null; showSettings = true }
+        )
+        else -> ModuleSelectionScreen(
+            onValvoja = { selectedModule = "valvoja" },
+            onTarkastus = { selectedModule = "tarkastus" },
+            onSettings = { showSettings = true }
+        )
+    }
+}
+
+@Composable
+private fun ModuleSelectionScreen(
+    onValvoja: () -> Unit,
+    onTarkastus: () -> Unit,
+    onSettings: () -> Unit
+) {
+    Column(
+        modifier = Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(24.dp),
+        verticalArrangement = Arrangement.spacedBy(16.dp)
+    ) {
+        Spacer(Modifier.height(24.dp))
+        Text("Valvoja", style = MaterialTheme.typography.headlineLarge, fontWeight = FontWeight.Bold)
+        Text("Valitse raporttityyppi")
+        Button(onClick = onValvoja, modifier = Modifier.fillMaxWidth()) {
+            Text("Valvontapöytäkirja")
+        }
+        Button(onClick = onTarkastus, modifier = Modifier.fillMaxWidth()) {
+            Text("Tarkastuspöytäkirja")
+        }
+        Spacer(Modifier.height(8.dp))
+        OutlinedButton(onClick = onSettings, modifier = Modifier.fillMaxWidth()) {
+            Text("Asetukset")
+        }
+        Text(
+            "Yhteiset asetukset, asiakkaat ja kohteet. Raportit tallennetaan erillisiin osioihin.",
+            style = MaterialTheme.typography.bodySmall
+        )
+    }
+}
+
+@Composable
+private fun ValvontaApp(onExit: () -> Unit, onOpenSettings: () -> Unit) {
     val context = LocalContext.current
     val repository = remember { ReportRepository(context) }
     var reports by remember { mutableStateOf(repository.listReports()) }
@@ -106,14 +214,8 @@ private fun ValvontaApp() {
     var appSettings by remember { mutableStateOf(repository.loadSettings()) }
     var customers by remember { mutableStateOf(repository.listCustomers()) }
     var sites by remember { mutableStateOf(repository.listSites()) }
-    var showSettings by remember { mutableStateOf(false) }
     var currentReport by remember { mutableStateOf<InspectionReport?>(null) }
     var pendingCameraFile by remember { mutableStateOf<File?>(null) }
-
-    fun saveAppSettings(settings: AppSettings) {
-        appSettings = settings
-        repository.saveSettings(settings)
-    }
 
     fun applySettingsSnapshot(report: InspectionReport): InspectionReport = report.copy(
         inspectorName = appSettings.inspectorName,
@@ -156,47 +258,8 @@ private fun ValvontaApp() {
         if (imported.isNotEmpty()) saveReport(report.copy(photos = report.photos + imported))
     }
 
-    val settingsLogoLauncher = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.PickVisualMedia()
-    ) { uri ->
-        if (uri != null) {
-            repository.importSettingsLogo(uri)?.let { logo ->
-                saveAppSettings(appSettings.copy(logoPath = logo.absolutePath))
-            }
-        }
-    }
-
     val active = currentReport
-    if (active == null && showSettings) {
-        SettingsScreen(
-            settings = appSettings,
-            customers = customers,
-            sites = sites,
-            onSettingsChange = ::saveAppSettings,
-            onSaveCustomer = { customer ->
-                repository.saveCustomer(customer)
-                customers = repository.listCustomers()
-            },
-            onDeleteCustomer = { id ->
-                repository.deleteCustomer(id)
-                customers = repository.listCustomers()
-                sites = repository.listSites()
-            },
-            onSaveSite = { site ->
-                repository.saveSite(site)
-                sites = repository.listSites()
-            },
-            onDeleteSite = { id ->
-                repository.deleteSite(id)
-                sites = repository.listSites()
-            },
-            onPickLogo = {
-                settingsLogoLauncher.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly))
-            },
-            onRemoveLogo = { saveAppSettings(appSettings.copy(logoPath = "")) },
-            onBack = { showSettings = false }
-        )
-    } else if (active == null) {
+    if (active == null) {
         HomeScreen(
             reports = reports,
             templates = templates,
@@ -217,7 +280,8 @@ private fun ValvontaApp() {
                 saveReport(applySettingsSnapshot(newReport))
             },
             onOpen = { currentReport = it },
-            onSettings = { showSettings = true }
+            onSettings = onOpenSettings,
+            onExit = onExit
         )
     } else {
         EditorScreen(
@@ -267,12 +331,14 @@ private fun HomeScreen(
     onCreateFromTemplate: (InspectionReport) -> Unit,
     onCreate: () -> Unit,
     onOpen: (InspectionReport) -> Unit,
-    onSettings: () -> Unit
+    onSettings: () -> Unit,
+    onExit: () -> Unit
 ) {
     Column(
         modifier = Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(20.dp),
         verticalArrangement = Arrangement.spacedBy(12.dp)
     ) {
+        TextButton(onClick = onExit) { Text("← Päävalikko") }
         Text("Valvoja", style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.Bold)
         Text("Märkätilojen vedeneristyksen tarkastusraportit")
         Button(onClick = onCreate, modifier = Modifier.fillMaxWidth()) {
