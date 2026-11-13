@@ -30,7 +30,7 @@ object ReportPdfGenerator {
             .replace(Regex("[^A-Za-z0-9ÄÖÅäöå_-]+"), "_")
             .trim('_')
             .ifBlank { "kohde" }
-        val output = File(exportDirectory, "Valvontapoytakirja_${safeName}_${report.id.take(8)}.pdf")
+        val output = File(exportDirectory, "valvontapoytakirja_${safeName}.pdf")
         try {
             FileOutputStream(output).use { document.writeTo(it) }
         } finally {
@@ -64,7 +64,12 @@ object ReportPdfGenerator {
             writer.field("Sertifikaattinumero", report.installerCertificateNumber)
             writer.field("Puhelin", report.installerPhone)
             writer.field("Sähköposti", report.installerEmail)
-            writer.field("Asennustyön ajankohta", "${report.workStartDate} – ${report.workEndDate}")
+            writer.field(
+                "Asennustyön ajankohta",
+                listOf(report.workStartDate, report.workEndDate)
+                    .filter { it.isNotBlank() }
+                    .joinToString(" – ")
+            )
     
             writer.section("ALUSTAT JA TYÖOLOSUHTEET")
             writer.field("Seinien alusta", report.wallSubstrate)
@@ -276,7 +281,8 @@ object ReportPdfGenerator {
         }
 
         fun field(label: String, value: String) {
-            drawWrapped("$label: ${value.ifBlank { "—" }}", bodyPaint, 14f)
+            if (label.isBlank() || value.isBlank()) return
+            drawWrapped("$label: $value", bodyPaint, 14f)
         }
 
         private fun drawWrapped(value: String, paint: Paint, lineHeight: Float) {
