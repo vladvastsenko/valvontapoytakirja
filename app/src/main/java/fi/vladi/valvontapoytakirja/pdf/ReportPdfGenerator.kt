@@ -1,5 +1,6 @@
 package fi.vladi.valvontapoytakirja.pdf
 
+import fi.vladi.tarkastuspoytakirja.storage.PublicArchive
 import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
@@ -35,6 +36,7 @@ object ReportPdfGenerator {
         } finally {
             document.close()
         }
+        PublicArchive.copyPdf(context, output)
         return output
     }
 
