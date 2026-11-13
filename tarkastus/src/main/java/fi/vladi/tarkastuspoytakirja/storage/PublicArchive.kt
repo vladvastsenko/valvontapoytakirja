@@ -10,8 +10,8 @@ import java.util.Locale
 
 /**
  * Keeps a user-visible copy of the app's working files in
- * Documents/Valvontapoytakirja. The app continues using its private files
- * for fast and reliable editing; this public archive is kept in sync.
+ * Documents/Valvontapoytakirja. Private files remain the working copy so
+ * editing and camera operations continue to use normal File paths.
  */
 object PublicArchive {
     const val FOLDER_NAME = "Valvontapoytakirja"
@@ -37,8 +37,8 @@ object PublicArchive {
 
         val root = archiveRoot(context) ?: error("Could not create archive folder")
         val dataRoot = childDirectory(root, DATA_FOLDER)
-        restoreMissingFiles(dataRoot, context.filesDir)
-        syncDirectory(context.filesDir, dataRoot)
+        restoreMissingFiles(context, dataRoot, context.filesDir)
+        syncDirectory(context, context.filesDir, dataRoot)
         true
     }.getOrDefault(false)
 
@@ -56,24 +56,12 @@ object PublicArchive {
 
     @Synchronized
     fun deleteFile(context: Context, source: File) {
-        runCatching {
-            val relative = relativeToFiles(context, source) ?: return
-            var parent = childDirectory(archiveRoot(context) ?: return, DATA_FOLDER)
-            val parts = relative.split(File.separatorChar)
-            parts.dropLast(1).forEach { parent = parent.findFile(it) ?: return }
-            parent.findFile(parts.last())?.delete()
-        }
+        deleteRelativePath(context, source)
     }
 
     @Synchronized
     fun deleteDirectory(context: Context, source: File) {
-        runCatching {
-            val relative = relativeToFiles(context, source) ?: return
-            var parent = childDirectory(archiveRoot(context) ?: return, DATA_FOLDER)
-            val parts = relative.split(File.separatorChar)
-            parts.dropLast(1).forEach { parent = parent.findFile(it) ?: return }
-            parent.findFile(parts.last())?.delete()
-        }
+        deleteRelativePath(context, source)
     }
 
     @Synchronized
@@ -89,8 +77,7 @@ object PublicArchive {
     private fun archiveRoot(context: Context): DocumentFile? {
         val rawUri = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
             .getString(TREE_URI_KEY, null) ?: return null
-        val treeUri = Uri.parse(rawUri)
-        val selectedFolder = DocumentFile.fromTreeUri(context, treeUri) ?: return null
+        val selectedFolder = DocumentFile.fromTreeUri(context, Uri.parse(rawUri)) ?: return null
         if (!selectedFolder.canWrite()) return null
         return childDirectory(selectedFolder, FOLDER_NAME)
     }
@@ -101,6 +88,16 @@ object PublicArchive {
         val prefix = base.path + File.separator
         if (!file.path.startsWith(prefix)) return null
         return file.path.removePrefix(prefix)
+    }
+
+    private fun deleteRelativePath(context: Context, source: File) {
+        runCatching {
+            val relative = relativeToFiles(context, source) ?: return
+            var parent = childDirectory(archiveRoot(context) ?: return, DATA_FOLDER)
+            val parts = relative.split(File.separatorChar)
+            parts.dropLast(1).forEach { parent = parent.findFile(it) ?: return }
+            parent.findFile(parts.last())?.delete()
+        }
     }
 
     private fun childDirectory(parent: DocumentFile, name: String): DocumentFile {
@@ -128,9 +125,7 @@ object PublicArchive {
             existing
         } else {
             existing?.delete()
-            val extension = source.extension.lowercase(Locale.ROOT)
-            val mime = MimeTypeMap.getSingleton().getMimeTypeFromExtension(extension)
-                ?: "application/octet-stream"
+            val mime = mimeType(source)
             parent.createFile(mime, name) ?: error("Could not create file: $name")
         }
 
@@ -139,49 +134,34 @@ object PublicArchive {
         } ?: error("Could not open archive file: $name")
     }
 
-    private fun syncDirectory(source: File, destination: DocumentFile) {
+    private fun mimeType(file: File): String =
+        MimeTypeMap.getSingleton()
+            .getMimeTypeFromExtension(file.extension.lowercase(Locale.ROOT))
+            ?: "application/octet-stream"
+
+    private fun syncDirectory(context: Context, source: File, destination: DocumentFile) {
         source.listFiles()?.forEach { child ->
             if (child.isDirectory) {
-                syncDirectory(child, childDirectory(destination, child.name))
+                syncDirectory(context, child, childDirectory(destination, child.name))
             } else if (child.isFile) {
-                copyFileFromSourceContextFree(child, destination)
+                copyFile(context, child, destination, child.name, force = false)
             }
         }
     }
 
-    private fun copyFileFromSourceContextFree(source: File, parent: DocumentFile) {
-        val existing = parent.findFile(source.name)
-        if (existing != null && existing.isFile &&
-            existing.length() == source.length() &&
-            existing.lastModified() > 0L &&
-            existing.lastModified() >= source.lastModified()
-        ) return
-        val destination = if (existing != null && existing.isFile) existing else {
-            existing?.delete()
-            val mime = MimeTypeMap.getSingleton()
-                .getMimeTypeFromExtension(source.extension.lowercase(Locale.ROOT))
-                ?: "application/octet-stream"
-            parent.createFile(mime, source.name) ?: return
-        }
-        destination.uri.let { uri ->
-            // The DocumentFile provider owns the destination stream.
-            val resolver = parent.uri
-            // Resolve through the parent tree's context in the caller instead.
-            uri
-        }
-    }
-
-    private fun restoreMissingFiles(source: DocumentFile, destination: File) {
+    private fun restoreMissingFiles(context: Context, source: DocumentFile, destination: File) {
         destination.mkdirs()
         source.listFiles().forEach { document ->
-            val target = File(destination, document.name ?: return@forEach)
+            val name = document.name ?: return@forEach
+            val target = File(destination, name)
             if (document.isDirectory) {
-                if (!target.exists()) target.mkdirs()
-                restoreMissingFiles(document, target)
+                restoreMissingFiles(context, document, target)
             } else if (document.isFile && !target.exists()) {
                 runCatching {
-                    // The content resolver is obtained from the document's owning URI by
-                    // the context-aware overload below.
+                    context.contentResolver.openInputStream(document.uri)?.use { input ->
+                        target.parentFile?.mkdirs()
+                        target.outputStream().use { output -> input.copyTo(output) }
+                    }
                 }
             }
         }
