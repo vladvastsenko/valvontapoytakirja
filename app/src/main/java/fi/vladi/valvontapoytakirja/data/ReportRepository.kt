@@ -7,6 +7,7 @@ import fi.vladi.valvontapoytakirja.model.InspectionReport
 import fi.vladi.valvontapoytakirja.model.AppSettings
 import fi.vladi.valvontapoytakirja.model.CustomerProfile
 import fi.vladi.valvontapoytakirja.model.CustomerSite
+import fi.vladi.tarkastuspoytakirja.storage.PublicArchive
 import kotlinx.serialization.json.Json
 import java.io.File
 import java.time.Instant
@@ -26,6 +27,8 @@ class ReportRepository(private val context: Context) {
 
     fun saveSettings(settings: AppSettings) {
         settingsFile().writeText(json.encodeToString(AppSettings.serializer(), settings))
+        PublicArchive.syncFile(context, settingsFile())
+        if (settings.logoPath.isNotBlank()) PublicArchive.syncFile(context, File(settings.logoPath), force = false)
     }
 
     private fun customersDirectory(): File =
@@ -40,12 +43,15 @@ class ReportRepository(private val context: Context) {
             ?: emptyList()
 
     fun saveCustomer(customer: CustomerProfile) {
-        File(customersDirectory(), "${customer.id}.json")
-            .writeText(json.encodeToString(CustomerProfile.serializer(), customer))
+        val file = File(customersDirectory(), "${customer.id}.json")
+        file.writeText(json.encodeToString(CustomerProfile.serializer(), customer))
+        PublicArchive.syncFile(context, file)
     }
 
     fun deleteCustomer(customerId: String) {
-        File(customersDirectory(), "${customerId}.json").delete()
+        val file = File(customersDirectory(), "${customerId}.json")
+        file.delete()
+        PublicArchive.deleteFile(context, file)
         listSites().filter { it.customerId == customerId }.forEach { deleteSite(it.id) }
     }
 
@@ -62,12 +68,15 @@ class ReportRepository(private val context: Context) {
             ?: emptyList()
 
     fun saveSite(site: CustomerSite) {
-        File(sitesDirectory(), "${site.id}.json")
-            .writeText(json.encodeToString(CustomerSite.serializer(), site))
+        val file = File(sitesDirectory(), "${site.id}.json")
+        file.writeText(json.encodeToString(CustomerSite.serializer(), site))
+        PublicArchive.syncFile(context, file)
     }
 
     fun deleteSite(siteId: String) {
-        File(sitesDirectory(), "${siteId}.json").delete()
+        val file = File(sitesDirectory(), "${siteId}.json")
+        file.delete()
+        PublicArchive.deleteFile(context, file)
     }
 
     fun importSettingsLogo(uri: Uri): File? {
@@ -81,6 +90,7 @@ class ReportRepository(private val context: Context) {
             val destination = File(directory, "logo_${Instant.now().toEpochMilli()}.$extension")
             val input = context.contentResolver.openInputStream(uri) ?: error("Unable to open selected logo")
             input.use { source -> destination.outputStream().use { output -> source.copyTo(output) } }
+            PublicArchive.syncFile(context, destination)
             destination
         }.getOrNull()
     }
@@ -115,17 +125,29 @@ class ReportRepository(private val context: Context) {
             photos = emptyList(),
             signatureStrokes = emptyList()
         )
-        File(templatesDirectory(), template.id + ".json")
-            .writeText(json.encodeToString(InspectionReport.serializer(), template))
+        val file = File(templatesDirectory(), template.id + ".json")
+        file.writeText(json.encodeToString(InspectionReport.serializer(), template))
+        PublicArchive.syncFile(context, file)
     }
     fun save(report: InspectionReport) {
         val file = File(reportsDirectory(), "${report.id}.json")
         file.writeText(json.encodeToString(InspectionReport.serializer(), report))
+        PublicArchive.syncFile(context, file)
+        report.photos.forEach { photo ->
+            PublicArchive.syncFile(context, File(photo.filePath), force = false)
+        }
+        if (report.logoPath.isNotBlank()) {
+            PublicArchive.syncFile(context, File(report.logoPath), force = false)
+        }
     }
 
     fun deleteReport(reportId: String) {
-        File(reportsDirectory(), "${reportId}.json").delete()
-        File(reportsDirectory(), reportId).deleteRecursively()
+        val jsonFile = File(reportsDirectory(), "${reportId}.json")
+        val reportDirectory = File(reportsDirectory(), reportId)
+        jsonFile.delete()
+        reportDirectory.deleteRecursively()
+        PublicArchive.deleteFile(context, jsonFile)
+        PublicArchive.deleteDirectory(context, reportDirectory)
     }
 
     fun createCameraPhotoFile(reportId: String): File {
@@ -144,6 +166,7 @@ class ReportRepository(private val context: Context) {
             input.use {
                 destination.outputStream().use { output -> it.copyTo(output) }
             }
+            PublicArchive.syncFile(context, destination)
             destination
         }.getOrNull()
     }
@@ -161,11 +184,16 @@ class ReportRepository(private val context: Context) {
             input.use {
                 destination.outputStream().use { output -> it.copyTo(output) }
             }
+            PublicArchive.syncFile(context, destination)
             destination
         }.getOrNull()
     }
 
     fun deletePhoto(path: String) {
-        runCatching { File(path).delete() }
+        runCatching {
+            val file = File(path)
+            file.delete()
+            PublicArchive.deleteFile(context, file)
+        }
     }
 }
