@@ -146,7 +146,7 @@ object PublicArchive {
             ?: "application/octet-stream"
 
     private val storedPathPattern =
-        Regex("(\\"(?:filePath|annotatedPath|logoPath)\\"\\s*:\\s*\\")([^\\"]*)(\\")")
+        Regex("""("(?:filePath|annotatedPath|logoPath)"\\s*:\\s*")([^"]*)(")""")
 
     private fun toArchiveJson(context: Context, json: String): String {
         val prefix = context.filesDir.canonicalPath + File.separator
