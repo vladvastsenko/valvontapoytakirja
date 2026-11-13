@@ -123,6 +123,11 @@ class ReportRepository(private val context: Context) {
         file.writeText(json.encodeToString(InspectionReport.serializer(), report))
     }
 
+    fun deleteReport(reportId: String) {
+        File(reportsDirectory(), "${reportId}.json").delete()
+        File(reportsDirectory(), reportId).deleteRecursively()
+    }
+
     fun createCameraPhotoFile(reportId: String): File {
         val directory = File(reportsDirectory(), "$reportId/photos").apply { mkdirs() }
         return File(directory, "photo_${Instant.now().toEpochMilli()}.jpg")
