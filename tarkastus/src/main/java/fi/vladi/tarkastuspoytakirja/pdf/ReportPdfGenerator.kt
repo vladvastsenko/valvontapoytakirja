@@ -239,22 +239,24 @@ object ReportPdfGenerator {
                 var photoPageIndex = 0
                 while (photoIndex < observation.photos.size) {
                     val remaining = observation.photos.size - photoIndex
-                    val remainingRows = (remaining + 2) / 3
+                    val columns = 2
+                    val maxRowsPerPage = 2
+                    val remainingRows = (remaining + columns - 1) / columns
                     val availableHeight = pageHeight - 45f - y - 25f - 10f
                     val rowsThatFitAtMinimumSize = kotlin.math.floor(
                         (availableHeight + 8f) / (205f + 8f)
-                    ).toInt().coerceAtLeast(0)
+                    ).toInt().coerceAtLeast(0).coerceAtMost(maxRowsPerPage)
                     if (rowsThatFitAtMinimumSize == 0) {
                         nextPage()
                         continue
                     }
-                    val rowsOnThisPage = minOf(remainingRows, rowsThatFitAtMinimumSize)
+                    val rowsOnThisPage = minOf(remainingRows, rowsThatFitAtMinimumSize, maxRowsPerPage)
                     val verticalGaps = (rowsOnThisPage - 1).coerceAtLeast(0) * 8f
-                    val cellHeight = minOf(230f, (availableHeight - verticalGaps) / rowsOnThisPage)
-                    val photosOnThisPage = minOf(remaining, rowsOnThisPage * 3)
+                    val cellHeight = minOf(300f, (availableHeight - verticalGaps) / rowsOnThisPage)
+                    val photosOnThisPage = minOf(remaining, rowsOnThisPage * columns)
                     val pagePhotos = observation.photos.subList(photoIndex, photoIndex + photosOnThisPage)
                     photoGridHeader(number, ++photoPageIndex, 0)
-                    drawPhotoGrid(pagePhotos, cellHeight)
+                    drawPhotoGrid(pagePhotos, cellHeight, columns)
                     photoIndex += photosOnThisPage
                     if (photoIndex < observation.photos.size) nextPage()
                 }
@@ -268,8 +270,7 @@ object ReportPdfGenerator {
             y += 25f
         }
 
-        private fun drawPhotoGrid(photos: List<ReportPhoto>, cellHeight: Float) {
-            val columns = 3
+        private fun drawPhotoGrid(photos: List<ReportPhoto>, cellHeight: Float, columns: Int) {
             val rows = (photos.size + columns - 1) / columns
             val horizontalGap = 8f
             val verticalGap = 8f
