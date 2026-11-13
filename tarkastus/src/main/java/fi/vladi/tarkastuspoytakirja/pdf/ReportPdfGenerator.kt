@@ -1,5 +1,6 @@
 package fi.vladi.tarkastuspoytakirja.pdf
 
+import fi.vladi.tarkastuspoytakirja.storage.PublicArchive
 import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
@@ -32,6 +33,7 @@ object ReportPdfGenerator {
         val output = File(exportDirectory, "Tarkastuspoytakirja_$safeName.pdf")
         FileOutputStream(output).use { finalPass.first.writeTo(it) }
         finalPass.first.close()
+        PublicArchive.copyPdf(context, output)
         return output
     }
 
