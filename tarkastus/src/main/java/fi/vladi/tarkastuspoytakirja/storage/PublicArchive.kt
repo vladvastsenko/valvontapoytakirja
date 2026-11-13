@@ -130,7 +130,13 @@ object PublicArchive {
         }
 
         context.contentResolver.openOutputStream(destination.uri, "wt")?.use { output ->
-            source.inputStream().use { input -> input.copyTo(output) }
+            if (source.extension.equals("json", ignoreCase = true)) {
+                output.writer(Charsets.UTF_8).use { writer ->
+                    writer.write(toArchiveJson(context, source.readText()))
+                }
+            } else {
+                source.inputStream().use { input -> input.copyTo(output) }
+            }
         } ?: error("Could not open archive file: $name")
     }
 
@@ -138,6 +144,32 @@ object PublicArchive {
         MimeTypeMap.getSingleton()
             .getMimeTypeFromExtension(file.extension.lowercase(Locale.ROOT))
             ?: "application/octet-stream"
+
+    private val storedPathPattern =
+        Regex("(\\"(?:filePath|annotatedPath|logoPath)\\"\\s*:\\s*\\")([^\\"]*)(\\")")
+
+    private fun toArchiveJson(context: Context, json: String): String {
+        val prefix = context.filesDir.canonicalPath + File.separator
+        return storedPathPattern.replace(json) { match ->
+            val value = match.groupValues[2]
+            if (value.startsWith(prefix)) {
+                match.groupValues[1] + value.removePrefix(prefix) + match.groupValues[3]
+            } else {
+                match.value
+            }
+        }
+    }
+
+    private fun toLocalJson(context: Context, json: String): String {
+        return storedPathPattern.replace(json) { match ->
+            val value = match.groupValues[2]
+            if (value.isBlank() || value.startsWith("/") || value.contains("://")) {
+                match.value
+            } else {
+                match.groupValues[1] + File(context.filesDir, value).absolutePath + match.groupValues[3]
+            }
+        }
+    }
 
     private fun syncDirectory(context: Context, source: File, destination: DocumentFile) {
         source.listFiles()?.forEach { child ->
@@ -160,7 +192,12 @@ object PublicArchive {
                 runCatching {
                     context.contentResolver.openInputStream(document.uri)?.use { input ->
                         target.parentFile?.mkdirs()
-                        target.outputStream().use { output -> input.copyTo(output) }
+                        if (target.extension.equals("json", ignoreCase = true)) {
+                            val archivedJson = input.bufferedReader(Charsets.UTF_8).use { it.readText() }
+                            target.writeText(toLocalJson(context, archivedJson), Charsets.UTF_8)
+                        } else {
+                            target.outputStream().use { output -> input.copyTo(output) }
+                        }
                     }
                 }
             }
