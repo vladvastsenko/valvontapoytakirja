@@ -2,6 +2,8 @@ package fi.vladi.valvontapoytakirja
 
 import android.content.Intent
 import android.graphics.BitmapFactory
+import android.net.Uri
+import android.provider.DocumentsContract
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -67,6 +69,7 @@ import fi.vladi.valvontapoytakirja.model.MaterialEntry
 import fi.vladi.valvontapoytakirja.model.ReportPhoto
 import fi.vladi.valvontapoytakirja.model.SiteFieldValue
 import fi.vladi.valvontapoytakirja.pdf.ReportPdfGenerator
+import fi.vladi.tarkastuspoytakirja.storage.PublicArchive
 import java.io.File
 import java.time.Instant
 import java.time.LocalDate
@@ -104,8 +107,32 @@ private fun UnifiedLauncher() {
     val context = LocalContext.current
     var showValvoja by remember { mutableStateOf(false) }
     var openSettings by remember { mutableStateOf(false) }
+    var storageReady by remember { mutableStateOf(PublicArchive.isConfigured(context)) }
+    var storageError by remember { mutableStateOf("") }
 
-    if (showValvoja) {
+    val storagePicker = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.OpenDocumentTree()
+    ) { uri: Uri? ->
+        if (uri != null) {
+            storageReady = PublicArchive.configure(context, uri)
+            storageError = if (storageReady) "" else "Tallennuskansion käyttöönotto epäonnistui. Yritä uudelleen."
+        }
+    }
+
+    if (!storageReady) {
+        StorageSetupScreen(
+            error = storageError,
+            onPickFolder = {
+                val documentsUri = runCatching {
+                    DocumentsContract.buildDocumentUri(
+                        "com.android.externalstorage.documents",
+                        "primary:Documents"
+                    )
+                }.getOrNull()
+                storagePicker.launch(documentsUri)
+            }
+        )
+    } else if (showValvoja) {
         ValvontaApp(
             initialShowSettings = openSettings,
             onBackToLauncher = {
@@ -127,6 +154,32 @@ private fun UnifiedLauncher() {
                 showValvoja = true
             }
         )
+    }
+}
+
+@Composable
+private fun StorageSetupScreen(
+    error: String,
+    onPickFolder: () -> Unit
+) {
+    Column(
+        modifier = Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(24.dp),
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Text("Tallennuskansion käyttöönotto", style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.Bold)
+        Spacer(Modifier.height(12.dp))
+        Text(
+            "Valitse puhelimen Documents-kansio. Sovellus luo sinne kansion Valvontapoytakirja, johon tallennetaan raportit, kuvat ja PDF-tiedostot."
+        )
+        Spacer(Modifier.height(20.dp))
+        Button(onClick = onPickFolder, modifier = Modifier.fillMaxWidth()) {
+            Text("Valitse Documents-kansio")
+        }
+        if (error.isNotBlank()) {
+            Spacer(Modifier.height(12.dp))
+            Text(error, color = MaterialTheme.colorScheme.error)
+        }
     }
 }
 
