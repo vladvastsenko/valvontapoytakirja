@@ -9,6 +9,7 @@ import android.graphics.Paint
 import android.graphics.Path
 import android.graphics.RectF
 import android.graphics.pdf.PdfDocument
+import fi.vladi.valvontapoytakirja.model.AppSettings
 import fi.vladi.valvontapoytakirja.model.InspectionReport
 import fi.vladi.valvontapoytakirja.model.ReportPhoto
 import fi.vladi.valvontapoytakirja.model.SignatureStroke
@@ -16,107 +17,134 @@ import java.io.File
 import java.io.FileOutputStream
 
 object ReportPdfGenerator {
-    fun generate(context: Context, report: InspectionReport): File {
-        val document = PdfDocument()
-        val writer = PdfWriter(document, report.logoPath, report.headerText, report.footerText)
+    fun generate(context: Context, report: InspectionReport, settings: AppSettings): File {
+        val firstPass = render(report, settings, totalPages = null)
+        val totalPages = firstPass.second
+        firstPass.first.close()
 
-        writer.title("VALVONTAPÖYTÄKIRJA")
-        if (report.folderPath.isNotBlank()) {
-            writer.field("Kansio / alikansio", report.folderPath)
-        }
-        writer.field("Tilaaja", report.customerName)
-        writer.field("Y-tunnus", report.customerBusinessId)
-        writer.field("Tilaajan osoite", listOf(report.customerAddress, report.customerPostalCode, report.customerCity).filter { it.isNotBlank() }.joinToString(", "))
-        writer.field("Kohde", listOf(report.siteName, report.siteAddress).filter { it.isNotBlank() }.joinToString(" – "))
-        report.siteFieldValues.filter { it.label.isNotBlank() && it.value.isNotBlank() }.forEach { writer.field(it.label, it.value) }
-        writer.field("Tilaaja / kohteen edustaja", report.clientOrRepresentative)
-        writer.field("Tilaajan puhelinnumero", report.clientPhone)
-        writer.field("Tilaajan sähköposti", report.clientEmail)
-        writer.field("Vedeneristäjän nimi", report.installerName)
-        writer.field("Sertifikaattinumero", report.installerCertificateNumber)
-        writer.field("Puhelin", report.installerPhone)
-        writer.field("Sähköposti", report.installerEmail)
-        writer.field("Asennustyön ajankohta", "${report.workStartDate} – ${report.workEndDate}")
-
-        writer.section("ALUSTAT JA TYÖOLOSUHTEET")
-        writer.field("Seinien alusta", report.wallSubstrate)
-        writer.field("Lattian alusta", report.floorSubstrate)
-        writer.field("Työohjeet annettu ja luettu", if (report.workInstructionsProvidedAndRead) "Kyllä" else "Ei")
-        writer.field("Lämpötila (°C)", report.roomTemperatureC)
-        writer.field("Suhteellinen kosteus (%)", report.relativeHumidityPercent)
-        writer.field("Alustan kosteus (%)", report.substrateMoisturePercent)
-
-        writer.section("KÄYTETYT MATERIAALIT")
-        report.materials.forEach { material ->
-            val product = listOf(material.manufacturer, material.productName)
-                .filter { it.isNotBlank() }
-                .joinToString(" – ")
-            writer.field(material.category, listOf(product, material.notes).filter { it.isNotBlank() }.joinToString(" | "))
-        }
-
-        writer.section("RAKENTEET JA MITAT")
-        writer.field("Lattialämmitys", report.floorHeating)
-        writer.field("Kynnys / viemärin nosto (mm)", report.thresholdOrDrainLiftMm)
-        writer.field(
-            "Lattian kaadot",
-            listOf(
-                report.floorSlopeRatios.joinToString(", "),
-                report.floorSlopes
-            ).filter { it.isNotBlank() }.joinToString(" – ")
-        )
-
-        writer.section("PINTA-ALAT JA VEDENERISTEEN MENEKKI")
-        writer.field("Seinien pinta-ala (m²)", report.wallAreaM2)
-        writer.field("Seinät – valmistajan vaatima menekki (kg/m² tai l/m²)", report.wallRequiredWaterproofingConsumptionPerM2)
-        writer.field("Seinät – käytetty kokonaismäärä (kg tai l)", report.wallWaterproofingConsumptionLitres)
-        writer.field("Lattian pinta-ala (m²)", report.floorAreaM2)
-        writer.field("Lattia – valmistajan vaatima menekki (kg/m² tai l/m²)", report.floorRequiredWaterproofingConsumptionPerM2)
-        writer.field("Lattia – käytetty kokonaismäärä (kg tai l)", report.floorWaterproofingConsumptionLitres)
-        if (report.waterproofingSpecSource.isNotBlank()) {
-            writer.field("Valmistajan tuotetietojen lähde", report.waterproofingSpecSource)
-        }
-
-        writer.section("KUIVAKALVON PAKSUUS")
-        writer.field("Seinät – mitattu kuivakalvon paksuus (mm)", report.wallDryFilmThicknessMm)
-        writer.field("Seinät – valmistajan vaatima kuivakalvon vähimmäispaksuus (mm)", report.wallRequiredMinimumThicknessMm)
-        writer.field("Lattia – mitattu kuivakalvon paksuus (mm)", report.floorDryFilmThicknessMm)
-        writer.field("Lattia – valmistajan vaatima kuivakalvon vähimmäispaksuus (mm)", report.floorRequiredMinimumThicknessMm)
-
-        writer.section("TARKASTUKSEN TULOS")
-        writer.field("Tulos", report.inspectionResult)
-        writer.field("Lisähuomiot", report.additionalNotes)
-
-        writer.spacer(28f)
-        writer.section("TARKASTAJA")
-        writer.field("Nimi", report.inspectorName)
-        writer.field("Sertifikaattinumero", report.inspectorCertificateNumber)
-        writer.field("Puhelin", report.inspectorPhone)
-        writer.field("Sähköposti", report.inspectorEmail)
-        writer.field("Tarkastuspäivä", report.inspectionDate)
-        writer.signature(report.signatureStrokes)
-
-        if (report.photos.isNotEmpty()) {
-            writer.photos(report.photos)
-        }
-
-        writer.finish()
+        val finalPass = render(report, settings, totalPages)
+        val document = finalPass.first
         val exportDirectory = File(context.cacheDir, "exports").apply { mkdirs() }
         val safeName = report.siteAddress
             .replace(Regex("[^A-Za-z0-9ÄÖÅäöå_-]+"), "_")
             .trim('_')
             .ifBlank { "kohde" }
         val output = File(exportDirectory, "Valvontapoytakirja_$safeName.pdf")
-        FileOutputStream(output).use { document.writeTo(it) }
-        document.close()
+        try {
+            FileOutputStream(output).use { document.writeTo(it) }
+        } finally {
+            document.close()
+        }
         return output
+    }
+
+    private fun render(
+        report: InspectionReport,
+        settings: AppSettings,
+        totalPages: Int?
+    ): Pair<PdfDocument, Int> {
+        val document = PdfDocument()
+        val writer = PdfWriter(document, report.logoPath, report.headerText, report.footerText, totalPages)
+
+            writer.title("VALVONTAPÖYTÄKIRJA")
+            if (report.folderPath.isNotBlank()) {
+                writer.field("Kansio / alikansio", report.folderPath)
+            }
+            writer.field("Tilaaja", report.customerName)
+            writer.field("Y-tunnus", report.customerBusinessId)
+            writer.field("Tilaajan osoite", listOf(report.customerAddress, report.customerPostalCode, report.customerCity).filter { it.isNotBlank() }.joinToString(", "))
+            writer.field("Kohde", listOf(report.siteName, report.siteAddress).filter { it.isNotBlank() }.joinToString(" – "))
+            report.siteFieldValues.filter { it.label.isNotBlank() && it.value.isNotBlank() }.forEach { writer.field(it.label, it.value) }
+            writer.field("Tilaaja / kohteen edustaja", report.clientOrRepresentative)
+            writer.field("Tilaajan puhelinnumero", report.clientPhone)
+            writer.field("Tilaajan sähköposti", report.clientEmail)
+            writer.field("Vedeneristäjän nimi", report.installerName)
+            writer.field("Sertifikaattinumero", report.installerCertificateNumber)
+            writer.field("Puhelin", report.installerPhone)
+            writer.field("Sähköposti", report.installerEmail)
+            writer.field("Asennustyön ajankohta", "${report.workStartDate} – ${report.workEndDate}")
+    
+            writer.section("ALUSTAT JA TYÖOLOSUHTEET")
+            writer.field("Seinien alusta", report.wallSubstrate)
+            writer.field("Lattian alusta", report.floorSubstrate)
+            writer.field("Työohjeet annettu ja luettu", if (report.workInstructionsProvidedAndRead) "Kyllä" else "Ei")
+            writer.field("Lämpötila (°C)", report.roomTemperatureC)
+            writer.field("Suhteellinen kosteus (%)", report.relativeHumidityPercent)
+            writer.field("Alustan kosteus (%)", report.substrateMoisturePercent)
+    
+            writer.section("KÄYTETYT MATERIAALIT")
+            report.materials.forEach { material ->
+                val product = listOf(material.manufacturer, material.productName)
+                    .filter { it.isNotBlank() }
+                    .joinToString(" – ")
+                writer.field(material.category, listOf(product, material.notes).filter { it.isNotBlank() }.joinToString(" | "))
+            }
+    
+            writer.section("RAKENTEET JA MITAT")
+            writer.field("Lattialämmitys", report.floorHeating)
+            writer.field("Kynnys / viemärin nosto (mm)", report.thresholdOrDrainLiftMm)
+            writer.field(
+                "Lattian kaadot",
+                listOf(
+                    report.floorSlopeRatios.joinToString(", "),
+                    report.floorSlopes
+                ).filter { it.isNotBlank() }.joinToString(" – ")
+            )
+    
+            writer.section("PINTA-ALAT JA VEDENERISTEEN MENEKKI")
+            writer.field("Seinien pinta-ala (m²)", report.wallAreaM2)
+            writer.field("Seinät – valmistajan vaatima menekki (kg/m² tai l/m²)", report.wallRequiredWaterproofingConsumptionPerM2)
+            writer.field("Seinät – käytetty kokonaismäärä (kg tai l)", report.wallWaterproofingConsumptionLitres)
+            writer.field("Lattian pinta-ala (m²)", report.floorAreaM2)
+            writer.field("Lattia – valmistajan vaatima menekki (kg/m² tai l/m²)", report.floorRequiredWaterproofingConsumptionPerM2)
+            writer.field("Lattia – käytetty kokonaismäärä (kg tai l)", report.floorWaterproofingConsumptionLitres)
+            if (report.waterproofingSpecSource.isNotBlank()) {
+                writer.field("Valmistajan tuotetietojen lähde", report.waterproofingSpecSource)
+            }
+    
+            writer.section("KUIVAKALVON PAKSUUS")
+            writer.field("Seinät – mitattu kuivakalvon paksuus (mm)", report.wallDryFilmThicknessMm)
+            writer.field("Seinät – valmistajan vaatima kuivakalvon vähimmäispaksuus (mm)", report.wallRequiredMinimumThicknessMm)
+            writer.field("Lattia – mitattu kuivakalvon paksuus (mm)", report.floorDryFilmThicknessMm)
+            writer.field("Lattia – valmistajan vaatima kuivakalvon vähimmäispaksuus (mm)", report.floorRequiredMinimumThicknessMm)
+    
+            writer.section("TARKASTUKSEN TULOS")
+            writer.field("Tulos", report.inspectionResult)
+            writer.field("Lisähuomiot", report.additionalNotes)
+    
+            val hasInspectorDetails = settings.inspectorName.isNotBlank() ||
+                settings.inspectorCertificateNumber.isNotBlank() ||
+                settings.inspectorPhone.isNotBlank() ||
+                settings.inspectorEmail.isNotBlank() ||
+                report.inspectionDate.isNotBlank() ||
+                settings.signatureStrokes.isNotEmpty()
+            if (hasInspectorDetails) {
+                writer.spacer(28f)
+                writer.section("TARKASTAJA")
+                if (settings.inspectorName.isNotBlank()) writer.field("Nimi", settings.inspectorName)
+                if (settings.inspectorCertificateNumber.isNotBlank()) writer.field("Sertifikaattinumero", settings.inspectorCertificateNumber)
+                if (settings.inspectorPhone.isNotBlank()) writer.field("Puhelin", settings.inspectorPhone)
+                if (settings.inspectorEmail.isNotBlank()) writer.field("Sähköposti", settings.inspectorEmail)
+                if (report.inspectionDate.isNotBlank()) writer.field("Tarkastuspäivä", report.inspectionDate)
+                writer.signature(settings.signatureStrokes)
+            }
+    
+            if (report.photos.isNotEmpty()) {
+                writer.photos(report.photos)
+            }
+    
+            writer.finish()
+        return document to writer.pageCount
     }
 
     private class PdfWriter(
         private val document: PdfDocument,
         private val logoPath: String,
         private val headerText: String,
-        private val footerText: String
+        private val footerText: String,
+        private val totalPages: Int?
     ) {
+        val pageCount: Int get() = pageNumber
         private val pageWidth = 595
         private val pageHeight = 842
         private val margin = 42f
@@ -203,7 +231,7 @@ object ReportPdfGenerator {
                     page.canvas.drawText(line, margin, pageHeight - 18f + index * 10f, footerPaint)
                 }
             }
-            val pageLabel = "Sivu $pageNumber"
+            val pageLabel = "$pageNumber/${totalPages ?: pageNumber}"
             page.canvas.drawText(
                 pageLabel,
                 pageWidth - margin - footerPaint.measureText(pageLabel),
