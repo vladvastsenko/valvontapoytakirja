@@ -117,8 +117,8 @@ object PublicArchive {
         val existing = parent.findFile(name)
         if (existing != null && existing.isFile && !force &&
             existing.length() == source.length() &&
-            existing.lastModified() > 0L &&
-            existing.lastModified() >= source.lastModified()
+            (!source.extension.equals("json", ignoreCase = true) ||
+                (existing.lastModified() > 0L && existing.lastModified() >= source.lastModified()))
         ) return
 
         val destination = if (existing != null && existing.isFile) {
