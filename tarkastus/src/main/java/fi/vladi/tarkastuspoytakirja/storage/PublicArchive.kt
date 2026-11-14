@@ -79,7 +79,22 @@ object PublicArchive {
             .getString(TREE_URI_KEY, null) ?: return null
         val selectedFolder = DocumentFile.fromTreeUri(context, Uri.parse(rawUri)) ?: return null
         if (!selectedFolder.canWrite()) return null
-        return childDirectory(selectedFolder, FOLDER_NAME)
+
+        return childDirectory(selectedFolder, FOLDER_NAME).also { archive ->
+            // Keep archived report photos available to the app and file manager,
+            // but prevent Android Gallery from indexing them as new camera photos.
+            ensureNoMedia(context, archive)
+        }
+    }
+
+    private fun ensureNoMedia(context: Context, directory: DocumentFile) {
+        runCatching {
+            val existing = directory.findFile(".nomedia")
+            if (existing?.isFile == true) return
+            existing?.delete()
+            val marker = directory.createFile("application/octet-stream", ".nomedia") ?: return
+            context.contentResolver.openOutputStream(marker.uri)?.use { }
+        }
     }
 
     private fun relativeToFiles(context: Context, source: File): String? {
