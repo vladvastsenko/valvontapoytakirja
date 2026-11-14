@@ -3,17 +3,15 @@
     android:height="108dp"
     android:viewportWidth="108"
     android:viewportHeight="108">
+    <!-- White safety helmet silhouette -->
     <path
-        android:fillColor="#087AC8"
-        android:pathData="M54,9 C45,24 27,45 27,63 C27,79 39,92 54,92 C69,92 81,79 81,63 C81,45 63,24 54,9 Z" />
-    <path
-        android:fillColor="#45BDF4"
-        android:pathData="M49,22 C43,34 35,47 34,59 C33,66 35,71 39,75 C38,63 44,48 51,35 C54,29 55,24 54,18 Z" />
+        android:fillColor="#FFFFFF"
+        android:pathData="M24,62 C24,43 35,28 50,23 L50,17 C50,14 52,12 54,12 C56,12 58,14 58,17 L58,23 C73,28 84,43 84,62 Z M14,62 L94,62 C97,62 99,64 99,67 L99,70 C99,73 97,75 94,75 L14,75 C11,75 9,73 9,70 L9,67 C9,64 11,62 14,62 Z" />
+    <!-- Center reinforcement rib -->
     <path
         android:fillColor="#00000000"
-        android:strokeColor="#FFFFFF"
-        android:strokeWidth="6"
+        android:strokeColor="#075985"
+        android:strokeWidth="3.5"
         android:strokeLineCap="round"
-        android:strokeLineJoin="round"
-        android:pathData="M38,56 L50,68 L71,45" />
+        android:pathData="M54,27 L54,59" />
 </vector>
