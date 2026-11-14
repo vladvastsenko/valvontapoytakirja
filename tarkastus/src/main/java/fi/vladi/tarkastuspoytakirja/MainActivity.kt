@@ -327,6 +327,11 @@ private fun EditorScreen(
     onDeletePhoto: (String, ReportPhoto) -> Unit
 ) {
     var photoBeingEdited by remember(report.id) { mutableStateOf<ReportPhoto?>(null) }
+    var customerMenuExpanded by remember(report.id) { mutableStateOf(false) }
+    var siteMenuExpanded by remember(report.id) { mutableStateOf(false) }
+    val selectedCustomer = customers.firstOrNull { it.id == report.customerId }
+    val customerSites = sites.filter { it.customerId == report.customerId }
+    val selectedSite = customerSites.firstOrNull { it.id == report.siteId }
     if (photoBeingEdited != null) {
         val photo = photoBeingEdited!!
         PhotoMarkupEditor(
@@ -360,54 +365,95 @@ private fun EditorScreen(
         Field("Kansio / alikansio (esim. Asiakkaat/Helsinki/Kohde)", report.folderPath) {
             onChange(report.copy(folderPath = it.trim('/')))
         }
-        ChoiceField(
-            label = "Vakioasiakas",
-            selectedId = report.customerId,
-            options = customers.map { it.id to it.name },
-            onSelected = { id ->
-                val customer = customers.firstOrNull { it.id == id }
-                onChange(report.copy(
-                    customerId = id,
-                    siteId = "",
-                    customerName = customer?.name.orEmpty(),
-                    customerBusinessId = customer?.businessId.orEmpty(),
-                    customerAddress = customer?.address.orEmpty(),
-                    customerPostalCode = customer?.postalCode.orEmpty(),
-                    customerCity = customer?.city.orEmpty(),
-                    clientOrRepresentative = customer?.contactPerson.orEmpty(),
-                    clientPhone = customer?.phone.orEmpty(),
-                    clientEmail = customer?.email.orEmpty(),
-                    siteName = "",
-                    siteAddress = "",
-                    customFields = emptyList()
-                ))
+        Box {
+            OutlinedButton(
+                onClick = { customerMenuExpanded = true },
+                modifier = Modifier.fillMaxWidth(),
+                enabled = customers.isNotEmpty()
+            ) {
+                Column(Modifier.fillMaxWidth(), horizontalAlignment = Alignment.Start) {
+                    Text("Vakioasiakas", style = MaterialTheme.typography.labelSmall)
+                    Text(selectedCustomer?.name ?: "Valitse vakioasiakas")
+                    selectedCustomer?.let { customer ->
+                        val details = listOfNotNull(
+                            customer.businessId.takeIf { it.isNotBlank() }?.let { "Y-tunnus: $it" },
+                            customer.city.takeIf { it.isNotBlank() }
+                        ).joinToString(" • ")
+                        if (details.isNotBlank()) Text(details, style = MaterialTheme.typography.bodySmall)
+                    }
+                }
             }
-        )
+            DropdownMenu(expanded = customerMenuExpanded, onDismissRequest = { customerMenuExpanded = false }) {
+                customers.forEach { customer ->
+                    DropdownMenuItem(text = {
+                        Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
+                            Text(customer.name, fontWeight = FontWeight.SemiBold)
+                            val details = listOfNotNull(
+                                customer.businessId.takeIf { it.isNotBlank() }?.let { "Y-tunnus: $it" },
+                                customer.city.takeIf { it.isNotBlank() }
+                            ).joinToString(" • ")
+                            if (details.isNotBlank()) Text(details, style = MaterialTheme.typography.bodySmall)
+                        }
+                    }, onClick = {
+                        onChange(report.copy(
+                            customerId = customer.id,
+                            siteId = "",
+                            customerName = customer.name,
+                            customerBusinessId = customer.businessId,
+                            customerAddress = customer.address,
+                            customerPostalCode = customer.postalCode,
+                            customerCity = customer.city,
+                            clientOrRepresentative = customer.contactPerson,
+                            clientPhone = customer.phone,
+                            clientEmail = customer.email,
+                            siteName = "",
+                            siteAddress = "",
+                            customFields = emptyList()
+                        ))
+                        customerMenuExpanded = false
+                    })
+                }
+            }
+        }
         if (customers.isEmpty()) {
             Text("Lisää vakioasiakkaat ensin Asetukset-osiossa.")
-        } else if (report.customerId.isNotBlank()) {
-            val selectedCustomer = customers.firstOrNull { it.id == report.customerId }
-            if (selectedCustomer != null) {
-                Text("Asiakas: ${selectedCustomer.name}", fontWeight = FontWeight.SemiBold)
-                val customerSites = sites.filter { it.customerId == selectedCustomer.id }
-                ChoiceField(
-                    label = "Kohde",
-                    selectedId = report.siteId,
-                    options = customerSites.map { it.id to (it.name + " — " + it.address) },
-                    onSelected = { id ->
-                        val site = customerSites.firstOrNull { it.id == id }
-                        onChange(report.copy(
-                            siteId = id,
-                            siteName = site?.name.orEmpty(),
-                            siteAddress = site?.address.orEmpty(),
-                            customFields = site?.fieldDefinitions?.map { definition ->
-                                CustomReportField(label = definition.label, sourceDefinitionId = definition.id)
-                            }.orEmpty()
-                        ))
+        } else if (selectedCustomer != null) {
+            Text("Asiakas: ${selectedCustomer.name}", fontWeight = FontWeight.SemiBold)
+            Box {
+                OutlinedButton(
+                    onClick = { siteMenuExpanded = true },
+                    modifier = Modifier.fillMaxWidth(),
+                    enabled = customerSites.isNotEmpty()
+                ) {
+                    Column(Modifier.fillMaxWidth(), horizontalAlignment = Alignment.Start) {
+                        Text("Kohde", style = MaterialTheme.typography.labelSmall)
+                        Text(selectedSite?.name ?: report.siteName.ifBlank { "Valitse kohde" })
+                        val detail = selectedSite?.address ?: report.siteAddress
+                        if (detail.isNotBlank()) Text(detail, style = MaterialTheme.typography.bodySmall)
                     }
-                )
-                if (customerSites.isEmpty()) Text("Lisää tälle asiakkaalle kohteita Asetukset-osiossa.")
+                }
+                DropdownMenu(expanded = siteMenuExpanded, onDismissRequest = { siteMenuExpanded = false }) {
+                    customerSites.forEach { site ->
+                        DropdownMenuItem(text = {
+                            Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
+                                Text(site.name, fontWeight = FontWeight.SemiBold)
+                                if (site.address.isNotBlank()) Text(site.address, style = MaterialTheme.typography.bodySmall)
+                            }
+                        }, onClick = {
+                            onChange(report.copy(
+                                siteId = site.id,
+                                siteName = site.name,
+                                siteAddress = site.address,
+                                customFields = site.fieldDefinitions.map { definition ->
+                                    CustomReportField(label = definition.label, sourceDefinitionId = definition.id)
+                                }
+                            ))
+                            siteMenuExpanded = false
+                        })
+                    }
+                }
             }
+            if (customerSites.isEmpty()) Text("Lisää tälle asiakkaalle kohteita Asetukset-osiossa.")
         }
         if (report.customerName.isNotBlank()) {
             Card(modifier = Modifier.fillMaxWidth()) {
@@ -551,36 +597,6 @@ private fun EditorScreen(
     }
 }
 
-
-@Composable
-private fun ChoiceField(
-    label: String,
-    selectedId: String,
-    options: List<Pair<String, String>>,
-    onSelected: (String) -> Unit
-) {
-    var expanded by remember(label, selectedId) { mutableStateOf(false) }
-    val selectedLabel = options.firstOrNull { it.first == selectedId }?.second ?: "Valitse"
-    Column {
-        OutlinedButton(onClick = { expanded = true }, modifier = Modifier.fillMaxWidth(), enabled = options.isNotEmpty()) {
-            Column(Modifier.fillMaxWidth()) {
-                Text(label, style = MaterialTheme.typography.labelSmall)
-                Text(selectedLabel)
-            }
-        }
-        DropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
-            options.forEach { option ->
-                DropdownMenuItem(
-                    text = { Text(option.second) },
-                    onClick = {
-                        onSelected(option.first)
-                        expanded = false
-                    }
-                )
-            }
-        }
-    }
-}
 
 @Composable
 private fun SectionTitle(title: String) {
