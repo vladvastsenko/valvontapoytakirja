@@ -389,7 +389,7 @@ private fun EditorScreen(
         verticalArrangement = Arrangement.spacedBy(10.dp)
     ) {
         Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-            TextButton(onClick = onBack) { Text("← Takaisin") }
+            TextButton(onClick = onBack) { Text("← Takaisin asiakirjan valintaan") }
             Spacer(Modifier.weight(1f))
             Button(onClick = onExport) { Text("Luo PDF") }
         }
@@ -656,6 +656,21 @@ private fun Field(
     )
 }
 
+private fun decodePreviewBitmap(path: String): Bitmap? {
+    // Decode a bounded preview instead of loading full camera originals in every photo card.
+    val bounds = BitmapFactory.Options().apply { inJustDecodeBounds = true }
+    BitmapFactory.decodeFile(path, bounds)
+    if (bounds.outWidth <= 0 || bounds.outHeight <= 0) return null
+    var sampleSize = 1
+    val maxDimension = 1200
+    while (bounds.outWidth / sampleSize > maxDimension || bounds.outHeight / sampleSize > maxDimension) sampleSize *= 2
+    val options = BitmapFactory.Options().apply {
+        inSampleSize = sampleSize
+        inPreferredConfig = Bitmap.Config.RGB_565
+    }
+    return BitmapFactory.decodeFile(path, options)
+}
+
 @Composable
 private fun PhotoCard(
     photo: ReportPhoto,
@@ -665,7 +680,7 @@ private fun PhotoCard(
 ) {
     val displayPath = photo.annotatedPath.takeIf { it.isNotBlank() && File(it).exists() } ?: photo.filePath
     val bitmap = remember(displayPath) {
-        BitmapFactory.decodeFile(displayPath)?.asImageBitmap()
+        decodePreviewBitmap(displayPath)?.asImageBitmap()
     }
     Card(modifier = Modifier.fillMaxWidth()) {
         Column(Modifier.padding(10.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
