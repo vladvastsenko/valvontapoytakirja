@@ -3,28 +3,50 @@
     android:height="108dp"
     android:viewportWidth="108"
     android:viewportHeight="108">
-    <!-- Building outline: construction site / inspected property -->
+    <!-- White inspection report clipboard -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:strokeColor="#10243A"
+        android:strokeWidth="3.5"
+        android:strokeLineJoin="round"
+        android:pathData="M27,25 L69,25 C73,25 76,28 76,32 L76,87 C76,91 73,94 69,94 L27,94 C23,94 20,91 20,87 L20,32 C20,28 23,25 27,25 Z" />
+    <!-- Clipboard clip -->
+    <path
+        android:fillColor="#DCE6EF"
+        android:strokeColor="#10243A"
+        android:strokeWidth="3"
+        android:pathData="M39,25 L39,20 C39,17 41,15 44,15 L53,15 C56,15 58,17 58,20 L58,25 Z" />
+    <!-- Checklist marks and report lines -->
     <path
         android:fillColor="#00000000"
-        android:strokeColor="#FFFFFF"
-        android:strokeWidth="5"
+        android:strokeColor="#F4B400"
+        android:strokeWidth="3.5"
         android:strokeLineCap="round"
         android:strokeLineJoin="round"
-        android:pathData="M18,45 L54,19 L90,45 L90,84 L18,84 Z" />
-    <!-- Main entrance and simple windows -->
+        android:pathData="M29,57 L33,61 L40,52 M29,72 L33,76 L40,67 M29,85 L33,89 L40,80" />
     <path
         android:fillColor="#00000000"
-        android:strokeColor="#FFFFFF"
-        android:strokeWidth="4"
+        android:strokeColor="#10243A"
+        android:strokeWidth="3"
         android:strokeLineCap="round"
+        android:pathData="M47,57 L66,57 M47,72 L66,72 M47,85 L61,85" />
+    <!-- Yellow safety helmet overlapping the clipboard -->
+    <path
+        android:fillColor="#FFD43B"
+        android:strokeColor="#10243A"
+        android:strokeWidth="3"
         android:strokeLineJoin="round"
-        android:pathData="M45,84 L45,62 L63,62 L63,84 M31,52 L40,52 M68,52 L77,52" />
-    <!-- Quality-control check mark -->
+        android:pathData="M56,43 C57,31 64,23 72,22 C81,23 87,31 88,43 Z" />
+    <path
+        android:fillColor="#FFD43B"
+        android:strokeColor="#10243A"
+        android:strokeWidth="3"
+        android:strokeLineJoin="round"
+        android:pathData="M53,42 L91,42 L91,46 C91,49 88,51 85,51 L59,51 C56,51 53,49 53,46 Z" />
     <path
         android:fillColor="#00000000"
-        android:strokeColor="#FBBF24"
-        android:strokeWidth="8"
+        android:strokeColor="#10243A"
+        android:strokeWidth="2.5"
         android:strokeLineCap="round"
-        android:strokeLineJoin="round"
-        android:pathData="M58,70 L68,80 L87,59" />
+        android:pathData="M72,25 L72,41" />
 </vector>

@@ -30,6 +30,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.DropdownMenu
@@ -211,6 +212,10 @@ private fun TarkastusApp() {
                 )))
             },
             onOpen = { currentReport = it },
+            onDeleteReport = { reportId ->
+                repository.deleteReport(reportId)
+                reports = repository.listReports()
+            },
             onSettings = { showSettings = true }
         )
     } else {
@@ -268,8 +273,10 @@ private fun HomeScreen(
     onCreateFromTemplate: (InspectionReport) -> Unit,
     onCreate: () -> Unit,
     onOpen: (InspectionReport) -> Unit,
+    onDeleteReport: (String) -> Unit,
     onSettings: () -> Unit
 ) {
+    var reportToDelete by remember { mutableStateOf<InspectionReport?>(null) }
     Column(
         modifier = Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(20.dp),
         verticalArrangement = Arrangement.spacedBy(12.dp)
@@ -296,17 +303,45 @@ private fun HomeScreen(
         } else {
             reports.forEach { report ->
                 Card(
-                    modifier = Modifier.fillMaxWidth().clickable { onOpen(report) },
+                    modifier = Modifier.fillMaxWidth(),
                     shape = RoundedCornerShape(12.dp)
                 ) {
-                    Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
-                        Text(report.siteAddress.ifBlank { "Uusi pöytäkirja" }, fontWeight = FontWeight.SemiBold)
-                        if (report.folderPath.isNotBlank()) Text("Kansio: " + report.folderPath, style = MaterialTheme.typography.bodySmall)
-                        Text("Tarkastuspäivä: ${report.inspectionDate.ifBlank { "—" }}")
-                        Text("${report.observations.size} havaintoa", style = MaterialTheme.typography.bodySmall)
+                    Row(
+                        modifier = Modifier.padding(16.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        Column(
+                            modifier = Modifier.weight(1f).clickable { onOpen(report) },
+                            verticalArrangement = Arrangement.spacedBy(4.dp)
+                        ) {
+                            Text(report.siteAddress.ifBlank { "Uusi pöytäkirja" }, fontWeight = FontWeight.SemiBold)
+                            if (report.folderPath.isNotBlank()) Text("Kansio: " + report.folderPath, style = MaterialTheme.typography.bodySmall)
+                            Text("Tarkastuspäivä: ${report.inspectionDate.ifBlank { "—" }}")
+                            Text("${report.observations.size} havaintoa", style = MaterialTheme.typography.bodySmall)
+                            val photoCount = report.observations.sumOf { it.photos.size }
+                            Text("$photoCount valokuvaa", style = MaterialTheme.typography.bodySmall)
+                        }
+                        TextButton(onClick = { reportToDelete = report }) { Text("Poista") }
                     }
                 }
             }
+        }
+        reportToDelete?.let { report ->
+            AlertDialog(
+                onDismissRequest = { reportToDelete = null },
+                title = { Text("Poista pöytäkirja?") },
+                text = { Text("Haluatko varmasti poistaa raportin ”${report.siteAddress.ifBlank { "Uusi pöytäkirja" }}” ja siihen liittyvät valokuvat? Tätä ei voi perua.") },
+                confirmButton = {
+                    TextButton(onClick = {
+                        onDeleteReport(report.id)
+                        reportToDelete = null
+                    }) { Text("Poista") }
+                },
+                dismissButton = {
+                    TextButton(onClick = { reportToDelete = null }) { Text("Peruuta") }
+                }
+            )
         }
         Spacer(Modifier.height(20.dp))
         Text("Tarkastuspöytäkirja 1.0.0 • Tallennus tapahtuu tässä puhelimessa.", style = MaterialTheme.typography.bodySmall)

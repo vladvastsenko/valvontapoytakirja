@@ -142,6 +142,15 @@ class ReportRepository(private val context: Context) {
         if (report.logoPath.isNotBlank()) PublicArchive.syncFile(context, File(report.logoPath), force = false)
     }
 
+    fun deleteReport(reportId: String) {
+        val jsonFile = File(reportsDirectory(), "${reportId}.json")
+        val reportDirectory = File(reportsDirectory(), reportId)
+        jsonFile.delete()
+        reportDirectory.deleteRecursively()
+        PublicArchive.deleteFile(context, jsonFile)
+        PublicArchive.deleteDirectory(context, reportDirectory)
+    }
+
     fun createCameraPhotoFile(reportId: String): File {
         val directory = File(reportsDirectory(), "$reportId/photos").apply { mkdirs() }
         return File(directory, "photo_${Instant.now().toEpochMilli()}.jpg")
