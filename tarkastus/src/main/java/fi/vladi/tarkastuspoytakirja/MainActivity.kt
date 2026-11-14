@@ -428,7 +428,7 @@ private fun EditorScreen(
                     Column(Modifier.fillMaxWidth(), horizontalAlignment = Alignment.Start) {
                         Text("Kohde", style = MaterialTheme.typography.labelSmall)
                         Text(selectedSite?.name ?: report.siteName.ifBlank { "Valitse kohde" })
-                        val detail = selectedSite?.address ?: report.siteAddress
+                        val detail = report.siteAddress.ifBlank { selectedSite?.address.orEmpty() }
                         if (detail.isNotBlank()) Text(detail, style = MaterialTheme.typography.bodySmall)
                     }
                 }
@@ -469,8 +469,8 @@ private fun EditorScreen(
                 }
             }
         }
+        Field("Kohteen tarkenne", report.siteAddress) { onChange(report.copy(siteAddress = it)) }
         if (report.customerId.isBlank()) {
-            Field("Kohteen tarkenne", report.siteAddress) { onChange(report.copy(siteAddress = it)) }
             Field("Tilaaja / kohteen edustaja", report.clientOrRepresentative) { onChange(report.copy(clientOrRepresentative = it)) }
             Field("Tilaajan puhelinnumero", report.clientPhone) { onChange(report.copy(clientPhone = it)) }
             Field("Tilaajan sähköposti", report.clientEmail) { onChange(report.copy(clientEmail = it)) }
