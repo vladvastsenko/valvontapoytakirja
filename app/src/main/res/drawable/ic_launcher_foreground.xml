@@ -3,15 +3,28 @@
     android:height="108dp"
     android:viewportWidth="108"
     android:viewportHeight="108">
-    <!-- White safety helmet silhouette -->
-    <path
-        android:fillColor="#FFFFFF"
-        android:pathData="M24,62 C24,43 35,28 50,23 L50,17 C50,14 52,12 54,12 C56,12 58,14 58,17 L58,23 C73,28 84,43 84,62 Z M14,62 L94,62 C97,62 99,64 99,67 L99,70 C99,73 97,75 94,75 L14,75 C11,75 9,73 9,70 L9,67 C9,64 11,62 14,62 Z" />
-    <!-- Center reinforcement rib -->
+    <!-- Building outline: construction site / inspected property -->
     <path
         android:fillColor="#00000000"
-        android:strokeColor="#075985"
-        android:strokeWidth="3.5"
+        android:strokeColor="#FFFFFF"
+        android:strokeWidth="5"
         android:strokeLineCap="round"
-        android:pathData="M54,27 L54,59" />
+        android:strokeLineJoin="round"
+        android:pathData="M18,45 L54,19 L90,45 L90,84 L18,84 Z" />
+    <!-- Main entrance and simple windows -->
+    <path
+        android:fillColor="#00000000"
+        android:strokeColor="#FFFFFF"
+        android:strokeWidth="4"
+        android:strokeLineCap="round"
+        android:strokeLineJoin="round"
+        android:pathData="M45,84 L45,62 L63,62 L63,84 M31,52 L40,52 M68,52 L77,52" />
+    <!-- Quality-control check mark -->
+    <path
+        android:fillColor="#00000000"
+        android:strokeColor="#FBBF24"
+        android:strokeWidth="8"
+        android:strokeLineCap="round"
+        android:strokeLineJoin="round"
+        android:pathData="M59,73 L70,84 L94,57" />
 </vector>
