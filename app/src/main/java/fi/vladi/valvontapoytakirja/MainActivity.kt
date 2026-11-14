@@ -525,11 +525,30 @@ private fun EditorScreen(
         SectionTitle("VAKIOASIAKAS JA KOHDE")
         Box {
             OutlinedButton(onClick = { customerMenuExpanded = true }, modifier = Modifier.fillMaxWidth()) {
-                Text(selectedCustomer?.name ?: "Valitse vakioasiakas")
+                Column(Modifier.fillMaxWidth(), horizontalAlignment = Alignment.Start) {
+                    Text("Vakioasiakas", style = MaterialTheme.typography.labelSmall)
+                    Text(selectedCustomer?.name ?: "Valitse vakioasiakas")
+                    selectedCustomer?.let { customer ->
+                        val details = listOfNotNull(
+                            customer.businessId.takeIf { it.isNotBlank() }?.let { "Y-tunnus: $it" },
+                            customer.city.takeIf { it.isNotBlank() }
+                        ).joinToString(" • ")
+                        if (details.isNotBlank()) Text(details, style = MaterialTheme.typography.bodySmall)
+                    }
+                }
             }
             DropdownMenu(expanded = customerMenuExpanded, onDismissRequest = { customerMenuExpanded = false }) {
                 customers.forEach { customer ->
-                    DropdownMenuItem(text = { Text(customer.name) }, onClick = {
+                    DropdownMenuItem(text = {
+                        Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
+                            Text(customer.name, fontWeight = FontWeight.SemiBold)
+                            val details = listOfNotNull(
+                                customer.businessId.takeIf { it.isNotBlank() }?.let { "Y-tunnus: $it" },
+                                customer.city.takeIf { it.isNotBlank() }
+                            ).joinToString(" • ")
+                            if (details.isNotBlank()) Text(details, style = MaterialTheme.typography.bodySmall)
+                        }
+                    }, onClick = {
                         onChange(report.copy(
                             customerId = customer.id,
                             siteId = "",
@@ -551,16 +570,27 @@ private fun EditorScreen(
             }
         }
         if (selectedCustomer != null) {
+            val selectedSite = availableSites.firstOrNull { it.id == report.siteId }
             Box {
                 OutlinedButton(
                     onClick = { siteMenuExpanded = true },
                     modifier = Modifier.fillMaxWidth()
                 ) {
-                    Text(report.siteName.ifBlank { "Valitse kohde" })
+                    Column(Modifier.fillMaxWidth(), horizontalAlignment = Alignment.Start) {
+                        Text("Kohde", style = MaterialTheme.typography.labelSmall)
+                        Text(selectedSite?.name ?: report.siteName.ifBlank { "Valitse kohde" })
+                        val detail = selectedSite?.address ?: report.siteAddress
+                        if (detail.isNotBlank()) Text(detail, style = MaterialTheme.typography.bodySmall)
+                    }
                 }
                 DropdownMenu(expanded = siteMenuExpanded, onDismissRequest = { siteMenuExpanded = false }) {
                     availableSites.forEach { site ->
-                        DropdownMenuItem(text = { Text(site.name) }, onClick = {
+                        DropdownMenuItem(text = {
+                            Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
+                                Text(site.name, fontWeight = FontWeight.SemiBold)
+                                if (site.address.isNotBlank()) Text(site.address, style = MaterialTheme.typography.bodySmall)
+                            }
+                        }, onClick = {
                             val previousValues = report.siteFieldValues.associateBy { it.definitionId }
                             onChange(report.copy(
                                 siteId = site.id,
