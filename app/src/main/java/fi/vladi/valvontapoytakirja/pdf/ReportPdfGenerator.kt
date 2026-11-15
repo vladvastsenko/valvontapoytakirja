@@ -84,7 +84,12 @@ object ReportPdfGenerator {
                 val product = listOf(material.manufacturer, material.productName)
                     .filter { it.isNotBlank() }
                     .joinToString(" – ")
-                writer.field(material.category, listOf(product, material.notes).filter { it.isNotBlank() }.joinToString(" | "))
+                val label = if (material.surface.isNotBlank()) "${material.category} – ${material.surface}" else material.category
+                val specs = listOf(
+                    material.consumptionPerM2.takeIf { it.isNotBlank() }?.let { "Menekki: $it" },
+                    material.dryFilmThicknessMm.takeIf { it.isNotBlank() }?.let { "Kuivakalvo: $it mm" }
+                ).filterNotNull()
+                writer.field(label, (listOf(product, material.notes) + specs).filter { it.isNotBlank() }.joinToString(" | "))
             }
     
             writer.section("RAKENTEET JA MITAT")
