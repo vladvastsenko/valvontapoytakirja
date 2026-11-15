@@ -83,7 +83,7 @@ class MainActivity : ComponentActivity() {
         setContent {
             MaterialTheme {
                 Surface(modifier = Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background) {
-                    TarkastusApp()
+                    TarkastusApp(onBackToLauncher = { finish() })
                 }
             }
         }
@@ -91,7 +91,7 @@ class MainActivity : ComponentActivity() {
 }
 
 @Composable
-private fun TarkastusApp() {
+private fun TarkastusApp(onBackToLauncher: () -> Unit) {
     val context = LocalContext.current
     val repository = remember { ReportRepository(context) }
     var reports by remember { mutableStateOf(repository.listReports()) }
@@ -216,7 +216,8 @@ private fun TarkastusApp() {
                 repository.deleteReport(reportId)
                 reports = repository.listReports()
             },
-            onSettings = { showSettings = true }
+            onSettings = { showSettings = true },
+            onBackToLauncher = onBackToLauncher
         )
     } else {
         EditorScreen(
@@ -274,7 +275,8 @@ private fun HomeScreen(
     onCreate: () -> Unit,
     onOpen: (InspectionReport) -> Unit,
     onDeleteReport: (String) -> Unit,
-    onSettings: () -> Unit
+    onSettings: () -> Unit,
+    onBackToLauncher: () -> Unit
 ) {
     var reportToDelete by remember { mutableStateOf<InspectionReport?>(null) }
     Column(
@@ -283,6 +285,7 @@ private fun HomeScreen(
     ) {
         Text("Tarkastuspöytäkirja", style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.Bold)
         Text("Yleiset tarkastusraportit")
+        TextButton(onClick = onBackToLauncher) { Text("← Takaisin asiakirjan valintaan") }
         Button(onClick = onCreate, modifier = Modifier.fillMaxWidth()) {
             Text("Uusi pöytäkirja")
         }
