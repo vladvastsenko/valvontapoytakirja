@@ -372,14 +372,16 @@ private fun ValvontaApp(
             onExport = {
                 pendingSaveJob?.cancel()
                 repository.save(active)
-                val pdf = withContext(Dispatchers.IO) { ReportPdfGenerator.generate(context, active, appSettings) }
-                val uri = FileProvider.getUriForFile(context, "${context.packageName}.fileprovider", pdf)
-                val sendIntent = Intent(Intent.ACTION_SEND).apply {
-                    type = "application/pdf"
-                    putExtra(Intent.EXTRA_STREAM, uri)
-                    addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+                saveScope.launch {
+                    val pdf = withContext(Dispatchers.IO) { ReportPdfGenerator.generate(context, active, appSettings) }
+                    val uri = FileProvider.getUriForFile(context, "${context.packageName}.fileprovider", pdf)
+                    val sendIntent = Intent(Intent.ACTION_SEND).apply {
+                        type = "application/pdf"
+                        putExtra(Intent.EXTRA_STREAM, uri)
+                        addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+                    }
+                    context.startActivity(Intent.createChooser(sendIntent, "Jaa valvontapöytäkirja"))
                 }
-                context.startActivity(Intent.createChooser(sendIntent, "Jaa valvontapöytäkirja"))
             },
             onDeletePhoto = { photoPath ->
                 repository.deletePhoto(photoPath)
