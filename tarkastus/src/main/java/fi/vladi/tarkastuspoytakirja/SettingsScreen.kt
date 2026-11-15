@@ -1,5 +1,9 @@
 package fi.vladi.tarkastuspoytakirja
 
+import android.graphics.BitmapFactory
+import androidx.compose.foundation.Image
+import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -77,7 +81,23 @@ fun SettingsScreen(
             onSettingsChange(settings.copy(inspectorEmail = it))
         }
         Text("Logo")
-        Text(if (settings.logoPath.isBlank()) "Logoa ei ole valittu." else "Logo tallennettu.")
+        if (settings.logoPath.isBlank()) {
+            Text("Logoa ei ole valittu.")
+        } else {
+            val logoPreview = remember(settings.logoPath) {
+                runCatching { BitmapFactory.decodeFile(settings.logoPath)?.asImageBitmap() }.getOrNull()
+            }
+            if (logoPreview != null) {
+                Image(
+                    bitmap = logoPreview,
+                    contentDescription = "Valittu raportin logo",
+                    modifier = Modifier.fillMaxWidth().height(120.dp),
+                    contentScale = ContentScale.Fit
+                )
+            } else {
+                Text("Logotiedostoa ei voitu näyttää. Valitse logo uudelleen.")
+            }
+        }
         Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
             OutlinedButton(onClick = onPickLogo, modifier = Modifier.weight(1f)) {
                 Text(if (settings.logoPath.isBlank()) "Valitse logo" else "Vaihda logo")
