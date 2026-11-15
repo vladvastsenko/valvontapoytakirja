@@ -45,6 +45,12 @@ import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.rememberCoroutineScope
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -224,6 +230,8 @@ private fun ValvontaApp(
     var showSettings by remember { mutableStateOf(initialShowSettings) }
     var currentReport by remember { mutableStateOf<InspectionReport?>(null) }
     var pendingCameraFile by remember { mutableStateOf<File?>(null) }
+    val saveScope = rememberCoroutineScope()
+    var pendingSaveJob by remember { mutableStateOf<Job?>(null) }
 
     fun saveAppSettings(settings: AppSettings) {
         appSettings = settings
@@ -239,8 +247,11 @@ private fun ValvontaApp(
 
     fun saveReport(report: InspectionReport) {
         currentReport = report
-        repository.save(report)
-        reports = repository.listReports()
+        pendingSaveJob?.cancel()
+        pendingSaveJob = saveScope.launch {
+            delay(400)
+            repository.saveLocal(report)
+        }
     }
 
     val cameraLauncher = rememberLauncherForActivityResult(
@@ -341,6 +352,7 @@ private fun ValvontaApp(
             sites = sites,
             onChange = ::saveReport,
             onBack = {
+                pendingSaveJob?.cancel()
                 repository.save(active)
                 reports = repository.listReports()
                 currentReport = null
@@ -358,7 +370,9 @@ private fun ValvontaApp(
                 templates = repository.listTemplates()
             },
             onExport = {
-                val pdf = ReportPdfGenerator.generate(context, active, appSettings)
+                pendingSaveJob?.cancel()
+                repository.save(active)
+                val pdf = withContext(Dispatchers.IO) { ReportPdfGenerator.generate(context, active, appSettings) }
                 val uri = FileProvider.getUriForFile(context, "${context.packageName}.fileprovider", pdf)
                 val sendIntent = Intent(Intent.ACTION_SEND).apply {
                     type = "application/pdf"
@@ -1049,6 +1063,18 @@ private fun MaterialCard(
                 Field("Tuotteen nimi", material.productName) { onChange(material.copy(productName = it)) }
             } else if (productOptions.isEmpty()) {
                 Text("Tälle valmistajalle ei ole tuotetta tässä kategoriassa. Valitse vain valmistajan järjestelmään kuuluva tuote toisesta sopivasta kohdasta.")
+            }
+            if (material.category.equals("vedeneriste", ignoreCase = true)) {
+                Text("Pinta: ${material.surface.ifBlank { "Ei määritetty" }}")
+                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    listOf("Seinä", "Lattia").forEach { surface ->
+                        OutlinedButton(onClick = { onChange(material.copy(surface = surface)) }) { Text(surface) }
+                    }
+                }
+            }
+            if (material.category.equals("tasoite", ignoreCase = true)) {
+                Field("Menekki (kg/m²)", material.consumptionPerM2) { onChange(material.copy(consumptionPerM2 = it)) }
+                Field("Kuivakalvon / kerroksen paksuus (mm)", material.dryFilmThicknessMm) { onChange(material.copy(dryFilmThicknessMm = it)) }
             }
             Field("Lisätiedot", material.notes) { onChange(material.copy(notes = it)) }
         }
