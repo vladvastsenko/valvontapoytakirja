@@ -129,16 +129,21 @@ class ReportRepository(private val context: Context) {
         file.writeText(json.encodeToString(InspectionReport.serializer(), template))
         PublicArchive.syncFile(context, file)
     }
-    fun save(report: InspectionReport) {
+    fun saveLocal(report: InspectionReport) {
         val file = File(reportsDirectory(), "${report.id}.json")
         file.writeText(json.encodeToString(InspectionReport.serializer(), report))
+    }
+
+    fun syncReportArchive(report: InspectionReport) {
+        val file = File(reportsDirectory(), "${report.id}.json")
         PublicArchive.syncFile(context, file)
-        report.photos.forEach { photo ->
-            PublicArchive.syncFile(context, File(photo.filePath), force = false)
-        }
-        if (report.logoPath.isNotBlank()) {
-            PublicArchive.syncFile(context, File(report.logoPath), force = false)
-        }
+        report.photos.forEach { photo -> PublicArchive.syncFile(context, File(photo.filePath), force = false) }
+        if (report.logoPath.isNotBlank()) PublicArchive.syncFile(context, File(report.logoPath), force = false)
+    }
+
+    fun save(report: InspectionReport) {
+        saveLocal(report)
+        syncReportArchive(report)
     }
 
     fun deleteReport(reportId: String) {
