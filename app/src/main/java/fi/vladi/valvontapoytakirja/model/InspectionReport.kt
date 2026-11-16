@@ -130,7 +130,7 @@ fun defaultMaterialEntries(): List<MaterialEntry> = listOf(
     "Elastinen saumausmassa"
 ).flatMap { category ->
     val hasKiiltoProducts = category !in listOf("Kaivotyyppi", "Laatat")
-    if (category == "Vedeneriste") listOf(
+    if (category == "Vedeneriste" || category == "Tasoite") listOf(
         MaterialEntry(category = category, manufacturer = if (hasKiiltoProducts) "Kiilto" else "", surface = "Seinä"),
         MaterialEntry(category = category, manufacturer = if (hasKiiltoProducts) "Kiilto" else "", surface = "Lattia")
     ) else listOf(MaterialEntry(category = category, manufacturer = if (hasKiiltoProducts) "Kiilto" else ""))
