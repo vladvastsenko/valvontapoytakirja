@@ -687,6 +687,32 @@ private fun EditorScreen(
                 familyManufacturer.isNotBlank()
         }
 
+        // Split legacy reports that had one shared screed material into wall and floor entries.
+        LaunchedEffect(report.id, report.materials) {
+            val screedEntries = report.materials.filter { it.category.equals("tasoite", ignoreCase = true) }
+            if (screedEntries.size == 1) {
+                val existing = screedEntries.first()
+                val updated = report.materials.map {
+                    if (it.id == existing.id) it.copy(surface = "Seinä") else it
+                } + existing.copy(
+                    id = java.util.UUID.randomUUID().toString(),
+                    surface = "Lattia",
+                    productName = "",
+                    notes = ""
+                )
+                onChange(report.copy(materials = updated))
+            } else if (screedEntries.size > 1 && screedEntries.any { it.surface.isBlank() }) {
+                var assigned = 0
+                val updated = report.materials.map { item ->
+                    if (item.category.equals("tasoite", ignoreCase = true) && item.surface.isBlank()) {
+                        val surface = if (assigned++ == 0) "Seinä" else "Lattia"
+                        item.copy(surface = surface)
+                    } else item
+                }
+                onChange(report.copy(materials = updated))
+            }
+        }
+
         // Clean up legacy reports that may contain products from another manufacturer.
         LaunchedEffect(report.id, familyManufacturer, report.materials) {
             if (familyManufacturer.isNotBlank()) {
@@ -1066,17 +1092,10 @@ private fun MaterialCard(
             } else if (productOptions.isEmpty()) {
                 Text("Tälle valmistajalle ei ole tuotetta tässä kategoriassa. Valitse vain valmistajan järjestelmään kuuluva tuote toisesta sopivasta kohdasta.")
             }
-            if (material.category.equals("vedeneriste", ignoreCase = true)) {
-                Text("Pinta: ${material.surface.ifBlank { "Ei määritetty" }}")
-                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    listOf("Seinä", "Lattia").forEach { surface ->
-                        OutlinedButton(onClick = { onChange(material.copy(surface = surface)) }) { Text(surface) }
-                    }
-                }
-            }
-            if (material.category.equals("tasoite", ignoreCase = true)) {
-                Field("Menekki (kg/m²)", material.consumptionPerM2) { onChange(material.copy(consumptionPerM2 = it)) }
-                Field("Kuivakalvon / kerroksen paksuus (mm)", material.dryFilmThicknessMm) { onChange(material.copy(dryFilmThicknessMm = it)) }
+            if (material.category.equals("vedeneriste", ignoreCase = true) ||
+                material.category.equals("tasoite", ignoreCase = true)
+            ) {
+                Text(material.surface.ifBlank { "Pinta määrittämättä" })
             }
             Field("Lisätiedot", material.notes) { onChange(material.copy(notes = it)) }
         }
