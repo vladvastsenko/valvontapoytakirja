@@ -146,7 +146,7 @@ class ReportRepository(private val context: Context) {
 
             val maxDimension = 2200
             var sampleSize = 1
-            while (maxOf(bounds.outWidth, bounds.outHeight) / sampleSize > maxDimension * 2) {
+            while (maxOf(bounds.outWidth, bounds.outHeight) / sampleSize > maxDimension) {
                 sampleSize *= 2
             }
             val options = BitmapFactory.Options().apply {
