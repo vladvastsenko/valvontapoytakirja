@@ -648,11 +648,12 @@ private fun PhotoCard(
             BitmapFactory.decodeFile(displayPath)?.asImageBitmap()
         }
     }
+    val loadedBitmap = bitmap
     Card(modifier = Modifier.fillMaxWidth()) {
         Column(Modifier.padding(10.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
-            if (bitmap != null) {
+            if (loadedBitmap != null) {
                 Image(
-                    bitmap = bitmap,
+                    bitmap = loadedBitmap,
                     contentDescription = "Havaintokuva",
                     modifier = Modifier.fillMaxWidth().height(180.dp),
                     contentScale = ContentScale.Crop
@@ -679,6 +680,7 @@ private fun PhotoMarkupEditor(
     val bitmap by produceState<Bitmap?>(initialValue = null, sourcePath) {
         value = withContext(Dispatchers.IO) { BitmapFactory.decodeFile(sourcePath) }
     }
+    val loadedBitmap = bitmap
     var strokes by remember(photo.id) { mutableStateOf<List<List<Offset>>>(emptyList()) }
 
     Column(
@@ -691,17 +693,17 @@ private fun PhotoMarkupEditor(
             TextButton(onClick = onCancel) { Text("Takaisin") }
         }
         Text("Piirrä sormella tai kynällä kuvan päälle. Merkinnät näkyvät myös PDF-raportissa.")
-        if (bitmap != null) {
+        if (loadedBitmap != null) {
             BoxWithConstraints(
                 modifier = Modifier.fillMaxWidth().weight(1f),
                 contentAlignment = Alignment.Center
             ) {
                 val scale = minOf(
-                    constraints.maxWidth.toFloat() / bitmap.width,
-                    constraints.maxHeight.toFloat() / bitmap.height
+                    constraints.maxWidth.toFloat() / loadedBitmap.width,
+                    constraints.maxHeight.toFloat() / loadedBitmap.height
                 ).coerceAtMost(1f)
-                val imageWidth = (bitmap.width * scale).toInt().coerceAtLeast(1)
-                val imageHeight = (bitmap.height * scale).toInt().coerceAtLeast(1)
+                val imageWidth = (loadedBitmap.width * scale).toInt().coerceAtLeast(1)
+                val imageHeight = (loadedBitmap.height * scale).toInt().coerceAtLeast(1)
                 Canvas(
                     modifier = Modifier.size(
                         with(androidx.compose.ui.platform.LocalDensity.current) { imageWidth.toDp() },
@@ -729,7 +731,7 @@ private fun PhotoMarkupEditor(
                     }
                 ) {
                     drawImage(
-                        image = bitmap.asImageBitmap(),
+                        image = loadedBitmap.asImageBitmap(),
                         dstSize = IntSize(size.width.toInt(), size.height.toInt())
                     )
                     strokes.forEach { points ->
@@ -780,7 +782,7 @@ private fun PhotoMarkupEditor(
             OutlinedButton(onClick = onCancel, modifier = Modifier.weight(1f)) { Text("Peruuta") }
             Button(
                 onClick = {
-                    val base = bitmap
+                    val base = loadedBitmap
                     if (base != null) {
                         val outputBitmap = base.copy(Bitmap.Config.ARGB_8888, true)
                         val canvas = android.graphics.Canvas(outputBitmap)
@@ -823,7 +825,7 @@ private fun PhotoMarkupEditor(
                         onSave(outputFile.absolutePath)
                     }
                 },
-                enabled = bitmap != null,
+                enabled = loadedBitmap != null,
                 modifier = Modifier.weight(1f)
             ) { Text("Tallenna merkinnät") }
         }
