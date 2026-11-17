@@ -41,6 +41,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -75,6 +76,11 @@ import java.time.Instant
 import java.time.LocalDate
 import java.time.ZoneOffset
 import java.time.format.DateTimeFormatter
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -103,11 +109,18 @@ private fun TarkastusApp() {
     var pendingCameraFile by remember { mutableStateOf<File?>(null) }
     var pendingCameraObservationId by remember { mutableStateOf<String?>(null) }
     var pendingGalleryObservationId by remember { mutableStateOf<String?>(null) }
+    val coroutineScope = rememberCoroutineScope()
+    var pendingSaveJob by remember { mutableStateOf<Job?>(null) }
 
     fun saveReport(report: InspectionReport) {
+        val isNewReport = currentReport == null
         currentReport = report
-        repository.save(report)
-        reports = repository.listReports()
+        if (isNewReport) reports = listOf(report) + reports.filterNot { it.id == report.id }
+        pendingSaveJob?.cancel()
+        pendingSaveJob = coroutineScope.launch {
+            delay(400)
+            withContext(Dispatchers.IO) { repository.save(report) }
+        }
     }
     fun saveAppSettings(settings: AppSettings) {
         appSettings = settings
@@ -151,19 +164,26 @@ private fun TarkastusApp() {
     ) { uris ->
         val report = currentReport
         val observationId = pendingGalleryObservationId
-        if (report != null && observationId != null) {
-            val imported = uris.mapNotNull { uri ->
-                repository.importPhoto(report.id, uri)?.let { ReportPhoto(filePath = it.absolutePath) }
+        if (report != null && observationId != null && uris.isNotEmpty()) {
+            coroutineScope.launch {
+                val imported = withContext(Dispatchers.IO) {
+                    uris.mapNotNull { uri ->
+                        repository.importPhoto(report.id, uri)?.let { ReportPhoto(filePath = it.absolutePath) }
+                    }
+                }
+                if (imported.isNotEmpty()) {
+                    val latest = currentReport ?: report
+                    saveReport(latest.copy(observations = latest.observations.map { observation ->
+                        if (observation.id == observationId) {
+                            observation.copy(photos = observation.photos + imported)
+                        } else observation
+                    }))
+                }
+                pendingGalleryObservationId = null
             }
-            if (imported.isNotEmpty()) {
-                saveReport(report.copy(observations = report.observations.map { observation ->
-                    if (observation.id == observationId) {
-                        observation.copy(photos = observation.photos + imported)
-                    } else observation
-                }))
-            }
+        } else {
+            pendingGalleryObservationId = null
         }
-        pendingGalleryObservationId = null
     }
 
     val logoLauncher = rememberLauncherForActivityResult(
@@ -220,9 +240,12 @@ private fun TarkastusApp() {
             sites = sites,
             onChange = ::saveReport,
             onBack = {
-                repository.save(active)
-                reports = repository.listReports()
-                currentReport = null
+                pendingSaveJob?.cancel()
+                coroutineScope.launch {
+                    withContext(Dispatchers.IO) { repository.save(active) }
+                    reports = withContext(Dispatchers.IO) { repository.listReports() }
+                    currentReport = null
+                }
             },
             onCamera = { observationId ->
                 val file = repository.createCameraPhotoFile(active.id)
@@ -239,14 +262,20 @@ private fun TarkastusApp() {
                 templates = repository.listTemplates()
             },
             onExport = {
-                val pdf = ReportPdfGenerator.generate(context, active, appSettings)
-                val uri = FileProvider.getUriForFile(context, "${context.packageName}.fileprovider", pdf)
-                val sendIntent = Intent(Intent.ACTION_SEND).apply {
-                    type = "application/pdf"
-                    putExtra(Intent.EXTRA_STREAM, uri)
-                    addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+                pendingSaveJob?.cancel()
+                coroutineScope.launch {
+                    withContext(Dispatchers.IO) { repository.save(active) }
+                    val pdf = withContext(Dispatchers.IO) {
+                        ReportPdfGenerator.generate(context, active, appSettings)
+                    }
+                    val uri = FileProvider.getUriForFile(context, "${context.packageName}.fileprovider", pdf)
+                    val sendIntent = Intent(Intent.ACTION_SEND).apply {
+                        type = "application/pdf"
+                        putExtra(Intent.EXTRA_STREAM, uri)
+                        addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+                    }
+                    context.startActivity(Intent.createChooser(sendIntent, "Jaa tarkastuspöytäkirja"))
                 }
-                context.startActivity(Intent.createChooser(sendIntent, "Jaa tarkastuspöytäkirja"))
             },
             onDeletePhoto = { observationId, photo ->
                 repository.deletePhoto(photo.filePath)
