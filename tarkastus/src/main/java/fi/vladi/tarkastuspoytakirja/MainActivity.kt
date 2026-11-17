@@ -42,6 +42,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.produceState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -642,8 +643,10 @@ private fun PhotoCard(
     onDelete: () -> Unit
 ) {
     val displayPath = photo.annotatedPath.takeIf { it.isNotBlank() && File(it).exists() } ?: photo.filePath
-    val bitmap = remember(displayPath) {
-        BitmapFactory.decodeFile(displayPath)?.asImageBitmap()
+    val bitmap by produceState<androidx.compose.ui.graphics.ImageBitmap?>(initialValue = null, displayPath) {
+        value = withContext(Dispatchers.IO) {
+            BitmapFactory.decodeFile(displayPath)?.asImageBitmap()
+        }
     }
     Card(modifier = Modifier.fillMaxWidth()) {
         Column(Modifier.padding(10.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
@@ -673,7 +676,9 @@ private fun PhotoMarkupEditor(
     onSave: (String) -> Unit
 ) {
     val sourcePath = photo.annotatedPath.takeIf { it.isNotBlank() && File(it).exists() } ?: photo.filePath
-    val bitmap = remember(sourcePath) { BitmapFactory.decodeFile(sourcePath) }
+    val bitmap by produceState<Bitmap?>(initialValue = null, sourcePath) {
+        value = withContext(Dispatchers.IO) { BitmapFactory.decodeFile(sourcePath) }
+    }
     var strokes by remember(photo.id) { mutableStateOf<List<List<Offset>>>(emptyList()) }
 
     Column(
