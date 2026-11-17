@@ -15,4 +15,4 @@ dependencyResolutionManagement {
 }
 
 rootProject.name = "Valvontapoytakirja"
-include(":app")
+include(":app", ":tarkastus")
