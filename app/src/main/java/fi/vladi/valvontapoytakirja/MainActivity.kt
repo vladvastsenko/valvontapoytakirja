@@ -202,11 +202,6 @@ private fun ValvontaApp(
     }
 
     fun applySettingsSnapshot(report: InspectionReport): InspectionReport = report.copy(
-        inspectorName = appSettings.inspectorName,
-        inspectorCertificateNumber = appSettings.inspectorCertificateNumber,
-        inspectorPhone = appSettings.inspectorPhone,
-        inspectorEmail = appSettings.inspectorEmail,
-        signatureStrokes = appSettings.signatureStrokes,
         logoPath = appSettings.logoPath,
         headerText = appSettings.headerText,
         footerText = appSettings.footerText,
@@ -245,10 +240,19 @@ private fun ValvontaApp(
         contract = ActivityResultContracts.PickMultipleVisualMedia(12)
     ) { uris ->
         val report = currentReport ?: return@rememberLauncherForActivityResult
-        val imported = uris.mapNotNull { uri ->
-            repository.importPhoto(report.id, uri)?.let { ReportPhoto(filePath = it.absolutePath) }
+        if (uris.isNotEmpty()) {
+            coroutineScope.launch {
+                val imported = withContext(Dispatchers.IO) {
+                    uris.mapNotNull { uri ->
+                        repository.importPhoto(report.id, uri)?.let { ReportPhoto(filePath = it.absolutePath) }
+                    }
+                }
+                val latest = currentReport
+                if (imported.isNotEmpty() && latest != null && latest.id == report.id) {
+                    saveReport(latest.copy(photos = latest.photos + imported))
+                }
+            }
         }
-        if (imported.isNotEmpty()) saveReport(report.copy(photos = report.photos + imported))
     }
 
     val settingsLogoLauncher = rememberLauncherForActivityResult(
@@ -348,7 +352,7 @@ private fun ValvontaApp(
                 coroutineScope.launch {
                     val pdf = withContext(Dispatchers.IO) {
                         repository.save(active)
-                        ReportPdfGenerator.generate(context, active)
+                        ReportPdfGenerator.generate(context, active, appSettings)
                     }
                     withContext(Dispatchers.IO) {
                         val safeName = active.siteAddress.replace(Regex("[^A-Za-z0-9ÄÖÅäöå_-]+"), "_").trim('_').ifBlank { "kohde" }
@@ -577,6 +581,31 @@ private fun EditorScreen(
                 familyManufacturer.isNotBlank()
         }
 
+        // Migrate old reports with one Tasoite entry into separate wall and floor entries.
+        LaunchedEffect(report.id, report.materials) {
+            val screedEntries = report.materials.filter { it.category.equals("tasoite", ignoreCase = true) }
+            if (screedEntries.size == 1) {
+                val existing = screedEntries.first()
+                val updated = report.materials.map {
+                    if (it.id == existing.id) it.copy(surface = "Seinä") else it
+                } + existing.copy(
+                    id = java.util.UUID.randomUUID().toString(),
+                    surface = "Lattia",
+                    productName = "",
+                    notes = ""
+                )
+                onChange(report.copy(materials = updated))
+            } else if (screedEntries.size > 1 && screedEntries.any { it.surface.isBlank() }) {
+                var assigned = 0
+                val updated = report.materials.map { item ->
+                    if (item.category.equals("tasoite", ignoreCase = true) && item.surface.isBlank()) {
+                        item.copy(surface = if (assigned++ == 0) "Seinä" else "Lattia")
+                    } else item
+                }
+                onChange(report.copy(materials = updated))
+            }
+        }
+
         // Clean up legacy reports that may contain products from another manufacturer.
         LaunchedEffect(report.id, familyManufacturer, report.materials) {
             if (familyManufacturer.isNotBlank()) {
@@ -776,18 +805,10 @@ private fun EditorScreen(
         }
         Field("Lisähuomiot", report.additionalNotes, minLines = 3) { onChange(report.copy(additionalNotes = it)) }
 
-        SectionTitle("9. TARKASTAJA")
-        Field("Tarkastajan nimi", report.inspectorName) { onChange(report.copy(inspectorName = it)) }
-        Field("Sertifikaattinumero", report.inspectorCertificateNumber) { onChange(report.copy(inspectorCertificateNumber = it)) }
-        Field("Puhelin", report.inspectorPhone) { onChange(report.copy(inspectorPhone = it)) }
-        Field("Sähköposti", report.inspectorEmail) { onChange(report.copy(inspectorEmail = it)) }
+        SectionTitle("9. TARKASTUSPÄIVÄ")
         DateField("Tarkastuspäivä", report.inspectionDate) {
             onChange(report.copy(inspectionDate = it))
         }
-        SignaturePad(
-            strokes = report.signatureStrokes,
-            onChange = { onChange(report.copy(signatureStrokes = it)) }
-        )
 
         Spacer(Modifier.height(12.dp))
         OutlinedButton(onClick = { onSaveTemplate(report.siteAddress.ifBlank { "Uusi malli" }) }, modifier = Modifier.fillMaxWidth()) {
@@ -963,6 +984,11 @@ private fun MaterialCard(
                 Field("Tuotteen nimi", material.productName) { onChange(material.copy(productName = it)) }
             } else if (productOptions.isEmpty()) {
                 Text("Tälle valmistajalle ei ole tuotetta tässä kategoriassa. Valitse vain valmistajan järjestelmään kuuluva tuote toisesta sopivasta kohdasta.")
+            }
+            if (material.category.equals("vedeneriste", ignoreCase = true) ||
+                material.category.equals("tasoite", ignoreCase = true)
+            ) {
+                Text(material.surface.ifBlank { "Pinta määrittämättä" })
             }
             Field("Lisätiedot", material.notes) { onChange(material.copy(notes = it)) }
         }
