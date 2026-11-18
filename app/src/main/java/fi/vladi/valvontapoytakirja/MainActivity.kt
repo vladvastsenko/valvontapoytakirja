@@ -43,6 +43,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -56,6 +57,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.core.content.FileProvider
 import fi.vladi.tarkastuspoytakirja.MainActivity as TarkastusMainActivity
+import fi.vladi.tarkastuspoytakirja.storage.SharedDocumentsArchive
 import fi.vladi.valvontapoytakirja.data.MaterialCatalog
 import fi.vladi.valvontapoytakirja.data.ReportRepository
 import fi.vladi.valvontapoytakirja.model.AppSettings
@@ -71,6 +73,11 @@ import java.time.Instant
 import java.time.LocalDate
 import java.time.ZoneOffset
 import java.time.format.DateTimeFormatter
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 private val WATERPROOFING_FAMILY_CATEGORIES = setOf(
     "pohjuste (primer)",
@@ -170,6 +177,8 @@ private fun ValvontaApp(
     var showSettings by remember { mutableStateOf(initialShowSettings) }
     var currentReport by remember { mutableStateOf<InspectionReport?>(null) }
     var pendingCameraFile by remember { mutableStateOf<File?>(null) }
+    val coroutineScope = rememberCoroutineScope()
+    var pendingSaveJob by remember { mutableStateOf<Job?>(null) }
 
     fun saveAppSettings(settings: AppSettings) {
         appSettings = settings
@@ -189,9 +198,18 @@ private fun ValvontaApp(
     )
 
     fun saveReport(report: InspectionReport) {
+        val isNewReport = currentReport == null
         currentReport = report
-        repository.save(report)
-        reports = repository.listReports()
+        if (isNewReport) reports = listOf(report) + reports.filterNot { it.id == report.id }
+        pendingSaveJob?.cancel()
+        pendingSaveJob = coroutineScope.launch {
+            delay(350)
+            val latestReports = withContext(Dispatchers.IO) {
+                repository.save(report)
+                repository.listReports()
+            }
+            reports = latestReports
+        }
     }
 
     val cameraLauncher = rememberLauncherForActivityResult(
@@ -288,9 +306,15 @@ private fun ValvontaApp(
             sites = sites,
             onChange = ::saveReport,
             onBack = {
-                repository.save(active)
-                reports = repository.listReports()
-                currentReport = null
+                pendingSaveJob?.cancel()
+                coroutineScope.launch {
+                    val latestReports = withContext(Dispatchers.IO) {
+                        repository.save(active)
+                        repository.listReports()
+                    }
+                    reports = latestReports
+                    currentReport = null
+                }
             },
             onCamera = {
                 val file = repository.createCameraPhotoFile(active.id)
@@ -305,8 +329,23 @@ private fun ValvontaApp(
                 templates = repository.listTemplates()
             },
             onExport = {
-                val pdf = ReportPdfGenerator.generate(context, active)
-                val uri = FileProvider.getUriForFile(context, "${context.packageName}.fileprovider", pdf)
+                pendingSaveJob?.cancel()
+                coroutineScope.launch {
+                    val pdf = withContext(Dispatchers.IO) {
+                        repository.save(active)
+                        ReportPdfGenerator.generate(context, active)
+                    }
+                    withContext(Dispatchers.IO) {
+                        val safeName = active.siteAddress.replace(Regex("[^A-Za-z0-9ÄÖÅäöå_-]+"), "_").trim('_').ifBlank { "kohde" }
+                        SharedDocumentsArchive.archiveFile(
+                            context,
+                            pdf,
+                            "Raportit/PDF/Valvontapoytakirja",
+                            "Valvontapoytakirja_${safeName}_${active.id.take(8)}.pdf",
+                            "application/pdf"
+                        )
+                    }
+                    val uri = FileProvider.getUriForFile(context, "${context.packageName}.fileprovider", pdf)
                 val sendIntent = Intent(Intent.ACTION_SEND).apply {
                     type = "application/pdf"
                     putExtra(Intent.EXTRA_STREAM, uri)
