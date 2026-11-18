@@ -117,6 +117,7 @@ private fun TarkastusApp() {
     var pendingGalleryObservationId by remember { mutableStateOf<String?>(null) }
     val coroutineScope = rememberCoroutineScope()
     var pendingSaveJob by remember { mutableStateOf<Job?>(null) }
+    var pendingGalleryJob by remember { mutableStateOf<Job?>(null) }
     var pendingSettingsSaveJob by remember { mutableStateOf<Job?>(null) }
 
     fun saveReport(report: InspectionReport) {
@@ -176,14 +177,14 @@ private fun TarkastusApp() {
         val report = currentReport
         val observationId = pendingGalleryObservationId
         if (report != null && observationId != null && uris.isNotEmpty()) {
-            coroutineScope.launch {
+            pendingGalleryJob = coroutineScope.launch {
                 val imported = withContext(Dispatchers.IO) {
                     uris.mapNotNull { uri ->
                         repository.importPhoto(report.id, uri)?.let { ReportPhoto(filePath = it.absolutePath) }
                     }
                 }
-                if (imported.isNotEmpty()) {
-                    val latest = currentReport ?: report
+                val latest = currentReport
+                if (imported.isNotEmpty() && latest != null && latest.id == report.id) {
                     saveReport(latest.copy(observations = latest.observations.map { observation ->
                         if (observation.id == observationId) {
                             observation.copy(photos = observation.photos + imported)
@@ -227,9 +228,11 @@ private fun TarkastusApp() {
             sites = sites,
             onChange = ::saveReport,
             onBack = {
-                pendingSaveJob?.cancel()
                 coroutineScope.launch {
-                    withContext(Dispatchers.IO) { repository.save(active) }
+                    pendingGalleryJob?.join()
+                    pendingSaveJob?.cancel()
+                    val latest = currentReport ?: active
+                    withContext(Dispatchers.IO) { repository.save(latest) }
                     reports = withContext(Dispatchers.IO) { repository.listReports() }
                     currentReport = null
                 }
@@ -249,11 +252,13 @@ private fun TarkastusApp() {
                 templates = repository.listTemplates()
             },
             onExport = {
-                pendingSaveJob?.cancel()
                 coroutineScope.launch {
-                    withContext(Dispatchers.IO) { repository.save(active) }
+                    pendingGalleryJob?.join()
+                    pendingSaveJob?.cancel()
+                    val latest = currentReport ?: active
+                    withContext(Dispatchers.IO) { repository.save(latest) }
                     val pdf = withContext(Dispatchers.IO) {
-                        ReportPdfGenerator.generate(context, active, appSettings)
+                        ReportPdfGenerator.generate(context, latest, appSettings)
                     }
                     withContext(Dispatchers.IO) {
                         val safeName = active.siteAddress.replace(Regex("[^A-Za-z0-9ÄÖÅäöå_-]+"), "_").trim('_').ifBlank { "kohde" }
