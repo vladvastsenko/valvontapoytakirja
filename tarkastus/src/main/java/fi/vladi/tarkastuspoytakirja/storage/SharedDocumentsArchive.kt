@@ -16,6 +16,26 @@ import java.io.File
 object SharedDocumentsArchive {
     private const val ROOT = "Tarkastus"
 
+    /** Create a visible marker on first launch so the user can immediately find the shared folder. */
+    fun ensureFolder(context: Context) {
+        val preferences = context.getSharedPreferences("shared_documents_archive", Context.MODE_PRIVATE)
+        if (preferences.getBoolean("root_folder_created_v1", false)) return
+        val marker = File(context.cacheDir, "Kansion_sijainti.txt")
+        runCatching {
+            marker.writeText("Tarkastuksen raportit ja asetukset tallennetaan tähän kansioon.\\n")
+            val created = archiveFile(
+                context,
+                marker,
+                "Asetukset",
+                "Kansion_sijainti.txt",
+                "text/plain",
+                overwrite = false
+            )
+            if (created != null) preferences.edit().putBoolean("root_folder_created_v1", true).apply()
+        }
+        marker.delete()
+    }
+
     fun archiveFile(
         context: Context,
         source: File,
