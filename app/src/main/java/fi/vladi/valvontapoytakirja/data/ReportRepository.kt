@@ -97,6 +97,7 @@ class ReportRepository(private val context: Context) {
     }
 
     fun archiveExistingData() {
+        SharedDocumentsArchive.removeArchivedReportPhotos(context)
         val preferences = context.getSharedPreferences("shared_documents_archive", Context.MODE_PRIVATE)
         val migrationKey = "valvonta_v1"
         if (preferences.getBoolean(migrationKey, false)) return
