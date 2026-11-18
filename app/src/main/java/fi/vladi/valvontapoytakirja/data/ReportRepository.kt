@@ -155,6 +155,11 @@ class ReportRepository(private val context: Context) {
         File(templatesDirectory(), template.id + ".json")
             .writeText(json.encodeToString(InspectionReport.serializer(), template))
     }
+    fun deleteReport(reportId: String) {
+        File(reportsDirectory(), "$reportId.json").delete()
+        File(reportsDirectory(), reportId).deleteRecursively()
+    }
+
     fun save(report: InspectionReport) {
         val file = File(reportsDirectory(), "${report.id}.json")
         file.writeText(json.encodeToString(InspectionReport.serializer(), report))
