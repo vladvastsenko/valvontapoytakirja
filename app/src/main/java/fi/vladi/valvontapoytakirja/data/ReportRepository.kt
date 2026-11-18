@@ -92,6 +92,37 @@ class ReportRepository(private val context: Context) {
         }.getOrNull()
     }
 
+    fun archiveExistingData() {
+        val preferences = context.getSharedPreferences("shared_documents_archive", Context.MODE_PRIVATE)
+        val migrationKey = "valvonta_v1"
+        if (preferences.getBoolean(migrationKey, false)) return
+        var complete = true
+        fun archive(file: File, directory: String, mime: String = "application/json", overwrite: Boolean = true) {
+            if (file.isFile && SharedDocumentsArchive.archiveFile(context, file, directory, file.name, mime, overwrite) == null) {
+                complete = false
+            }
+        }
+
+        settingsFile().takeIf { it.isFile }?.let { archive(it, "Asetukset") }
+        File(settingsFile().parentFile, "settings").listFiles()?.forEach { archive(it, "Asetukset") }
+        customersDirectory().listFiles()?.forEach { archive(it, "Asetukset/Asiakkaat") }
+        sitesDirectory().listFiles()?.forEach { archive(it, "Asetukset/Kohteet") }
+
+        reportsDirectory().listFiles { it.extension == "json" }?.forEach { file ->
+            archive(file, "Raportit/Data/Valvontapoytakirja")
+            val report = runCatching {
+                json.decodeFromString(InspectionReport.serializer(), file.readText())
+            }.getOrNull()
+            report?.photos?.forEach { photo ->
+                archive(File(photo.filePath), "Raportit/Kuvat/Valvontapoytakirja/" + report.id, overwrite = false)
+            }
+        }
+        templatesDirectory().listFiles { it.extension == "json" }?.forEach {
+            archive(it, "Raportit/Mallit/Valvontapoytakirja")
+        }
+        if (complete) preferences.edit().putBoolean(migrationKey, true).apply()
+    }
+
     private fun reportsDirectory(): File =
         File(context.filesDir, "reports").apply { mkdirs() }
 
