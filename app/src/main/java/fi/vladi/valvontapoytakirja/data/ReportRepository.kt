@@ -114,12 +114,6 @@ class ReportRepository(private val context: Context) {
 
         reportsDirectory().listFiles { it.extension == "json" }?.forEach { file ->
             archive(file, "Raportit/Data/Valvontapoytakirja")
-            val report = runCatching {
-                json.decodeFromString(InspectionReport.serializer(), file.readText())
-            }.getOrNull()
-            report?.photos?.forEach { photo ->
-                archive(File(photo.filePath), "Raportit/Kuvat/Valvontapoytakirja/" + report.id, overwrite = false)
-            }
         }
         templatesDirectory().listFiles { it.extension == "json" }?.forEach {
             archive(it, "Raportit/Mallit/Valvontapoytakirja")
@@ -164,14 +158,6 @@ class ReportRepository(private val context: Context) {
         val file = File(reportsDirectory(), "${report.id}.json")
         file.writeText(json.encodeToString(InspectionReport.serializer(), report))
         SharedDocumentsArchive.archiveFile(context, file, "Raportit/Data/Valvontapoytakirja", file.name, "application/json")
-        report.photos.forEach { photo ->
-            SharedDocumentsArchive.archiveFile(
-                context, File(photo.filePath),
-                "Raportit/Kuvat/Valvontapoytakirja/" + report.id,
-                File(photo.filePath).name,
-                overwrite = false
-            )
-        }
     }
 
     fun createCameraPhotoFile(reportId: String): File {
