@@ -35,7 +35,6 @@ object ReportPdfGenerator {
         } finally {
             document.close()
         }
-        PublicArchive.copyPdf(context, output)
         return output
     }
 
