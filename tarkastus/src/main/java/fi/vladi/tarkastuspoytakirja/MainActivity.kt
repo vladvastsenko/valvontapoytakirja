@@ -199,6 +199,7 @@ private fun TarkastusApp() {
 
     val active = currentReport
 
+    if (active == null) {
         HomeScreen(
             reports = reports,
             templates = templates,
