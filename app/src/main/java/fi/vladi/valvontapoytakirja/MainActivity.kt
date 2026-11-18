@@ -304,7 +304,6 @@ private fun ValvontaApp(
                 saveReport(applySettingsSnapshot(newReport))
             },
             onOpen = { currentReport = it },
-            onSettings = { showSettings = true },
             onBackToLauncher = onBackToLauncher
         )
     } else {
@@ -377,7 +376,6 @@ private fun HomeScreen(
     onCreateFromTemplate: (InspectionReport) -> Unit,
     onCreate: () -> Unit,
     onOpen: (InspectionReport) -> Unit,
-    onSettings: () -> Unit,
     onBackToLauncher: () -> Unit
 ) {
     Column(
@@ -389,9 +387,6 @@ private fun HomeScreen(
         TextButton(onClick = onBackToLauncher) { Text("← Takaisin asiakirjan valintaan") }
         Button(onClick = onCreate, modifier = Modifier.fillMaxWidth()) {
             Text("Uusi pöytäkirja")
-        }
-        OutlinedButton(onClick = onSettings, modifier = Modifier.fillMaxWidth()) {
-            Text("Asetukset")
         }
         if (templates.isNotEmpty()) {
             Text("Pöytäkirjamallit", style = MaterialTheme.typography.titleLarge)
