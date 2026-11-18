@@ -72,6 +72,7 @@ import fi.vladi.tarkastuspoytakirja.model.InspectionObservation
 import fi.vladi.tarkastuspoytakirja.model.InspectionReport
 import fi.vladi.tarkastuspoytakirja.model.ReportPhoto
 import fi.vladi.tarkastuspoytakirja.pdf.ReportPdfGenerator
+import fi.vladi.tarkastuspoytakirja.storage.SharedDocumentsArchive
 import java.io.File
 import java.time.Instant
 import java.time.LocalDate
@@ -268,6 +269,16 @@ private fun TarkastusApp() {
                     withContext(Dispatchers.IO) { repository.save(active) }
                     val pdf = withContext(Dispatchers.IO) {
                         ReportPdfGenerator.generate(context, active, appSettings)
+                    }
+                    withContext(Dispatchers.IO) {
+                        val safeName = active.siteAddress.replace(Regex("[^A-Za-z0-9ÄÖÅäöå_-]+"), "_").trim('_').ifBlank { "kohde" }
+                        SharedDocumentsArchive.archiveFile(
+                            context,
+                            pdf,
+                            "Raportit/PDF/Tarkastuspoytakirja",
+                            "Tarkastuspoytakirja_${safeName}_${active.id.take(8)}.pdf",
+                            "application/pdf"
+                        )
                     }
                     val uri = FileProvider.getUriForFile(context, "${context.packageName}.fileprovider", pdf)
                     val sendIntent = Intent(Intent.ACTION_SEND).apply {
