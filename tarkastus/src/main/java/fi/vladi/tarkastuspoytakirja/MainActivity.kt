@@ -126,7 +126,9 @@ private fun TarkastusApp() {
     }
     fun saveAppSettings(settings: AppSettings) {
         appSettings = settings
-        repository.saveSettings(settings)
+        coroutineScope.launch {
+            withContext(Dispatchers.IO) { repository.saveSettings(settings) }
+        }
     }
 
     fun applySettingsSnapshot(report: InspectionReport): InspectionReport = report.copy(
