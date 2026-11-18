@@ -501,11 +501,23 @@ private fun EditorScreen(
                     onClick = { siteMenuExpanded = true },
                     modifier = Modifier.fillMaxWidth()
                 ) {
-                    Text(report.siteName.ifBlank { "Valitse kohde" })
+                    Column(horizontalAlignment = Alignment.Start) {
+                        Text(report.siteName.ifBlank { "Valitse kohde" })
+                        report.siteAddress.takeIf { it.isNotBlank() }?.let {
+                            Text(it, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                        }
+                    }
                 }
                 DropdownMenu(expanded = siteMenuExpanded, onDismissRequest = { siteMenuExpanded = false }) {
                     availableSites.forEach { site ->
-                        DropdownMenuItem(text = { Text(site.name) }, onClick = {
+                        DropdownMenuItem(text = {
+                            Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
+                                Text(site.name, fontWeight = FontWeight.Medium)
+                                if (site.address.isNotBlank()) {
+                                    Text(site.address, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                                }
+                            }
+                        }, onClick = {
                             val previousValues = report.siteFieldValues.associateBy { it.definitionId }
                             onChange(report.copy(
                                 siteId = site.id,
