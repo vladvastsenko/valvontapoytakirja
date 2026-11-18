@@ -169,6 +169,9 @@ private fun ValvontaApp(
 ) {
     val context = LocalContext.current
     val repository = remember { ReportRepository(context) }
+    LaunchedEffect(repository) {
+        withContext(Dispatchers.IO) { repository.archiveExistingData() }
+    }
     var reports by remember { mutableStateOf(repository.listReports()) }
     var templates by remember { mutableStateOf(repository.listTemplates()) }
     var appSettings by remember { mutableStateOf(repository.loadSettings()) }
