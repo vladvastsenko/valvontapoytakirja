@@ -2,7 +2,7 @@ name: Android build
 
 on:
   push:
-    branches: [ main, android-app-mvp, unified-valvoja ]
+    branches: [ main, android-app-mvp, unified-valvoja, tarkastus ]
   pull_request:
     branches: [ main ]
 
