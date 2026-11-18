@@ -179,10 +179,13 @@ private fun ValvontaApp(
     var pendingCameraFile by remember { mutableStateOf<File?>(null) }
     val coroutineScope = rememberCoroutineScope()
     var pendingSaveJob by remember { mutableStateOf<Job?>(null) }
+    var pendingSettingsSaveJob by remember { mutableStateOf<Job?>(null) }
 
     fun saveAppSettings(settings: AppSettings) {
         appSettings = settings
-        coroutineScope.launch {
+        pendingSettingsSaveJob?.cancel()
+        pendingSettingsSaveJob = coroutineScope.launch {
+            delay(300)
             withContext(Dispatchers.IO) { repository.saveSettings(settings) }
         }
     }
