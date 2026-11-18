@@ -1,5 +1,8 @@
 package fi.vladi.valvontapoytakirja
 
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -21,13 +24,18 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.produceState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import fi.vladi.valvontapoytakirja.model.AppSettings
 import fi.vladi.valvontapoytakirja.model.CustomerProfile
 import fi.vladi.valvontapoytakirja.model.CustomerSite
@@ -77,7 +85,21 @@ fun SettingsScreen(
             onSettingsChange(settings.copy(inspectorEmail = it))
         }
         Text("Logo")
-        Text(if (settings.logoPath.isBlank()) "Logoa ei ole valittu." else "Logo tallennettu.")
+        val logoBitmap by produceState<Bitmap?>(initialValue = null, key1 = settings.logoPath) {
+            value = if (settings.logoPath.isBlank()) null else withContext(Dispatchers.IO) {
+                runCatching { BitmapFactory.decodeFile(settings.logoPath) }.getOrNull()
+            }
+        }
+        if (logoBitmap != null) {
+            Image(
+                bitmap = logoBitmap!!.asImageBitmap(),
+                contentDescription = "Raportin logo",
+                modifier = Modifier.fillMaxWidth().height(120.dp),
+                contentScale = ContentScale.Fit
+            )
+        } else {
+            Text(if (settings.logoPath.isBlank()) "Logoa ei ole valittu." else "Logotiedostoa ei löydy. Valitse logo uudelleen.")
+        }
         Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
             OutlinedButton(onClick = onPickLogo, modifier = Modifier.weight(1f)) {
                 Text(if (settings.logoPath.isBlank()) "Valitse logo" else "Vaihda logo")
