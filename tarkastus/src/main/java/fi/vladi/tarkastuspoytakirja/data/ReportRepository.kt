@@ -9,6 +9,7 @@ import fi.vladi.tarkastuspoytakirja.model.InspectionReport
 import fi.vladi.tarkastuspoytakirja.model.AppSettings
 import fi.vladi.tarkastuspoytakirja.model.CustomerProfile
 import fi.vladi.tarkastuspoytakirja.model.CustomerSite
+import fi.vladi.tarkastuspoytakirja.storage.SharedDocumentsArchive
 import kotlinx.serialization.json.Json
 import java.io.File
 import java.time.Instant
@@ -28,6 +29,10 @@ class ReportRepository(private val context: Context) {
 
     fun saveSettings(settings: AppSettings) {
         settingsFile().writeText(json.encodeToString(AppSettings.serializer(), settings))
+        SharedDocumentsArchive.archiveText(context, json.encodeToString(AppSettings.serializer(), settings), "Asetukset", "app_settings.json")
+        File(settings.logoPath).takeIf { it.isFile }?.let { logo ->
+            SharedDocumentsArchive.archiveFile(context, logo, "Asetukset", logo.name)
+        }
     }
 
     private fun customersDirectory(): File =
@@ -123,6 +128,21 @@ class ReportRepository(private val context: Context) {
     fun save(report: InspectionReport) {
         val file = File(reportsDirectory(), "${report.id}.json")
         file.writeText(json.encodeToString(InspectionReport.serializer(), report))
+        SharedDocumentsArchive.archiveFile(context, file, "Raportit/Data/Tarkastuspoytakirja", file.name, "application/json")
+        report.observations.flatMap { it.photos }.forEach { photo ->
+            SharedDocumentsArchive.archiveFile(
+                context, File(photo.filePath),
+                "Raportit/Kuvat/Tarkastuspoytakirja/" + report.id,
+                File(photo.filePath).name
+            )
+            if (photo.annotatedPath.isNotBlank()) {
+                SharedDocumentsArchive.archiveFile(
+                    context, File(photo.annotatedPath),
+                    "Raportit/Kuvat/Tarkastuspoytakirja/" + report.id,
+                    File(photo.annotatedPath).name
+                )
+            }
+        }
     }
 
     fun createCameraPhotoFile(reportId: String): File {
