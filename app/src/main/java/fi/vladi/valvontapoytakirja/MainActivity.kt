@@ -317,6 +317,10 @@ private fun ValvontaApp(
                 saveReport(applySettingsSnapshot(newReport))
             },
             onOpen = { currentReport = it },
+            onDelete = { report ->
+                repository.deleteReport(report.id)
+                reports = repository.listReports()
+            },
             onBackToLauncher = onBackToLauncher
         )
     } else {
@@ -365,7 +369,7 @@ private fun ValvontaApp(
                             context,
                             pdf,
                             "Raportit/PDF/Valvontapoytakirja",
-                            "Valvontapoytakirja_${safeName}_${active.id.take(8)}.pdf",
+                            "valvontapoytakirja_${safeName}.pdf",
                             "application/pdf"
                         )
                     }
@@ -393,6 +397,7 @@ private fun HomeScreen(
     onCreateFromTemplate: (InspectionReport) -> Unit,
     onCreate: () -> Unit,
     onOpen: (InspectionReport) -> Unit,
+    onDelete: (InspectionReport) -> Unit,
     onBackToLauncher: () -> Unit
 ) {
     Column(
@@ -428,6 +433,7 @@ private fun HomeScreen(
                         Text("Tarkastuspäivä: ${report.inspectionDate.ifBlank { "—" }}")
                         Text("Tulos: ${report.inspectionResult.ifBlank { "Ei valittu" }}")
                         Text("${report.photos.size} valokuvaa", style = MaterialTheme.typography.bodySmall)
+                        TextButton(onClick = { onDelete(report) }) { Text("Poista") }
                     }
                 }
             }
