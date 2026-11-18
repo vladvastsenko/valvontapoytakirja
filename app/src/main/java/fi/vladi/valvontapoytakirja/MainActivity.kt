@@ -190,6 +190,7 @@ private fun ValvontaApp(
     var pendingCameraFile by remember { mutableStateOf<File?>(null) }
     val coroutineScope = rememberCoroutineScope()
     var pendingSaveJob by remember { mutableStateOf<Job?>(null) }
+    var pendingGalleryJob by remember { mutableStateOf<Job?>(null) }
     var pendingSettingsSaveJob by remember { mutableStateOf<Job?>(null) }
 
     fun saveAppSettings(settings: AppSettings) {
@@ -241,7 +242,7 @@ private fun ValvontaApp(
     ) { uris ->
         val report = currentReport ?: return@rememberLauncherForActivityResult
         if (uris.isNotEmpty()) {
-            coroutineScope.launch {
+            pendingGalleryJob = coroutineScope.launch {
                 val imported = withContext(Dispatchers.IO) {
                     uris.mapNotNull { uri ->
                         repository.importPhoto(report.id, uri)?.let { ReportPhoto(filePath = it.absolutePath) }
@@ -325,10 +326,12 @@ private fun ValvontaApp(
             sites = sites,
             onChange = ::saveReport,
             onBack = {
-                pendingSaveJob?.cancel()
                 coroutineScope.launch {
+                    pendingGalleryJob?.join()
+                    pendingSaveJob?.cancel()
+                    val latest = currentReport ?: active
                     val latestReports = withContext(Dispatchers.IO) {
-                        repository.save(active)
+                        repository.save(latest)
                         repository.listReports()
                     }
                     reports = latestReports
@@ -348,11 +351,13 @@ private fun ValvontaApp(
                 templates = repository.listTemplates()
             },
             onExport = {
-                pendingSaveJob?.cancel()
                 coroutineScope.launch {
+                    pendingGalleryJob?.join()
+                    pendingSaveJob?.cancel()
+                    val latest = currentReport ?: active
                     val pdf = withContext(Dispatchers.IO) {
-                        repository.save(active)
-                        ReportPdfGenerator.generate(context, active, appSettings)
+                        repository.save(latest)
+                        ReportPdfGenerator.generate(context, latest, appSettings)
                     }
                     withContext(Dispatchers.IO) {
                         val safeName = active.siteAddress.replace(Regex("[^A-Za-z0-9ÄÖÅäöå_-]+"), "_").trim('_').ifBlank { "kohde" }
