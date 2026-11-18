@@ -36,6 +36,42 @@ object SharedDocumentsArchive {
         marker.delete()
     }
 
+    /**
+     * Remove legacy photo copies that earlier versions exported into the public
+     * Documents archive. Report photos now remain only in app-private storage.
+     */
+    fun removeArchivedReportPhotos(context: Context) {
+        runCatching {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                val resolver = context.contentResolver
+                val collection = MediaStore.Files.getContentUri(MediaStore.VOLUME_EXTERNAL_PRIMARY)
+                val relativePath = "${Environment.DIRECTORY_DOCUMENTS}/$ROOT/Raportit/Kuvat/%"
+                val ids = mutableListOf<Uri>()
+                resolver.query(
+                    collection,
+                    arrayOf(MediaStore.MediaColumns._ID),
+                    "${MediaStore.MediaColumns.RELATIVE_PATH} LIKE ? AND ${MediaStore.MediaColumns.MIME_TYPE} LIKE ?",
+                    arrayOf(relativePath, "image/%"),
+                    null
+                )?.use { cursor ->
+                    val idColumn = cursor.getColumnIndexOrThrow(MediaStore.MediaColumns._ID)
+                    while (cursor.moveToNext()) {
+                        ids += Uri.withAppendedPath(collection, cursor.getLong(idColumn).toString())
+                    }
+                }
+                ids.forEach { resolver.delete(it, null, null) }
+            } else {
+                val directory = File(
+                    Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS),
+                    "$ROOT/Raportit/Kuvat"
+                )
+                directory.walkTopDown()
+                    .filter { it.isFile && it.extension.lowercase() in setOf("jpg", "jpeg", "png", "webp", "heic") }
+                    .forEach { it.delete() }
+            }
+        }
+    }
+
     fun archiveFile(
         context: Context,
         source: File,
