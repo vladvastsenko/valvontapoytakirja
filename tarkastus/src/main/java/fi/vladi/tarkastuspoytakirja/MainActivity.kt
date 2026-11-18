@@ -111,7 +111,6 @@ private fun TarkastusApp() {
     var appSettings by remember { mutableStateOf(repository.loadSettings()) }
     var customers by remember { mutableStateOf(repository.listCustomers()) }
     var sites by remember { mutableStateOf(repository.listSites()) }
-    var showSettings by remember { mutableStateOf(false) }
     var currentReport by remember { mutableStateOf<InspectionReport?>(null) }
     var pendingCameraFile by remember { mutableStateOf<File?>(null) }
     var pendingCameraObservationId by remember { mutableStateOf<String?>(null) }
@@ -198,32 +197,8 @@ private fun TarkastusApp() {
         }
     }
 
-    val logoLauncher = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.PickVisualMedia()
-    ) { uri ->
-        if (uri != null) {
-            repository.importSettingsLogo(uri)?.let { logo ->
-                saveAppSettings(appSettings.copy(logoPath = logo.absolutePath))
-            }
-        }
-    }
-
     val active = currentReport
-    if (active == null && showSettings) {
-        SettingsScreen(
-            settings = appSettings,
-            customers = customers,
-            sites = sites,
-            onSettingsChange = ::saveAppSettings,
-            onSaveCustomer = { customer -> repository.saveCustomer(customer); customers = repository.listCustomers() },
-            onDeleteCustomer = { id -> repository.deleteCustomer(id); customers = repository.listCustomers(); sites = repository.listSites() },
-            onSaveSite = { site -> repository.saveSite(site); sites = repository.listSites() },
-            onDeleteSite = { id -> repository.deleteSite(id); sites = repository.listSites() },
-            onPickLogo = { logoLauncher.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)) },
-            onRemoveLogo = { saveAppSettings(appSettings.copy(logoPath = "")) },
-            onBack = { showSettings = false }
-        )
-    } else if (active == null) {
+
         HomeScreen(
             reports = reports,
             templates = templates,
@@ -242,8 +217,7 @@ private fun TarkastusApp() {
                     observations = listOf(InspectionObservation())
                 )))
             },
-            onOpen = { currentReport = it },
-            onSettings = { showSettings = true }
+            onOpen = { currentReport = it }
         )
     } else {
         EditorScreen(
@@ -318,8 +292,7 @@ private fun HomeScreen(
     templates: List<InspectionReport>,
     onCreateFromTemplate: (InspectionReport) -> Unit,
     onCreate: () -> Unit,
-    onOpen: (InspectionReport) -> Unit,
-    onSettings: () -> Unit
+    onOpen: (InspectionReport) -> Unit
 ) {
     Column(
         modifier = Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(20.dp),
@@ -329,9 +302,6 @@ private fun HomeScreen(
         Text("Yleiset tarkastusraportit")
         Button(onClick = onCreate, modifier = Modifier.fillMaxWidth()) {
             Text("Uusi pöytäkirja")
-        }
-        OutlinedButton(onClick = onSettings, modifier = Modifier.fillMaxWidth()) {
-            Text("Asetukset")
         }
         if (templates.isNotEmpty()) {
             Text("Pöytäkirjamallit", style = MaterialTheme.typography.titleLarge)
