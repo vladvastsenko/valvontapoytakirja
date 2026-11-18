@@ -21,7 +21,8 @@ object SharedDocumentsArchive {
         source: File,
         relativeDirectory: String,
         displayName: String = source.name,
-        mimeType: String = mimeTypeFor(displayName)
+        mimeType: String = mimeTypeFor(displayName),
+        overwrite: Boolean = true
     ): Uri? {
         if (!source.isFile || !source.exists()) return null
         return runCatching {
@@ -36,6 +37,9 @@ object SharedDocumentsArchive {
                     arrayOf(displayName, relativePath),
                     null
                 )?.use { cursor ->
+                    if (!overwrite && cursor.moveToFirst()) {
+                        return@runCatching Uri.withAppendedPath(collection, cursor.getLong(0).toString())
+                    }
                     while (cursor.moveToNext()) {
                         val id = cursor.getLong(0)
                         resolver.delete(Uri.withAppendedPath(collection, id.toString()), null, null)
@@ -66,6 +70,7 @@ object SharedDocumentsArchive {
                 )
                 if (!directory.exists() && !directory.mkdirs()) error("Cannot create archive directory")
                 val target = File(directory, displayName)
+                if (!overwrite && target.exists()) return@runCatching Uri.fromFile(target)
                 source.copyTo(target, overwrite = true)
                 Uri.fromFile(target)
             }
