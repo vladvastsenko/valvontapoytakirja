@@ -113,6 +113,7 @@ private fun TarkastusApp() {
     var pendingGalleryObservationId by remember { mutableStateOf<String?>(null) }
     val coroutineScope = rememberCoroutineScope()
     var pendingSaveJob by remember { mutableStateOf<Job?>(null) }
+    var pendingSettingsSaveJob by remember { mutableStateOf<Job?>(null) }
 
     fun saveReport(report: InspectionReport) {
         val isNewReport = currentReport == null
@@ -126,7 +127,9 @@ private fun TarkastusApp() {
     }
     fun saveAppSettings(settings: AppSettings) {
         appSettings = settings
-        coroutineScope.launch {
+        pendingSettingsSaveJob?.cancel()
+        pendingSettingsSaveJob = coroutineScope.launch {
+            delay(300)
             withContext(Dispatchers.IO) { repository.saveSettings(settings) }
         }
     }
