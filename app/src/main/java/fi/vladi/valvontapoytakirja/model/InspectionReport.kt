@@ -90,7 +90,10 @@ data class MaterialEntry(
     val category: String,
     val manufacturer: String = "",
     val productName: String = "",
-    val notes: String = ""
+    val notes: String = "",
+    val surface: String = "",
+    val consumptionPerM2: String = "",
+    val dryFilmThicknessMm: String = ""
 )
 
 @Serializable
@@ -125,11 +128,13 @@ fun defaultMaterialEntries(): List<MaterialEntry> = listOf(
     "Seinäsaumaus",
     "Lattiasaumaus",
     "Elastinen saumausmassa"
-).map { category ->
+).flatMap { category ->
     val hasKiiltoProducts = category !in listOf("Kaivotyyppi", "Laatat")
-    MaterialEntry(category = category, manufacturer = if (hasKiiltoProducts) "Kiilto" else "")
+    if (category == "Vedeneriste" || category == "Tasoite") listOf(
+        MaterialEntry(category = category, manufacturer = if (hasKiiltoProducts) "Kiilto" else "", surface = "Seinä"),
+        MaterialEntry(category = category, manufacturer = if (hasKiiltoProducts) "Kiilto" else "", surface = "Lattia")
+    ) else listOf(MaterialEntry(category = category, manufacturer = if (hasKiiltoProducts) "Kiilto" else ""))
 }
-
 
 @Serializable
 data class AppSettings(
