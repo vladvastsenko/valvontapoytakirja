@@ -147,7 +147,7 @@ private fun UnifiedStartScreen(
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
         Spacer(Modifier.height(28.dp))
-        Text("Valvoja", style = MaterialTheme.typography.headlineLarge, fontWeight = FontWeight.Bold)
+        Text("Tarkastus", style = MaterialTheme.typography.headlineLarge, fontWeight = FontWeight.Bold)
         Text("Valitse luotavan pöytäkirjan tyyppi.")
         Button(onClick = onValvoja, modifier = Modifier.fillMaxWidth()) {
             Text("Valvontapöytäkirja")
