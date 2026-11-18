@@ -1,5 +1,6 @@
 package fi.vladi.tarkastuspoytakirja
 
+import android.app.Activity
 import android.content.Intent
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
@@ -219,7 +220,12 @@ private fun TarkastusApp() {
                     observations = listOf(InspectionObservation())
                 )))
             },
-            onOpen = { currentReport = it }
+            onOpen = { currentReport = it },
+            onDelete = { report ->
+                repository.deleteReport(report.id)
+                reports = repository.listReports()
+            },
+            onBackToDocumentSelection = { (context as? Activity)?.finish() }
         )
     } else {
         EditorScreen(
@@ -266,7 +272,7 @@ private fun TarkastusApp() {
                             context,
                             pdf,
                             "Raportit/PDF/Tarkastuspoytakirja",
-                            "Tarkastuspoytakirja_${safeName}_${active.id.take(8)}.pdf",
+                            "tarkastuspoytakirja_${safeName}.pdf",
                             "application/pdf"
                         )
                     }
@@ -298,7 +304,9 @@ private fun HomeScreen(
     templates: List<InspectionReport>,
     onCreateFromTemplate: (InspectionReport) -> Unit,
     onCreate: () -> Unit,
-    onOpen: (InspectionReport) -> Unit
+    onOpen: (InspectionReport) -> Unit,
+    onDelete: (InspectionReport) -> Unit,
+    onBackToDocumentSelection: () -> Unit
 ) {
     Column(
         modifier = Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(20.dp),
@@ -306,6 +314,7 @@ private fun HomeScreen(
     ) {
         Text("Tarkastuspöytäkirja", style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.Bold)
         Text("Yleiset tarkastusraportit")
+        TextButton(onClick = onBackToDocumentSelection) { Text("← Takaisin asiakirjan valintaan") }
         Button(onClick = onCreate, modifier = Modifier.fillMaxWidth()) {
             Text("Uusi pöytäkirja")
         }
@@ -331,6 +340,7 @@ private fun HomeScreen(
                         if (report.folderPath.isNotBlank()) Text("Kansio: " + report.folderPath, style = MaterialTheme.typography.bodySmall)
                         Text("Tarkastuspäivä: ${report.inspectionDate.ifBlank { "—" }}")
                         Text("${report.observations.size} havaintoa", style = MaterialTheme.typography.bodySmall)
+                        TextButton(onClick = { onDelete(report) }) { Text("Poista") }
                     }
                 }
             }
@@ -450,8 +460,8 @@ private fun EditorScreen(
                 }
             }
         }
+        Field("Kohteen tarkenne", report.siteAddress) { onChange(report.copy(siteAddress = it)) }
         if (report.customerId.isBlank()) {
-            Field("Kohteen tarkenne", report.siteAddress) { onChange(report.copy(siteAddress = it)) }
             Field("Tilaaja / kohteen edustaja", report.clientOrRepresentative) { onChange(report.copy(clientOrRepresentative = it)) }
             Field("Tilaajan puhelinnumero", report.clientPhone) { onChange(report.copy(clientPhone = it)) }
             Field("Tilaajan sähköposti", report.clientEmail) { onChange(report.copy(clientEmail = it)) }
