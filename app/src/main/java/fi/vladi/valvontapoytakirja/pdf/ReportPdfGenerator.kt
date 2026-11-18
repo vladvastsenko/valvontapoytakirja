@@ -44,7 +44,7 @@ object ReportPdfGenerator {
         totalPages: Int?
     ): Pair<PdfDocument, Int> {
         val document = PdfDocument()
-        val writer = PdfWriter(document, report.logoPath, report.headerText, report.footerText, totalPages)
+        val writer = PdfWriter(document, settings.logoPath, settings.headerText, settings.footerText, totalPages)
 
             writer.title("VALVONTAPÖYTÄKIRJA")
             if (report.folderPath.isNotBlank()) {
