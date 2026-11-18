@@ -108,6 +108,9 @@ class MainActivity : ComponentActivity() {
 @Composable
 private fun UnifiedLauncher() {
     val context = LocalContext.current
+    LaunchedEffect(Unit) {
+        withContext(Dispatchers.IO) { SharedDocumentsArchive.ensureFolder(context) }
+    }
     var showValvoja by remember { mutableStateOf(false) }
     var openSettings by remember { mutableStateOf(false) }
 
@@ -149,6 +152,11 @@ private fun UnifiedStartScreen(
         Spacer(Modifier.height(28.dp))
         Text("Tarkastus", style = MaterialTheme.typography.headlineLarge, fontWeight = FontWeight.Bold)
         Text("Valitse luotavan pöytäkirjan tyyppi.")
+        Text(
+            "Tallennuskansio: Documents/Tarkastus",
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
         Button(onClick = onValvoja, modifier = Modifier.fillMaxWidth()) {
             Text("Valvontapöytäkirja")
         }
