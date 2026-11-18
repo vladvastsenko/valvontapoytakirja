@@ -1,6 +1,10 @@
 package fi.vladi.valvontapoytakirja.data
 
 import android.content.Context
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
+import android.graphics.ImageDecoder
+import android.os.Build
 import android.net.Uri
 import androidx.core.content.FileProvider
 import fi.vladi.valvontapoytakirja.model.InspectionReport
@@ -172,7 +176,7 @@ class ReportRepository(private val context: Context) {
 
     fun createCameraPhotoFile(reportId: String): File {
         val directory = File(reportsDirectory(), "$reportId/photos").apply { mkdirs() }
-        return File(directory, "photo_${Instant.now().toEpochMilli()}.jpg")
+        return File(directory, "photo_${java.util.UUID.randomUUID()}.jpg")
     }
 
     fun cameraUri(file: File): Uri =
@@ -181,10 +185,41 @@ class ReportRepository(private val context: Context) {
     fun importPhoto(reportId: String, uri: Uri): File? {
         return runCatching {
             val directory = File(reportsDirectory(), "$reportId/photos").apply { mkdirs() }
-            val destination = File(directory, "photo_${System.currentTimeMillis()}_${directory.listFiles()?.size ?: 0}.jpg")
-            val input = context.contentResolver.openInputStream(uri) ?: error("Unable to open selected image")
-            input.use {
-                destination.outputStream().use { output -> it.copyTo(output) }
+            val destination = File(directory, "photo_${java.util.UUID.randomUUID()}.jpg")
+            val bitmap = if (Build.VERSION.SDK_INT >= 28) {
+                val source = ImageDecoder.createSource(context.contentResolver, uri)
+                ImageDecoder.decodeBitmap(source) { decoder, info, _ ->
+                    val width = info.size.width.coerceAtLeast(1)
+                    val height = info.size.height.coerceAtLeast(1)
+                    val scale = minOf(1f, 2200f / maxOf(width, height))
+                    decoder.setTargetSize(
+                        (width * scale).toInt().coerceAtLeast(1),
+                        (height * scale).toInt().coerceAtLeast(1)
+                    )
+                    decoder.allocator = ImageDecoder.ALLOCATOR_SOFTWARE
+                }
+            } else {
+                val bounds = BitmapFactory.Options().apply { inJustDecodeBounds = true }
+                context.contentResolver.openInputStream(uri)?.use { BitmapFactory.decodeStream(it, null, bounds) }
+                    ?: error("Unable to read selected image")
+                require(bounds.outWidth > 0 && bounds.outHeight > 0) { "Unsupported image" }
+                var sampleSize = 1
+                while (maxOf(bounds.outWidth, bounds.outHeight) / sampleSize > 2200) sampleSize *= 2
+                val options = BitmapFactory.Options().apply {
+                    inSampleSize = sampleSize
+                    inPreferredConfig = Bitmap.Config.RGB_565
+                }
+                context.contentResolver.openInputStream(uri)?.use { BitmapFactory.decodeStream(it, null, options) }
+                    ?: error("Unable to decode selected image")
+            }
+            try {
+                destination.outputStream().buffered().use { output ->
+                    check(bitmap.compress(Bitmap.CompressFormat.JPEG, 90, output)) {
+                        "Unable to save selected image"
+                    }
+                }
+            } finally {
+                bitmap.recycle()
             }
             destination
         }.getOrNull()
