@@ -131,7 +131,8 @@ class ReportRepository(private val context: Context) {
             SharedDocumentsArchive.archiveFile(
                 context, File(photo.filePath),
                 "Raportit/Kuvat/Valvontapoytakirja/" + report.id,
-                File(photo.filePath).name
+                File(photo.filePath).name,
+                overwrite = false
             )
         }
     }
