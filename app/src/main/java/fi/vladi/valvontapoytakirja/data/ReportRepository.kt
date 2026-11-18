@@ -45,8 +45,9 @@ class ReportRepository(private val context: Context) {
             ?: emptyList()
 
     fun saveCustomer(customer: CustomerProfile) {
-        File(customersDirectory(), "${customer.id}.json")
-            .writeText(json.encodeToString(CustomerProfile.serializer(), customer))
+        val file = File(customersDirectory(), "${customer.id}.json")
+        file.writeText(json.encodeToString(CustomerProfile.serializer(), customer))
+        SharedDocumentsArchive.archiveFile(context, file, "Asetukset/Asiakkaat", file.name, "application/json")
     }
 
     fun deleteCustomer(customerId: String) {
@@ -67,8 +68,9 @@ class ReportRepository(private val context: Context) {
             ?: emptyList()
 
     fun saveSite(site: CustomerSite) {
-        File(sitesDirectory(), "${site.id}.json")
-            .writeText(json.encodeToString(CustomerSite.serializer(), site))
+        val file = File(sitesDirectory(), "${site.id}.json")
+        file.writeText(json.encodeToString(CustomerSite.serializer(), site))
+        SharedDocumentsArchive.archiveFile(context, file, "Asetukset/Kohteet", file.name, "application/json")
     }
 
     fun deleteSite(siteId: String) {
