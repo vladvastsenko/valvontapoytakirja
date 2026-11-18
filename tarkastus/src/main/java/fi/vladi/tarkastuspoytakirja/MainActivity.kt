@@ -41,6 +41,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.produceState
 import androidx.compose.runtime.getValue
@@ -50,6 +51,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path as ComposePath
 import androidx.compose.ui.graphics.StrokeCap
@@ -641,11 +643,29 @@ private fun Field(
     minLines: Int = 1,
     onValueChange: (String) -> Unit
 ) {
+    // Keep keystrokes local to this field. The large report form receives
+    // updates only after a short pause or when the field loses focus.
+    var draft by remember { mutableStateOf(value) }
+
+    LaunchedEffect(value) {
+        if (draft != value) draft = value
+    }
+    LaunchedEffect(draft, value) {
+        if (draft != value) {
+            delay(220)
+            if (draft != value) onValueChange(draft)
+        }
+    }
+
     OutlinedTextField(
-        value = value,
-        onValueChange = onValueChange,
+        value = draft,
+        onValueChange = { draft = it },
         label = { Text(label) },
-        modifier = Modifier.fillMaxWidth(),
+        modifier = Modifier
+            .fillMaxWidth()
+            .onFocusChanged { focus ->
+                if (!focus.isFocused && draft != value) onValueChange(draft)
+            },
         minLines = minLines,
         singleLine = minLines == 1
     )
