@@ -91,6 +91,9 @@ fun CloudBackupScreen(onBack: () -> Unit) {
         modifier = Modifier.fillMaxSize().padding(20.dp),
         verticalArrangement = Arrangement.spacedBy(12.dp)
     ) {
+        // Keep navigation visible at the top; the screen content can extend
+        // beyond the viewport on phones with smaller displays.
+        TextButton(onClick = onBack, enabled = !busy) { Text("← Takaisin") }
         Text("Pilvivarmuuskopio ja synkronointi", style = MaterialTheme.typography.headlineMedium)
         Text("Valitse Google Drive -sovelluksessa sama yksityinen Tarkastus-kansio kaikilla laitteilla.")
         Text(
@@ -193,6 +196,5 @@ fun CloudBackupScreen(onBack: () -> Unit) {
             color = MaterialTheme.colorScheme.onSurfaceVariant
         )
         Spacer(Modifier.height(8.dp))
-        TextButton(onClick = onBack, enabled = !busy) { Text("Takaisin") }
     }
 }
