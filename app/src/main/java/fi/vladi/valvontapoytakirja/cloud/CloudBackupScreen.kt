@@ -42,7 +42,10 @@ fun CloudBackupScreen(onBack: () -> Unit) {
     val preferences = remember { context.getSharedPreferences(BACKUP_PREFS, Context.MODE_PRIVATE) }
     var folderUri by remember { mutableStateOf(preferences.getString(DRIVE_TREE_URI, null)) }
     var busy by remember { mutableStateOf(false) }
-    var status by remember { mutableStateOf(preferences.getString("last_backup_status", "Varmuuskopio ei ole vielä tehty.") ?: "Varmuuskopio ei ole vielä tehty.") }
+    var status by remember {
+        mutableStateOf(preferences.getString("last_backup_status", "Varmuuskopio ei ole vielä tehty.")
+            ?: "Varmuuskopio ei ole vielä tehty.")
+    }
     var restoreCompleted by remember { mutableStateOf(false) }
     val scope = rememberCoroutineScope()
 
@@ -82,12 +85,14 @@ fun CloudBackupScreen(onBack: () -> Unit) {
         }
     }
 
+    val selectedTree = folderUri?.let(Uri::parse)
+
     Column(
         modifier = Modifier.fillMaxSize().padding(20.dp),
         verticalArrangement = Arrangement.spacedBy(12.dp)
     ) {
-        Text("Pilvivarmuuskopio", style = MaterialTheme.typography.headlineMedium)
-        Text("Valitse Google Drive -sovelluksessa oma yksityinen Tarkastus-kansio. Sovellus tallentaa sinne koko paikallisen työarkiston ZIP-tiedostona.")
+        Text("Pilvivarmuuskopio ja synkronointi", style = MaterialTheme.typography.headlineMedium)
+        Text("Valitse Google Drive -sovelluksessa sama yksityinen Tarkastus-kansio kaikilla laitteilla.")
         Text(
             if (folderUri.isNullOrBlank()) "Tallennuskansiota ei ole valittu." else "Tallennuskansio on valittu.",
             style = MaterialTheme.typography.bodyMedium,
@@ -101,7 +106,39 @@ fun CloudBackupScreen(onBack: () -> Unit) {
 
         Button(
             onClick = {
-                val uri = folderUri?.let(Uri::parse)
+                val uri = selectedTree
+                if (uri == null) {
+                    status = "Valitse ensin Google Drive -kansio."
+                } else {
+                    busy = true
+                    restoreCompleted = false
+                    scope.launch {
+                        status = try {
+                            val result = withContext(Dispatchers.IO) {
+                                CloudSyncManager.sync(context, uri)
+                            }
+                            result.asMessage()
+                        } catch (error: Throwable) {
+                            "Synkronointi epäonnistui: ${error.message ?: "Tuntematon virhe"}"
+                        } finally {
+                            busy = false
+                        }
+                    }
+                }
+            },
+            modifier = Modifier.fillMaxWidth(),
+            enabled = !busy && selectedTree != null
+        ) { Text("Synkronoi nyt") }
+
+        Text(
+            "Synkronointi lähettää ja vastaanottaa raportit, kuvat, mallit ja asetustiedostot. Käytä samaa Drive-kansiota molemmissa laitteissa. Synkronointi käynnistetään toistaiseksi käsin.",
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
+
+        OutlinedButton(
+            onClick = {
+                val uri = selectedTree
                 if (uri == null) {
                     status = "Valitse ensin tallennuskansio."
                 } else {
@@ -123,8 +160,8 @@ fun CloudBackupScreen(onBack: () -> Unit) {
                 }
             },
             modifier = Modifier.fillMaxWidth(),
-            enabled = !busy && !folderUri.isNullOrBlank()
-        ) { Text("Varmuuskopioi nyt") }
+            enabled = !busy && selectedTree != null
+        ) { Text("Luo erillinen varmuuskopio") }
 
         OutlinedButton(
             onClick = { archivePicker.launch(arrayOf("application/zip", "application/octet-stream")) },
@@ -135,7 +172,7 @@ fun CloudBackupScreen(onBack: () -> Unit) {
         if (busy) {
             Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
                 CircularProgressIndicator()
-                Text("Käsitellään varmuuskopiota…")
+                Text("Käsitellään tietoja…")
             }
         }
         Text(status, style = MaterialTheme.typography.bodyMedium)
@@ -145,6 +182,11 @@ fun CloudBackupScreen(onBack: () -> Unit) {
                 modifier = Modifier.fillMaxWidth()
             ) { Text("Lataa palautetut tiedot uudelleen") }
         }
+        Text(
+            "Synkronointi käsittelee muutoksia molempiin suuntiin. Jos sama tiedosto muuttui eri tavoin molemmilla laitteilla, paikallinen versio tallennetaan Drive-kansion Tarkastus_Sync/Conflicts-kansioon ja ristiriita ilmoitetaan. Älä sulje sovellusta kesken synkronoinnin.",
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
         Text(
             "Palautus korvaa nykyiset paikalliset tiedot valitun varmuuskopion tiedoilla. Nykyinen arkisto säilytetään palautuksen ajan suojakopiona.",
             style = MaterialTheme.typography.bodySmall,
