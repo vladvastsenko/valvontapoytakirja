@@ -583,7 +583,7 @@ private fun EditorScreen(
             Text("Tallenna raportti malliksi")
         }
         Button(onClick = onExport, modifier = Modifier.fillMaxWidth()) { Text("Luo ja jaa PDF-raportti") }
-        OutlinedButton(onClick = onBack, modifier = Modifier.fillMaxWidth()) { Text("Tallenna ja sulje") }
+        OutlinedButton(onClick = onBack, modifier = Modifier.fillMaxWidth()) { Text("← Takaisin") }
         Spacer(Modifier.height(28.dp))
     }
 }
