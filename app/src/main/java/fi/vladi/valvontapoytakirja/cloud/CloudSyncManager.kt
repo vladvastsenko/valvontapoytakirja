@@ -23,9 +23,19 @@ object CloudSyncManager {
     private const val DATA_FOLDER = "data"
     private const val CONFLICTS_FOLDER = "Conflicts"
 
-    data class Result(val uploaded: Int, val downloaded: Int, val deleted: Int, val conflicts: Int) {
+    data class Result(
+        val uploaded: Int,
+        val downloaded: Int,
+        val deleted: Int,
+        val conflicts: Int,
+        val pdfUploaded: Int = 0,
+        val pdfDownloaded: Int = 0,
+        val pdfDeleted: Int = 0,
+        val pdfConflicts: Int = 0
+    ) {
         fun asMessage(): String =
-            "Synkronointi valmis. Lähetetty: $uploaded, ladattu: $downloaded, poistettu: $deleted, ristiriitoja: $conflicts."
+            "Synkronointi valmis. Tiedostot: lähetetty $uploaded, ladattu $downloaded, poistettu $deleted, ristiriitoja $conflicts. " +
+                "PDF:t: lähetetty $pdfUploaded, ladattu $pdfDownloaded, poistettu $pdfDeleted, ristiriitoja $pdfConflicts."
     }
 
     fun sync(context: Context, treeUri: Uri): Result {
@@ -139,7 +149,19 @@ object CloudSyncManager {
         check(preferences.edit().putString(BASELINE_KEY, nextBaseline.toString()).commit()) {
             "Synkronoinnin tilaa ei voitu tallentaa laitteelle."
         }
-        return Result(uploaded, downloaded, deleted, conflicts)
+
+        // Synchronize exported PDFs from Documents/Tarkastus as a separate dataset.
+        val pdfResult = PdfArchiveSyncManager.sync(context, syncRoot, conflictRoot)
+        return Result(
+            uploaded = uploaded,
+            downloaded = downloaded,
+            deleted = deleted,
+            conflicts = conflicts,
+            pdfUploaded = pdfResult.uploaded,
+            pdfDownloaded = pdfResult.downloaded,
+            pdfDeleted = pdfResult.deleted,
+            pdfConflicts = pdfResult.conflicts
+        )
     }
 
     private fun collectRemoteFiles(
