@@ -153,7 +153,7 @@ object CloudSyncManager {
         }
 
         // Synchronize exported PDFs from Documents/Tarkastus as a separate dataset.
-        val pdfResult = PdfArchiveSyncManager.sync(context, syncRoot, conflictRoot)
+        val pdfResult = PdfArchiveSyncManager.sync(context, selectedRoot, syncRoot, conflictRoot)
         return Result(
             uploaded = uploaded,
             downloaded = downloaded,
