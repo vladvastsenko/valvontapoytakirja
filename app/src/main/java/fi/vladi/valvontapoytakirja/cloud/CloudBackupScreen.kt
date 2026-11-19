@@ -68,9 +68,11 @@ fun CloudBackupScreen(onBack: () -> Unit) {
             busy = true
             scope.launch {
                 status = try {
-                    withContext(Dispatchers.IO) {
-                        CloudBackupManager.restoreFromUri(context, uri).also { restoreCompleted = true }
+                    val result = withContext(Dispatchers.IO) {
+                        CloudBackupManager.restoreFromUri(context, uri)
                     }
+                    restoreCompleted = true
+                    result
                 } catch (error: Throwable) {
                     "Palautus epäonnistui: ${error.message ?: "Tuntematon virhe"}"
                 } finally {
