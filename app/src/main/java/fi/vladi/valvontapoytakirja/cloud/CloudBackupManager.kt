@@ -2,6 +2,8 @@ package fi.vladi.valvontapoytakirja.cloud
 
 import android.content.Context
 import android.net.Uri
+import android.os.Environment
+import android.provider.MediaStore
 import androidx.documentfile.provider.DocumentFile
 import java.io.BufferedInputStream
 import java.io.BufferedOutputStream
@@ -54,13 +56,65 @@ object CloudBackupManager {
             folder.findFile(displayName)?.delete()
             val target = folder.createFile("application/zip", displayName)
                 ?: error("Varmuuskopiotiedostoa ei voitu luoda Google Driveen.")
-            context.contentResolver.openOutputStream(target.uri, "w")?.use { output ->
-                tempZip.inputStream().buffered().use { input -> input.copyTo(output) }
-            } ?: error("Google Drive -tiedostoa ei voitu kirjoittaa.")
-            return displayName
+            try {
+                context.contentResolver.openOutputStream(target.uri, "w")?.use { output ->
+                    tempZip.inputStream().buffered().use { input -> input.copyTo(output) }
+                } ?: error("Google Drive -tiedostoa ei voitu kirjoittaa.")
+            } catch (error: Throwable) {
+                target.delete()
+                throw error
+            }
+            val pdfCount = copyPdfExportsToDrive(context, folder)
+            return "$displayName; PDF-tiedostoja: $pdfCount"
         } finally {
             tempZip.delete()
         }
+    }
+
+    private fun copyPdfExportsToDrive(context: Context, destinationRoot: DocumentFile): Int {
+        val collection = MediaStore.Files.getContentUri(MediaStore.VOLUME_EXTERNAL_PRIMARY)
+        val basePath = "${Environment.DIRECTORY_DOCUMENTS}/Tarkastus/"
+        val selection = "${MediaStore.MediaColumns.RELATIVE_PATH} LIKE ? AND ${MediaStore.MediaColumns.MIME_TYPE} = ?"
+        val args = arrayOf("${basePath}Raportit/PDF/%", "application/pdf")
+        var copied = 0
+        context.contentResolver.query(
+            collection,
+            arrayOf(MediaStore.MediaColumns._ID, MediaStore.MediaColumns.DISPLAY_NAME, MediaStore.MediaColumns.RELATIVE_PATH),
+            selection,
+            args,
+            null
+        )?.use { cursor ->
+            val idColumn = cursor.getColumnIndexOrThrow(MediaStore.MediaColumns._ID)
+            val nameColumn = cursor.getColumnIndexOrThrow(MediaStore.MediaColumns.DISPLAY_NAME)
+            val pathColumn = cursor.getColumnIndexOrThrow(MediaStore.MediaColumns.RELATIVE_PATH)
+            while (cursor.moveToNext()) {
+                val displayName = cursor.getString(nameColumn) ?: continue
+                val relativePath = cursor.getString(pathColumn) ?: continue
+                val subPath = relativePath.removePrefix(basePath).trim('/')
+                if (subPath.isBlank() || subPath.split('/').any { it == ".." || it.isBlank() }) continue
+                var folder = destinationRoot
+                subPath.split('/').forEach { segment ->
+                    folder = folder.findFile(segment) ?: folder.createDirectory(segment) ?: error("Drive-kansiota ei voitu luoda.")
+                }
+                val existing = folder.findFile(displayName)
+                existing?.delete()
+                val target = folder.createFile("application/pdf", displayName)
+                    ?: error("PDF-tiedostoa ei voitu luoda Google Driveen.")
+                val sourceUri = android.content.ContentUris.withAppendedId(collection, cursor.getLong(idColumn))
+                try {
+                    context.contentResolver.openInputStream(sourceUri)?.use { input ->
+                        context.contentResolver.openOutputStream(target.uri, "w")?.use { output ->
+                            input.copyTo(output)
+                        } ?: error("PDF-tiedostoa ei voitu kirjoittaa Driveen.")
+                    } ?: error("PDF-tiedostoa ei voitu lukea.")
+                    copied++
+                } catch (error: Throwable) {
+                    target.delete()
+                    throw error
+                }
+            }
+        }
+        return copied
     }
 
     fun restoreFromUri(context: Context, archiveUri: Uri): String {
