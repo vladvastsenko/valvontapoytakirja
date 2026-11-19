@@ -29,7 +29,9 @@ internal object PdfArchiveSyncManager {
         val uploaded: Int = 0,
         val downloaded: Int = 0,
         val deleted: Int = 0,
-        val conflicts: Int = 0
+        val conflicts: Int = 0,
+        val foundLocal: Int = 0,
+        val foundDrive: Int = 0
     )
 
     private data class LocalPdf(val uri: Uri)
@@ -139,7 +141,7 @@ internal object PdfArchiveSyncManager {
         check(preferences.edit().putString(BASELINE_KEY, nextBaseline.toString()).commit()) {
             "PDF-synkronoinnin tilaa ei voitu tallentaa laitteelle."
         }
-        return Result(uploaded, downloaded, deleted, conflicts)
+        return Result(uploaded, downloaded, deleted, conflicts, localFiles.size, remoteFiles.size)
     }
 
     private fun collectLocalPdfs(context: Context): Map<String, LocalPdf> {
