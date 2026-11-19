@@ -2,7 +2,7 @@ name: Android build
 
 on:
   push:
-    branches: [ main, android-app-mvp, unified-valvoja, tarkastus ]
+    branches: [ main, android-app-mvp, unified-valvoja, tarkastus, cloud-backup-drive ]
   pull_request:
     branches: [ main ]
 
