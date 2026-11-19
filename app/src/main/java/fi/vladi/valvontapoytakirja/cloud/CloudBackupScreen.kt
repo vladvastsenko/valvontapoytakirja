@@ -1,5 +1,6 @@
 package fi.vladi.valvontapoytakirja.cloud
 
+import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
@@ -42,6 +43,7 @@ fun CloudBackupScreen(onBack: () -> Unit) {
     var folderUri by remember { mutableStateOf(preferences.getString(DRIVE_TREE_URI, null)) }
     var busy by remember { mutableStateOf(false) }
     var status by remember { mutableStateOf("Varmuuskopio ei ole vielä tehty.") }
+    var restoreCompleted by remember { mutableStateOf(false) }
     val scope = rememberCoroutineScope()
 
     val folderPicker = rememberLauncherForActivityResult(
@@ -67,7 +69,7 @@ fun CloudBackupScreen(onBack: () -> Unit) {
             scope.launch {
                 status = try {
                     withContext(Dispatchers.IO) {
-                        CloudBackupManager.restoreFromUri(context, uri)
+                        CloudBackupManager.restoreFromUri(context, uri).also { restoreCompleted = true }
                     }
                 } catch (error: Throwable) {
                     "Palautus epäonnistui: ${error.message ?: "Tuntematon virhe"}"
@@ -133,6 +135,12 @@ fun CloudBackupScreen(onBack: () -> Unit) {
             }
         }
         Text(status, style = MaterialTheme.typography.bodyMedium)
+        if (restoreCompleted) {
+            Button(
+                onClick = { (context as? Activity)?.recreate() },
+                modifier = Modifier.fillMaxWidth()
+            ) { Text("Lataa palautetut tiedot uudelleen") }
+        }
         Text(
             "Palautus korvaa nykyiset paikalliset tiedot valitun varmuuskopion tiedoilla. Nykyinen arkisto säilytetään palautuksen ajan suojakopiona.",
             style = MaterialTheme.typography.bodySmall,
