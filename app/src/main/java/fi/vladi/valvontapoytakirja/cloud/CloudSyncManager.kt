@@ -54,7 +54,14 @@ object CloudSyncManager {
         val remoteFiles = linkedMapOf<String, DocumentFile>()
         collectRemoteFiles(remoteData, "", remoteFiles)
 
-        val allPaths = (localFiles.keys + remoteFiles.keys + oldBaseline.keys()).toSortedSet()
+        // JSONObject.keys() is an Iterator, not a Collection. Materialize it first
+        // so Kotlin keeps the path set strongly typed as String throughout the sync.
+        val baselinePaths: Set<String> = oldBaseline.keys().asSequence().toSet()
+        val allPaths: Set<String> = buildSet {
+            addAll(localFiles.keys)
+            addAll(remoteFiles.keys)
+            addAll(baselinePaths)
+        }.toSortedSet()
         var uploaded = 0
         var downloaded = 0
         var deleted = 0
