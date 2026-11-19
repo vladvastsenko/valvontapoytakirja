@@ -56,7 +56,7 @@ internal object PdfArchiveSyncManager {
 
         val localFiles = collectLocalPdfs(context)
         val remoteFiles = linkedMapOf<String, DocumentFile>()
-        collectRemoteFiles(remoteRoot, "", remoteFiles)
+        collectRemoteFiles(remoteRoot, "$PDF_DIRECTORY", remoteFiles)
 
         val baselinePaths: Set<String> = oldBaseline.keys().asSequence().toSet()
         val allPaths: Set<String> = buildSet {
@@ -90,7 +90,7 @@ internal object PdfArchiveSyncManager {
             if (baseHash == null) {
                 when {
                     local != null && remote == null -> {
-                        upload(context, remoteRoot, path, local.uri)
+                        upload(context, remoteRoot, driveRelativePath(path), local.uri)
                         uploaded++
                     }
                     local == null && remote != null -> {
@@ -119,7 +119,7 @@ internal object PdfArchiveSyncManager {
                     remote?.delete()
                     deleted++
                 } else {
-                    upload(context, remoteRoot, path, local.uri)
+                    upload(context, remoteRoot, driveRelativePath(path), local.uri)
                     uploaded++
                 }
             } else {
@@ -130,13 +130,13 @@ internal object PdfArchiveSyncManager {
                     download(context, remote, path)
                     downloaded++
                 } else if (local != null) {
-                    upload(context, remoteRoot, path, local.uri)
+                    upload(context, remoteRoot, driveRelativePath(path), local.uri)
                     uploaded++
                 }
             }
 
             local = collectLocalPdfs(context)[path]
-            remote = findRemoteFile(remoteRoot, path)
+            remote = findRemoteFile(remoteRoot, driveRelativePath(path))
             localHash = local?.let { sha256(context, it.uri) }
             remoteHash = remote?.let { sha256(context, it) }
             if (localHash != null && localHash == remoteHash) nextBaseline.put(path, localHash)
@@ -188,7 +188,8 @@ internal object PdfArchiveSyncManager {
             }
         }
 
-        copyTree(legacyRoot, targetRoot, "")
+        val legacyPayload = legacyRoot.findFile("Raportit")?.findFile("PDF") ?: legacyRoot
+        copyTree(legacyPayload, targetRoot, "")
         deleteTree(legacyRoot)
     }
 
@@ -203,6 +204,9 @@ internal object PdfArchiveSyncManager {
             error("Vanhaa PDF-kansiota ei voitu poistaa Google Drivesta.")
         }
     }
+
+    private fun driveRelativePath(localRelativePath: String): String =
+        localRelativePath.removePrefix("$PDF_DIRECTORY/")
 
     private fun collectLocalPdfs(context: Context): Map<String, LocalPdf> {
         val collection = MediaStore.Files.getContentUri(MediaStore.VOLUME_EXTERNAL_PRIMARY)
