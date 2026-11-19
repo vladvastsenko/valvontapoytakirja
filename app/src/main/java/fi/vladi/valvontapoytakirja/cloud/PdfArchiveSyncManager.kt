@@ -149,8 +149,10 @@ internal object PdfArchiveSyncManager {
             MediaStore.MediaColumns.DISPLAY_NAME,
             MediaStore.MediaColumns.RELATIVE_PATH
         )
-        val selection = "${MediaStore.MediaColumns.RELATIVE_PATH} LIKE ? AND ${MediaStore.MediaColumns.MIME_TYPE} = ?"
-        val args = arrayOf("${DOCUMENTS_ROOT}${PDF_DIRECTORY}/%", "application/pdf")
+        // Do not filter by MIME_TYPE: some Android/OEM MediaStore providers leave it
+        // empty or classify imported PDFs inconsistently. The .pdf extension is checked below.
+        val selection = "${MediaStore.MediaColumns.RELATIVE_PATH} LIKE ?"
+        val args = arrayOf("${DOCUMENTS_ROOT}${PDF_DIRECTORY}/%")
         val result = linkedMapOf<String, LocalPdf>()
 
         val cursor = context.contentResolver.query(collection, projection, selection, args, null)
