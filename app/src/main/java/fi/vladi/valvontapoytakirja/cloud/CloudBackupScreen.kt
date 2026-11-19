@@ -42,7 +42,7 @@ fun CloudBackupScreen(onBack: () -> Unit) {
     val preferences = remember { context.getSharedPreferences(BACKUP_PREFS, Context.MODE_PRIVATE) }
     var folderUri by remember { mutableStateOf(preferences.getString(DRIVE_TREE_URI, null)) }
     var busy by remember { mutableStateOf(false) }
-    var status by remember { mutableStateOf("Varmuuskopio ei ole vielä tehty.") }
+    var status by remember { mutableStateOf(preferences.getString("last_backup_status", "Varmuuskopio ei ole vielä tehty.") ?: "Varmuuskopio ei ole vielä tehty.") }
     var restoreCompleted by remember { mutableStateOf(false) }
     val scope = rememberCoroutineScope()
 
@@ -111,7 +111,9 @@ fun CloudBackupScreen(onBack: () -> Unit) {
                             val name = withContext(Dispatchers.IO) {
                                 CloudBackupManager.backupToFolder(context, uri)
                             }
-                            "Varmuuskopio tallennettu: $name"
+                            "Varmuuskopio tallennettu: $name".also {
+                                preferences.edit().putString("last_backup_status", it).apply()
+                            }
                         } catch (error: Throwable) {
                             "Varmuuskopiointi epäonnistui: ${error.message ?: "Tuntematon virhe"}"
                         } finally {
