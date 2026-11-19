@@ -254,7 +254,7 @@ internal object PdfArchiveSyncManager {
 
     private fun saveConflict(context: Context, conflictRoot: DocumentFile, path: String, local: Uri) {
         val stamp = SimpleDateFormat("yyyyMMdd_HHmmss_SSS", Locale.US).format(Date())
-        val safeName = path.replace('/', '_').replace('\\\\', '_')
+        val safeName = path.replace('/', '_').replace('\\', '_')
         val target = conflictRoot.createFile("application/pdf", "${safeName}_local_${stamp}.pdf")
             ?: error("Paikallisen PDF-version tallentaminen ristiriitatiedostoksi epäonnistui.")
         try {
@@ -297,7 +297,7 @@ internal object PdfArchiveSyncManager {
     private fun validatePath(path: String) {
         require(path.isNotBlank() && !path.startsWith("/") &&
             path.split('/').none { it.isBlank() || it == "." || it == ".." } &&
-            !path.contains('\\\\')
+            !path.contains('\\')
         ) { "PDF-synkronoinnissa havaittiin virheellinen tiedostopolku." }
     }
 }
