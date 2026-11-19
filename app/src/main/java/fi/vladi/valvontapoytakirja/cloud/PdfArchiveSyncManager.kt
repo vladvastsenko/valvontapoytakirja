@@ -1,0 +1,297 @@
+package fi.vladi.valvontapoytakirja.cloud
+
+import android.content.ContentUris
+import android.content.Context
+import android.net.Uri
+import android.os.Build
+import android.provider.MediaStore
+import androidx.documentfile.provider.DocumentFile
+import fi.vladi.tarkastuspoytakirja.storage.SharedDocumentsArchive
+import org.json.JSONObject
+import java.io.File
+import java.security.MessageDigest
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
+
+/**
+ * Two-way synchronization for PDFs exported to Documents/Tarkastus/Raportit/PDF.
+ * The Drive copy is kept separately from app-private files under Tarkastus_Sync/PDF.
+ */
+internal object PdfArchiveSyncManager {
+    private const val PREFS = "tarkastus_cloud_sync"
+    private const val BASELINE_KEY = "pdf_baseline_v1"
+    private const val DOCUMENTS_ROOT = "Documents/Tarkastus/"
+    private const val PDF_DIRECTORY = "Raportit/PDF"
+    private const val REMOTE_FOLDER = "PDF"
+
+    data class Result(
+        val uploaded: Int = 0,
+        val downloaded: Int = 0,
+        val deleted: Int = 0,
+        val conflicts: Int = 0
+    )
+
+    private data class LocalPdf(val uri: Uri)
+
+    fun sync(context: Context, syncRoot: DocumentFile, conflictRoot: DocumentFile): Result {
+        // MediaStore RELATIVE_PATH is available from Android 10 (API 29).
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) return Result()
+
+        val remoteRoot = syncRoot.findFile(REMOTE_FOLDER)
+            ?: syncRoot.createDirectory(REMOTE_FOLDER)
+            ?: error("PDF-synkronointikansiota ei voitu luoda Google Driveen.")
+
+        val preferences = context.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
+        val oldBaseline = runCatching {
+            JSONObject(preferences.getString(BASELINE_KEY, "{}") ?: "{}")
+        }.getOrDefault(JSONObject())
+        val nextBaseline = JSONObject()
+
+        val localFiles = collectLocalPdfs(context)
+        val remoteFiles = linkedMapOf<String, DocumentFile>()
+        collectRemoteFiles(remoteRoot, "", remoteFiles)
+
+        val baselinePaths: Set<String> = oldBaseline.keys().asSequence().toSet()
+        val allPaths: Set<String> = buildSet {
+            addAll(localFiles.keys)
+            addAll(remoteFiles.keys)
+            addAll(baselinePaths)
+        }.toSortedSet()
+
+        var uploaded = 0
+        var downloaded = 0
+        var deleted = 0
+        var conflicts = 0
+
+        for (path in allPaths) {
+            validatePath(path)
+            var local = localFiles[path]
+            var remote = remoteFiles[path]?.takeIf { it.exists() }
+            var localHash = local?.let { sha256(context, it.uri) }
+            var remoteHash = remote?.let { sha256(context, it) }
+            val baseHash = oldBaseline.optString(path).takeIf { it.isNotBlank() }
+
+            if (localHash != null && localHash == remoteHash) {
+                nextBaseline.put(path, localHash)
+                continue
+            }
+
+            if (baseHash == null) {
+                when {
+                    local != null && remote == null -> {
+                        upload(context, remoteRoot, path, local.uri)
+                        uploaded++
+                    }
+                    local == null && remote != null -> {
+                        download(context, remote, path)
+                        downloaded++
+                    }
+                    local != null && remote != null -> {
+                        saveConflict(context, conflictRoot, path, local.uri)
+                        download(context, remote, path)
+                        conflicts++
+                        downloaded++
+                    }
+                }
+            } else if (localHash == baseHash) {
+                // Local PDF has not changed: accept the remote update or deletion.
+                if (remote == null) {
+                    local?.let { context.contentResolver.delete(it.uri, null, null) }
+                    deleted++
+                } else {
+                    download(context, remote, path)
+                    downloaded++
+                }
+            } else if (remoteHash == baseHash) {
+                // Drive copy has not changed: publish the local update or deletion.
+                if (local == null) {
+                    remote?.delete()
+                    deleted++
+                } else {
+                    upload(context, remoteRoot, path, local.uri)
+                    uploaded++
+                }
+            } else {
+                // Both sides changed. Preserve the local version before accepting the remote one.
+                conflicts++
+                if (local != null) saveConflict(context, conflictRoot, path, local.uri)
+                if (remote != null) {
+                    download(context, remote, path)
+                    downloaded++
+                } else if (local != null) {
+                    upload(context, remoteRoot, path, local.uri)
+                    uploaded++
+                }
+            }
+
+            local = collectLocalPdfs(context)[path]
+            remote = findRemoteFile(remoteRoot, path)
+            localHash = local?.let { sha256(context, it.uri) }
+            remoteHash = remote?.let { sha256(context, it) }
+            if (localHash != null && localHash == remoteHash) nextBaseline.put(path, localHash)
+        }
+
+        check(preferences.edit().putString(BASELINE_KEY, nextBaseline.toString()).commit()) {
+            "PDF-synkronoinnin tilaa ei voitu tallentaa laitteelle."
+        }
+        return Result(uploaded, downloaded, deleted, conflicts)
+    }
+
+    private fun collectLocalPdfs(context: Context): Map<String, LocalPdf> {
+        val collection = MediaStore.Files.getContentUri(MediaStore.VOLUME_EXTERNAL_PRIMARY)
+        val projection = arrayOf(
+            MediaStore.MediaColumns._ID,
+            MediaStore.MediaColumns.DISPLAY_NAME,
+            MediaStore.MediaColumns.RELATIVE_PATH
+        )
+        val selection = "${MediaStore.MediaColumns.RELATIVE_PATH} LIKE ? AND ${MediaStore.MediaColumns.MIME_TYPE} = ?"
+        val args = arrayOf("${DOCUMENTS_ROOT}${PDF_DIRECTORY}/%", "application/pdf")
+        val result = linkedMapOf<String, LocalPdf>()
+
+        context.contentResolver.query(collection, projection, selection, args, null)?.use { cursor ->
+            val idColumn = cursor.getColumnIndexOrThrow(MediaStore.MediaColumns._ID)
+            val nameColumn = cursor.getColumnIndexOrThrow(MediaStore.MediaColumns.DISPLAY_NAME)
+            val pathColumn = cursor.getColumnIndexOrThrow(MediaStore.MediaColumns.RELATIVE_PATH)
+            while (cursor.moveToNext()) {
+                val name = cursor.getString(nameColumn) ?: continue
+                val relativeDirectory = cursor.getString(pathColumn) ?: continue
+                if (!name.lowercase(Locale.ROOT).endsWith(".pdf")) continue
+                val subDirectory = relativeDirectory.removePrefix(DOCUMENTS_ROOT).trim('/')
+                if (!subDirectory.startsWith(PDF_DIRECTORY) ||
+                    subDirectory.split('/').any { it.isBlank() || it == "." || it == ".." }
+                ) continue
+                val relativePath = "$subDirectory/$name"
+                validatePath(relativePath)
+                val uri = ContentUris.withAppendedId(collection, cursor.getLong(idColumn))
+                result[relativePath] = LocalPdf(uri)
+            }
+        }
+        return result
+    }
+
+    private fun collectRemoteFiles(
+        directory: DocumentFile,
+        prefix: String,
+        result: MutableMap<String, DocumentFile>
+    ) {
+        directory.listFiles().forEach { child ->
+            val name = child.name ?: return@forEach
+            val path = if (prefix.isEmpty()) name else "$prefix/$name"
+            if (child.isDirectory) collectRemoteFiles(child, path, result)
+            else if (child.isFile && name.lowercase(Locale.ROOT).endsWith(".pdf")) result[path] = child
+        }
+    }
+
+    private fun findRemoteFile(root: DocumentFile, path: String): DocumentFile? {
+        val parts = path.split('/')
+        var current = root
+        for (part in parts.dropLast(1)) {
+            current = current.findFile(part)?.takeIf { it.isDirectory } ?: return null
+        }
+        return current.findFile(parts.last())?.takeIf { it.isFile && it.exists() }
+    }
+
+    private fun ensureRemoteParent(root: DocumentFile, path: String): DocumentFile {
+        val parts = path.split('/')
+        var current = root
+        for (part in parts.dropLast(1)) {
+            current = current.findFile(part)?.takeIf { it.isDirectory }
+                ?: current.createDirectory(part)
+                ?: error("PDF-kansiota ei voitu luoda Google Driveen: $part")
+        }
+        return current
+    }
+
+    private fun upload(context: Context, root: DocumentFile, path: String, source: Uri) {
+        val parent = ensureRemoteParent(root, path)
+        val name = path.substringAfterLast('/')
+        parent.findFile(name)?.let { existing ->
+            if (!existing.delete()) error("Vanhaa PDF-tiedostoa ei voitu korvata: $path")
+        }
+        val target = parent.createFile("application/pdf", name)
+            ?: error("PDF-tiedostoa ei voitu luoda Google Driveen: $path")
+        try {
+            context.contentResolver.openInputStream(source)?.use { input ->
+                context.contentResolver.openOutputStream(target.uri, "w")?.use { output ->
+                    input.copyTo(output)
+                } ?: error("PDF-tiedostoa ei voitu kirjoittaa Google Driveen: $path")
+            } ?: error("PDF-tiedostoa ei voitu lukea puhelimesta: $path")
+        } catch (error: Throwable) {
+            target.delete()
+            throw error
+        }
+    }
+
+    private fun download(context: Context, source: DocumentFile, path: String) {
+        val temporary = File(context.cacheDir, "pdf_sync_${System.currentTimeMillis()}_${path.hashCode()}.pdf")
+        try {
+            context.contentResolver.openInputStream(source.uri)?.use { input ->
+                temporary.outputStream().buffered().use { output -> input.copyTo(output) }
+            } ?: error("PDF-tiedostoa ei voitu lukea Google Drivesta: $path")
+
+            val relativeDirectory = path.substringBeforeLast('/')
+            val displayName = path.substringAfterLast('/')
+            val saved = SharedDocumentsArchive.archiveFile(
+                context,
+                temporary,
+                relativeDirectory,
+                displayName,
+                "application/pdf",
+                overwrite = true
+            )
+            check(saved != null) { "PDF-tiedostoa ei voitu tallentaa kansioon Documents/Tarkastus: $path" }
+        } finally {
+            temporary.delete()
+        }
+    }
+
+    private fun saveConflict(context: Context, conflictRoot: DocumentFile, path: String, local: Uri) {
+        val stamp = SimpleDateFormat("yyyyMMdd_HHmmss_SSS", Locale.US).format(Date())
+        val safeName = path.replace('/', '_').replace('\\\\', '_')
+        val target = conflictRoot.createFile("application/pdf", "${safeName}_local_${stamp}.pdf")
+            ?: error("Paikallisen PDF-version tallentaminen ristiriitatiedostoksi epäonnistui.")
+        try {
+            context.contentResolver.openInputStream(local)?.use { input ->
+                context.contentResolver.openOutputStream(target.uri, "w")?.use { output -> input.copyTo(output) }
+                    ?: error("Ristiriitaisen PDF-version tallentaminen epäonnistui.")
+            } ?: error("Paikallista PDF-versiota ei voitu lukea.")
+        } catch (error: Throwable) {
+            target.delete()
+            throw error
+        }
+    }
+
+    private fun sha256(context: Context, uri: Uri): String {
+        val digest = MessageDigest.getInstance("SHA-256")
+        context.contentResolver.openInputStream(uri)?.buffered()?.use { input ->
+            val buffer = ByteArray(64 * 1024)
+            while (true) {
+                val count = input.read(buffer)
+                if (count < 0) break
+                digest.update(buffer, 0, count)
+            }
+        } ?: error("PDF-tiedoston tarkistussummaa ei voitu lukea.")
+        return digest.digest().joinToString("") { "%02x".format(it) }
+    }
+
+    private fun sha256(context: Context, file: DocumentFile): String {
+        val digest = MessageDigest.getInstance("SHA-256")
+        context.contentResolver.openInputStream(file.uri)?.buffered()?.use { input ->
+            val buffer = ByteArray(64 * 1024)
+            while (true) {
+                val count = input.read(buffer)
+                if (count < 0) break
+                digest.update(buffer, 0, count)
+            }
+        } ?: error("Google Drive -PDF:n tarkistussummaa ei voitu lukea.")
+        return digest.digest().joinToString("") { "%02x".format(it) }
+    }
+
+    private fun validatePath(path: String) {
+        require(path.isNotBlank() && !path.startsWith("/") &&
+            path.split('/').none { it.isBlank() || it == "." || it == ".." } &&
+            !path.contains('\\\\')
+        ) { "PDF-synkronoinnissa havaittiin virheellinen tiedostopolku." }
+    }
+}
