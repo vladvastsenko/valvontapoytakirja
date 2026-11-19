@@ -33,7 +33,7 @@ object CloudBackupManager {
         try {
             ZipOutputStream(BufferedOutputStream(FileOutputStream(tempZip))).use { zip ->
                 zip.putNextEntry(ZipEntry(MANIFEST))
-                zip.write((MANIFEST_CONTENT + "\\n").toByteArray(Charsets.UTF_8))
+                zip.write((MANIFEST_CONTENT + "\n").toByteArray(Charsets.UTF_8))
                 zip.closeEntry()
 
                 val root = context.filesDir
