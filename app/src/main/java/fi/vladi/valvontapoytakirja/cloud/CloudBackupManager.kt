@@ -81,7 +81,7 @@ object CloudBackupManager {
                     entryCount++
                     require(entryCount <= MAX_ENTRIES) { "Varmuuskopiossa on liian monta tiedostoa." }
 
-                    val name = entry.name.replace('\\\\', '/')
+                    val name = entry.name.replace('\\', '/')
                     require(!name.startsWith("/") && name.split('/').none { it == ".." || it.isBlank() }) {
                         "Varmuuskopiossa on virheellinen tiedostopolku."
                     }
