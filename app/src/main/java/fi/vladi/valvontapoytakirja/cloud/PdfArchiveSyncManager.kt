@@ -72,6 +72,10 @@ internal object PdfArchiveSyncManager {
             var remoteHash = remote?.let { sha256(context, it) }
             val baseHash = oldBaseline.optString(path).takeIf { it.isNotBlank() }
 
+            if (localHash == null && remoteHash == null) {
+                // Both sides are already deleted; do not report a false conflict.
+                continue
+            }
             if (localHash != null && localHash == remoteHash) {
                 nextBaseline.put(path, localHash)
                 continue
@@ -149,7 +153,9 @@ internal object PdfArchiveSyncManager {
         val args = arrayOf("${DOCUMENTS_ROOT}${PDF_DIRECTORY}/%", "application/pdf")
         val result = linkedMapOf<String, LocalPdf>()
 
-        context.contentResolver.query(collection, projection, selection, args, null)?.use { cursor ->
+        val cursor = context.contentResolver.query(collection, projection, selection, args, null)
+            ?: error("PDF-arkistoa ei voitu lukea laitteen tallennustilasta.")
+        cursor.use {
             val idColumn = cursor.getColumnIndexOrThrow(MediaStore.MediaColumns._ID)
             val nameColumn = cursor.getColumnIndexOrThrow(MediaStore.MediaColumns.DISPLAY_NAME)
             val pathColumn = cursor.getColumnIndexOrThrow(MediaStore.MediaColumns.RELATIVE_PATH)
