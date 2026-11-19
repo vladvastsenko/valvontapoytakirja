@@ -131,7 +131,7 @@ fun CloudBackupScreen(onBack: () -> Unit) {
         ) { Text("Synkronoi nyt") }
 
         Text(
-            "Synkronointi lähettää ja vastaanottaa raportit, kuvat, mallit ja asetustiedostot. Käytä samaa Drive-kansiota molemmissa laitteissa. Synkronointi käynnistetään toistaiseksi käsin.",
+            "Synkronointi lähettää ja vastaanottaa raportit, kuvat, mallit, asetustiedostot sekä valmiit PDF-raportit kansiosta Documents/Tarkastus/Raportit/PDF. Käytä samaa Drive-kansiota molemmissa laitteissa. Synkronointi käynnistetään toistaiseksi käsin.",
             style = MaterialTheme.typography.bodySmall,
             color = MaterialTheme.colorScheme.onSurfaceVariant
         )
