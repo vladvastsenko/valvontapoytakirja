@@ -31,11 +31,13 @@ object CloudSyncManager {
         val pdfUploaded: Int = 0,
         val pdfDownloaded: Int = 0,
         val pdfDeleted: Int = 0,
-        val pdfConflicts: Int = 0
+        val pdfConflicts: Int = 0,
+        val pdfFoundLocal: Int = 0,
+        val pdfFoundDrive: Int = 0
     ) {
         fun asMessage(): String =
             "Synkronointi valmis. Tiedostot: lähetetty $uploaded, ladattu $downloaded, poistettu $deleted, ristiriitoja $conflicts. " +
-                "PDF:t: lähetetty $pdfUploaded, ladattu $pdfDownloaded, poistettu $pdfDeleted, ristiriitoja $pdfConflicts."
+                "PDF:t löytyi laitteelta $pdfFoundLocal, Drivesta $pdfFoundDrive; lähetetty $pdfUploaded, ladattu $pdfDownloaded, poistettu $pdfDeleted, ristiriitoja $pdfConflicts."
     }
 
     fun sync(context: Context, treeUri: Uri): Result {
@@ -160,7 +162,9 @@ object CloudSyncManager {
             pdfUploaded = pdfResult.uploaded,
             pdfDownloaded = pdfResult.downloaded,
             pdfDeleted = pdfResult.deleted,
-            pdfConflicts = pdfResult.conflicts
+            pdfConflicts = pdfResult.conflicts,
+            pdfFoundLocal = pdfResult.foundLocal,
+            pdfFoundDrive = pdfResult.foundDrive
         )
     }
 
