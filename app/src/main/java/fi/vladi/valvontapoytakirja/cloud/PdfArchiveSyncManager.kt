@@ -16,7 +16,7 @@ import java.util.Locale
 
 /**
  * Two-way synchronization for PDFs exported to Documents/Tarkastus/Raportit/PDF.
- * The Drive copy is kept separately from app-private files under Tarkastus_Sync/PDF.
+ * The Drive copy is stored in the selected Drive folder's top-level PDF directory.
  */
 internal object PdfArchiveSyncManager {
     private const val PREFS = "tarkastus_cloud_sync"
@@ -36,13 +36,17 @@ internal object PdfArchiveSyncManager {
 
     private data class LocalPdf(val uri: Uri)
 
-    fun sync(context: Context, syncRoot: DocumentFile, conflictRoot: DocumentFile): Result {
+    fun sync(context: Context, selectedRoot: DocumentFile, syncRoot: DocumentFile, conflictRoot: DocumentFile): Result {
         // MediaStore RELATIVE_PATH is available from Android 10 (API 29).
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) return Result()
 
-        val remoteRoot = syncRoot.findFile(REMOTE_FOLDER)
-            ?: syncRoot.createDirectory(REMOTE_FOLDER)
+        val remoteRoot = selectedRoot.findFile(REMOTE_FOLDER)
+            ?: selectedRoot.createDirectory(REMOTE_FOLDER)
             ?: error("PDF-synkronointikansiota ei voitu luoda Google Driveen.")
+
+        // One-time migration from the previous nested location Tarkastus_Sync/PDF.
+        // Existing top-level PDFs remain authoritative if a same-path name already exists.
+        migrateLegacyFolder(context, syncRoot.findFile(REMOTE_FOLDER), remoteRoot, conflictRoot)
 
         val preferences = context.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
         val oldBaseline = runCatching {
@@ -142,6 +146,62 @@ internal object PdfArchiveSyncManager {
             "PDF-synkronoinnin tilaa ei voitu tallentaa laitteelle."
         }
         return Result(uploaded, downloaded, deleted, conflicts, localFiles.size, remoteFiles.size)
+    }
+
+
+    private fun migrateLegacyFolder(
+        context: Context,
+        legacyRoot: DocumentFile?,
+        targetRoot: DocumentFile,
+        conflictRoot: DocumentFile
+    ) {
+        if (legacyRoot == null || !legacyRoot.exists() || !legacyRoot.isDirectory) return
+
+        fun copyTree(sourceDir: DocumentFile, targetDir: DocumentFile, prefix: String) {
+            sourceDir.listFiles().forEach { source ->
+                val name = source.name ?: return@forEach
+                val relative = if (prefix.isEmpty()) name else "$prefix/$name"
+                if (source.isDirectory) {
+                    val childTarget = targetDir.findFile(name)?.takeIf { it.isDirectory }
+                        ?: targetDir.createDirectory(name)
+                        ?: error("PDF-kansion siirto epäonnistui: $relative")
+                    copyTree(source, childTarget, relative)
+                } else if (source.isFile && name.lowercase(Locale.ROOT).endsWith(".pdf")) {
+                    val existing = targetDir.findFile(name)?.takeIf { it.isFile && it.exists() }
+                    if (existing == null) {
+                        val destination = targetDir.createFile("application/pdf", name)
+                            ?: error("PDF-tiedoston siirto epäonnistui: $relative")
+                        try {
+                            context.contentResolver.openInputStream(source.uri)?.use { input ->
+                                context.contentResolver.openOutputStream(destination.uri, "w")?.use { output ->
+                                    input.copyTo(output)
+                                } ?: error("PDF-tiedoston kirjoittaminen epäonnistui: $relative")
+                            } ?: error("Vanhan PDF-tiedoston lukeminen epäonnistui: $relative")
+                        } catch (error: Throwable) {
+                            destination.delete()
+                            throw error
+                        }
+                    } else if (sha256(context, existing) != sha256(context, source)) {
+                        saveConflict(context, conflictRoot, "vanha_sijainti_$relative", source.uri)
+                    }
+                }
+            }
+        }
+
+        copyTree(legacyRoot, targetRoot, "")
+        deleteTree(legacyRoot)
+    }
+
+    private fun deleteTree(directory: DocumentFile) {
+        directory.listFiles().forEach { child ->
+            if (child.isDirectory) deleteTree(child)
+            if (child.exists() && !child.delete()) {
+                error("Vanhaa PDF-kansiota ei voitu siivota Google Drivesta.")
+            }
+        }
+        if (directory.exists() && !directory.delete()) {
+            error("Vanhaa PDF-kansiota ei voitu poistaa Google Drivesta.")
+        }
     }
 
     private fun collectLocalPdfs(context: Context): Map<String, LocalPdf> {
