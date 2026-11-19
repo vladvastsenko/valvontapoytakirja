@@ -57,6 +57,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.core.content.FileProvider
 import fi.vladi.tarkastuspoytakirja.MainActivity as TarkastusMainActivity
+import fi.vladi.valvontapoytakirja.cloud.CloudBackupScreen
 import fi.vladi.tarkastuspoytakirja.storage.SharedDocumentsArchive
 import fi.vladi.valvontapoytakirja.data.MaterialCatalog
 import fi.vladi.valvontapoytakirja.data.ReportRepository
@@ -113,8 +114,11 @@ private fun UnifiedLauncher() {
     }
     var showValvoja by remember { mutableStateOf(false) }
     var openSettings by remember { mutableStateOf(false) }
+    var showCloudBackup by remember { mutableStateOf(false) }
 
-    if (showValvoja) {
+    if (showCloudBackup) {
+        CloudBackupScreen(onBack = { showCloudBackup = false })
+    } else if (showValvoja) {
         ValvontaApp(
             initialShowSettings = openSettings,
             onBackToLauncher = {
@@ -134,7 +138,8 @@ private fun UnifiedLauncher() {
             onSettings = {
                 openSettings = true
                 showValvoja = true
-            }
+            },
+            onCloudBackup = { showCloudBackup = true }
         )
     }
 }
@@ -143,7 +148,8 @@ private fun UnifiedLauncher() {
 private fun UnifiedStartScreen(
     onValvoja: () -> Unit,
     onTarkastus: () -> Unit,
-    onSettings: () -> Unit
+    onSettings: () -> Unit,
+    onCloudBackup: () -> Unit
 ) {
     Column(
         modifier = Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(24.dp),
@@ -166,6 +172,9 @@ private fun UnifiedStartScreen(
         Spacer(Modifier.height(8.dp))
         OutlinedButton(onClick = onSettings, modifier = Modifier.fillMaxWidth()) {
             Text("Yhteiset asetukset")
+        }
+        OutlinedButton(onClick = onCloudBackup, modifier = Modifier.fillMaxWidth()) {
+            Text("Pilvivarmuuskopio")
         }
     }
 }
