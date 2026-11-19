@@ -2,6 +2,7 @@ package fi.vladi.valvontapoytakirja.cloud
 
 import android.content.Context
 import android.net.Uri
+import android.os.Build
 import android.os.Environment
 import android.provider.MediaStore
 import androidx.documentfile.provider.DocumentFile
@@ -72,6 +73,7 @@ object CloudBackupManager {
     }
 
     private fun copyPdfExportsToDrive(context: Context, destinationRoot: DocumentFile): Int {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) return 0
         val collection = MediaStore.Files.getContentUri(MediaStore.VOLUME_EXTERNAL_PRIMARY)
         val basePath = "${Environment.DIRECTORY_DOCUMENTS}/Tarkastus/"
         val selection = "${MediaStore.MediaColumns.RELATIVE_PATH} LIKE ? AND ${MediaStore.MediaColumns.MIME_TYPE} = ?"
