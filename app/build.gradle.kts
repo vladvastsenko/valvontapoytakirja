@@ -10,7 +10,7 @@ android {
     compileSdk = 35
 
     defaultConfig {
-        applicationId = "fi.vladi.valvontapoytakirja"
+        applicationId = "fi.vladi.tarkastuscloud"
         minSdk = 26
         targetSdk = 35
         versionCode = 12
