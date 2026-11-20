@@ -371,7 +371,8 @@ private fun EditorScreen(
     onGallery: (String) -> Unit,
     onSaveTemplate: (String) -> Unit,
     onExport: () -> Unit,
-    onDeletePhoto: (String, ReportPhoto) -> Unit
+    onDeletePhoto: (String, ReportPhoto) -> Unit,
+    onDeleteObservation: (InspectionObservation) -> Unit
 ) {
     var photoBeingEdited by remember(report.id) { mutableStateOf<ReportPhoto?>(null) }
     if (photoBeingEdited != null) {
