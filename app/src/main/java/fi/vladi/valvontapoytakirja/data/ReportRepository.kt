@@ -81,6 +81,19 @@ class ReportRepository(private val context: Context) {
         File(sitesDirectory(), "${siteId}.json").delete()
     }
 
+    fun importSettingsSignature(uri: Uri): File? = runCatching {
+        val directory = File(context.filesDir, "settings").apply { mkdirs() }
+        val extension = when (context.contentResolver.getType(uri)) {
+            "image/png" -> "png"
+            "image/webp" -> "webp"
+            else -> "jpg"
+        }
+        val destination = File(directory, "signature_${Instant.now().toEpochMilli()}.$extension")
+        val input = context.contentResolver.openInputStream(uri) ?: error("Unable to open signature")
+        input.use { source -> destination.outputStream().use { output -> source.copyTo(output) } }
+        destination
+    }.getOrNull()
+
     fun importSettingsLogo(uri: Uri): File? {
         return runCatching {
             val directory = File(context.filesDir, "settings").apply { mkdirs() }
