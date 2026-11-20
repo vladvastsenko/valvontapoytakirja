@@ -21,6 +21,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -65,6 +66,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.core.content.FileProvider
 import fi.vladi.tarkastuspoytakirja.data.ReportRepository
 import fi.vladi.tarkastuspoytakirja.model.AppSettings
@@ -547,20 +549,31 @@ private fun EditorScreen(
                             onDelete = { onDeletePhoto(observation.id, photo) }
                         )
                     }
-                    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                        OutlinedButton(onClick = { onCamera(observation.id) }, modifier = Modifier.weight(1f)) {
-                            Text("Ota kuva")
+                    Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                        OutlinedButton(
+                            onClick = { onCamera(observation.id) },
+                            modifier = Modifier.weight(1f),
+                            contentPadding = PaddingValues(horizontal = 4.dp, vertical = 8.dp)
+                        ) {
+                            Text("Ota kuva", fontSize = 12.sp, maxLines = 1, softWrap = false)
                         }
-                        OutlinedButton(onClick = { onGallery(observation.id) }, modifier = Modifier.weight(1f)) {
-                            Text("Galleriasta")
+                        OutlinedButton(
+                            onClick = { onGallery(observation.id) },
+                            modifier = Modifier.weight(1f),
+                            contentPadding = PaddingValues(horizontal = 4.dp, vertical = 8.dp)
+                        ) {
+                            Text("Kuvat", fontSize = 12.sp, maxLines = 1, softWrap = false)
                         }
                         OutlinedButton(
                             onClick = {
                                 observation.photos.forEach { onDeletePhoto(observation.id, it) }
                                 onChange(report.copy(observations = report.observations.filterNot { it.id == observation.id }))
                             },
-                            modifier = Modifier.weight(1f)
-                        ) { Text("Poista") }
+                            modifier = Modifier.weight(1f),
+                            contentPadding = PaddingValues(horizontal = 4.dp, vertical = 8.dp)
+                        ) {
+                            Text("Poista", fontSize = 12.sp, maxLines = 1, softWrap = false)
+                        }
                     }
                 }
             }
