@@ -146,6 +146,7 @@ private fun TarkastusApp() {
         inspectorPhone = appSettings.inspectorPhone,
         inspectorEmail = appSettings.inspectorEmail,
         signatureStrokes = appSettings.signatureStrokes,
+        signatureImagePath = appSettings.signatureImagePath,
         logoPath = appSettings.logoPath,
         headerText = appSettings.headerText,
         footerText = appSettings.footerText,
