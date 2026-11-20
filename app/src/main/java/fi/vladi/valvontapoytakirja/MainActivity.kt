@@ -166,7 +166,7 @@ private fun UnifiedStartScreen(
         Button(onClick = onValvoja, modifier = Modifier.fillMaxWidth()) {
             Text("Valvontapöytäkirja")
         }
-        OutlinedButton(onClick = onTarkastus, modifier = Modifier.fillMaxWidth()) {
+        Button(onClick = onTarkastus, modifier = Modifier.fillMaxWidth()) {
             Text("Tarkastuspöytäkirja")
         }
         Spacer(Modifier.height(8.dp))
