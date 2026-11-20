@@ -11,6 +11,9 @@ import java.io.BufferedOutputStream
 import java.io.File
 import java.io.FileInputStream
 import java.io.FileOutputStream
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 import java.util.zip.ZipEntry
 import java.util.zip.ZipInputStream
 import java.util.zip.ZipOutputStream
@@ -20,6 +23,24 @@ import java.util.zip.ZipOutputStream
  * The archive is portable between installs of the same Tarkastus application id.
  */
 object CloudBackupManager {
+    data class BackupFile(val uri: Uri, val name: String, val sizeBytes: Long, val lastModified: Long)
+
+    fun listBackups(context: Context, treeUri: Uri): List<BackupFile> {
+        val folder = DocumentFile.fromTreeUri(context, treeUri)
+            ?: error("Valittua Google Drive -kansiota ei voi avata.")
+        check(folder.isDirectory && folder.canRead()) { "Valitun Google Drive -kansion sisältöä ei voi lukea." }
+        return folder.listFiles()
+            .filter { it.isFile && it.name?.startsWith("Tarkastus_backup_") == true && it.name?.endsWith(".zip") == true }
+            .map { BackupFile(it.uri, it.name.orEmpty(), it.length(), it.lastModified()) }
+            .sortedByDescending { backupTimestamp(it.name) ?: it.lastModified }
+    }
+
+    private fun backupTimestamp(name: String): Long? {
+        val stamp = name.removePrefix("Tarkastus_backup_").removeSuffix(".zip")
+        return listOf("yyyyMMdd_HHmmss_SSS", "yyyyMMdd_HHmmss").firstNotNullOfOrNull { pattern ->
+            runCatching { SimpleDateFormat(pattern, Locale.US).parse(stamp)?.time }.getOrNull()
+        }
+    }
     private const val MANIFEST = "TARKASTUS_BACKUP_INFO.txt"
     private const val MANIFEST_CONTENT = "TARKASTUS_BACKUP_V1"
     private const val MAX_ENTRIES = 20_000
@@ -53,7 +74,7 @@ object CloudBackupManager {
                     }
             }
 
-            val displayName = "Tarkastus_backup_${java.text.SimpleDateFormat("yyyyMMdd_HHmmss", java.util.Locale.US).format(java.util.Date())}.zip"
+            val displayName = "Tarkastus_backup_${SimpleDateFormat("yyyyMMdd_HHmmss_SSS", Locale.US).format(Date())}.zip"
             folder.findFile(displayName)?.delete()
             val target = folder.createFile("application/zip", displayName)
                 ?: error("Varmuuskopiotiedostoa ei voitu luoda Google Driveen.")
