@@ -232,7 +232,7 @@ object ReportPdfGenerator {
 
         private fun highlightedField(label: String, value: String) {
             if (value.isBlank()) return
-            val emphasisPaint = Paint(sectionPaint).apply { textSize = 12f }
+            val emphasisPaint = Paint(sectionPaint).apply { textSize = 13f }
             drawWrapped("$label: $value", emphasisPaint, 16f)
         }
 
@@ -241,6 +241,8 @@ object ReportPdfGenerator {
             field("Kuvaus / tilanne", observation.description)
             field("Toimenpiteet / lisätiedot", observation.recommendedAction)
             if (observation.photos.isNotEmpty()) {
+                // Keep a clear three-line separation between the location/details and photos.
+                spacer(42f)
                 var photoIndex = 0
                 while (photoIndex < observation.photos.size) {
                     val remaining = observation.photos.size - photoIndex
