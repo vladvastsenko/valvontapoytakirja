@@ -510,25 +510,25 @@ private fun EditorScreen(
             modifier = Modifier.fillMaxWidth()
         ) { Text("+ Lisää oma kenttä") }
 
-        SectionTitle("5. HAVAITUT PUUTTEET JA VIRHEET")
+        SectionTitle("5. TARKASTUSKOHTEET")
         report.observations.forEachIndexed { index, observation ->
             Card(
                 modifier = Modifier.fillMaxWidth(),
                 shape = RoundedCornerShape(16.dp)
             ) {
                 Column(Modifier.padding(12.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                    Text("HAVAINTO ${index + 1}", style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold)
+                    Text("KIRJAUS ${index + 1}", style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold)
                     Field("Tila / sijainti", observation.location) { value ->
                         onChange(report.copy(observations = report.observations.map {
                             if (it.id == observation.id) it.copy(location = value) else it
                         }))
                     }
-                    Field("Havaitun puutteen kuvaus", observation.description, minLines = 2) { value ->
+                    Field("Kuvaus / tilanne", observation.description, minLines = 2) { value ->
                         onChange(report.copy(observations = report.observations.map {
                             if (it.id == observation.id) it.copy(description = value) else it
                         }))
                     }
-                    Field("Suositeltu korjaustoimenpide", observation.recommendedAction, minLines = 2) { value ->
+                    Field("Toimenpiteet / lisätiedot", observation.recommendedAction, minLines = 2) { value ->
                         onChange(report.copy(observations = report.observations.map {
                             if (it.id == observation.id) it.copy(recommendedAction = value) else it
                         }))
@@ -568,7 +568,7 @@ private fun EditorScreen(
         OutlinedButton(
             onClick = { onChange(report.copy(observations = report.observations + InspectionObservation())) },
             modifier = Modifier.fillMaxWidth()
-        ) { Text("+ Lisää havainto") }
+        ) { Text("+ Lisää kohde") }
 
         SectionTitle("6. YHTEENVETO")
         Field("Johtopäätökset ja tarvittavat toimenpiteet", report.summary, minLines = 4) {
