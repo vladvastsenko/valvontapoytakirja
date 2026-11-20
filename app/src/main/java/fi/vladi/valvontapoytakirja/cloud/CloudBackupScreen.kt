@@ -54,8 +54,8 @@ fun CloudBackupScreen(onBack: () -> Unit) {
                     backups = found
                     selectedBackupUri = found.firstOrNull()?.uri?.toString()
                     status = if (found.isEmpty()) "Valitusta kansiosta ei löytynyt Tarkastus-varmuuskopioita."
-                        else "Löytyi ${"$"}{found.size} varmuuskopiota. Uusin on valittuna."
-                }.onFailure { error -> status = "Varmuuskopioiden lukeminen epäonnistui: ${"$"}{error.message ?: "Tuntematon virhe"}" }
+                        else "Löytyi ${found.size} varmuuskopiota. Uusin on valittuna."
+                }.onFailure { error -> status = "Varmuuskopioiden lukeminen epäonnistui: ${error.message ?: "Tuntematon virhe"}" }
         } else {
             backups = emptyList()
             selectedBackupUri = null
@@ -91,7 +91,7 @@ fun CloudBackupScreen(onBack: () -> Unit) {
                     restoreCompleted = false
                     scope.launch {
                         status = try { withContext(Dispatchers.IO) { CloudSyncManager.sync(context, uri) }.asMessage() }
-                        catch (error: Throwable) { "Synkronointi epäonnistui: ${"$"}{error.message ?: "Tuntematon virhe"}" }
+                        catch (error: Throwable) { "Synkronointi epäonnistui: ${error.message ?: "Tuntematon virhe"}" }
                         finally { busy = false }
                     }
                 }
@@ -111,8 +111,8 @@ fun CloudBackupScreen(onBack: () -> Unit) {
                             val refreshed = withContext(Dispatchers.IO) { CloudBackupManager.listBackups(context, uri) }
                             backups = refreshed
                             selectedBackupUri = refreshed.firstOrNull()?.uri?.toString()
-                            "Varmuuskopio tallennettu. ${"$"}result".also { preferences.edit().putString("last_backup_status", it).apply() }
-                        } catch (error: Throwable) { "Varmuuskopiointi epäonnistui: ${"$"}{error.message ?: "Tuntematon virhe"}" }
+                            "Varmuuskopio tallennettu. $result".also { preferences.edit().putString("last_backup_status", it).apply() }
+                        } catch (error: Throwable) { "Varmuuskopiointi epäonnistui: ${error.message ?: "Tuntematon virhe"}" }
                         finally { busy = false }
                     }
                 }
@@ -130,7 +130,7 @@ fun CloudBackupScreen(onBack: () -> Unit) {
                         Column(Modifier.weight(1f)) {
                             Text(if (index == 0) "Uusin varmuuskopio" else formatBackupDate(backup.name), style = MaterialTheme.typography.titleSmall)
                             if (index == 0) Text(formatBackupDate(backup.name), style = MaterialTheme.typography.bodySmall)
-                            Text("Koko: ${"$"}{formatBackupSize(backup.sizeBytes)}", style = MaterialTheme.typography.bodySmall)
+                            Text("Koko: ${formatBackupSize(backup.sizeBytes)}", style = MaterialTheme.typography.bodySmall)
                         }
                     }
                 }
@@ -154,7 +154,7 @@ fun CloudBackupScreen(onBack: () -> Unit) {
         AlertDialog(
             onDismissRequest = { if (!busy) showRestoreConfirmation = false },
             title = { Text("Palauta varmuuskopio?") },
-            text = { Text("Palautetaanko kopio ${"$"}{formatBackupDate(selectedBackup.name)} (${ "$"}{formatBackupSize(selectedBackup.sizeBytes)})? Ennen palautusta nykyisistä tiedoista luodaan automaattisesti uusi suojakopio Google Driveen.") },
+            text = { Text("Palautetaanko kopio ${formatBackupDate(selectedBackup.name)} (${formatBackupSize(selectedBackup.sizeBytes)})? Ennen palautusta nykyisistä tiedoista luodaan automaattisesti uusi suojakopio Google Driveen.") },
             confirmButton = {
                 TextButton(enabled = !busy, onClick = {
                     showRestoreConfirmation = false
@@ -168,9 +168,9 @@ fun CloudBackupScreen(onBack: () -> Unit) {
                             val safetyCopy = withContext(Dispatchers.IO) { CloudBackupManager.backupToFolder(context, tree) }
                             val result = withContext(Dispatchers.IO) { CloudBackupManager.restoreFromUri(context, backupToRestore.uri) }
                             restoreCompleted = true
-                            "${"$"}result\nSuojakopio ennen palautusta: ${"$"}safetyCopy"
+                            "$result\nSuojakopio ennen palautusta: $safetyCopy"
                         } catch (error: Throwable) {
-                            "Palautus epäonnistui: ${"$"}{error.message ?: "Tuntematon virhe"}"
+                            "Palautus epäonnistui: ${error.message ?: "Tuntematon virhe"}"
                         } finally { busy = false }
                     }
                 }) { Text("Palauta") }
