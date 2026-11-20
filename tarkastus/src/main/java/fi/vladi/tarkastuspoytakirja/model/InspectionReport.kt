@@ -36,6 +36,7 @@ data class InspectionReport(
     val inspectorEmail: String = "",
     val inspectionDate: String = LocalDate.now().toString(),
     val signatureStrokes: List<SignatureStroke> = emptyList(),
+    val signatureImagePath: String = "",
     val logoPath: String = "",
     val footerText: String = ""
 )
@@ -80,7 +81,8 @@ data class AppSettings(
     val inspectorCertificateNumber: String = "",
     val inspectorPhone: String = "",
     val inspectorEmail: String = "",
-    val signatureStrokes: List<SignatureStroke> = emptyList()
+    val signatureStrokes: List<SignatureStroke> = emptyList(),
+    val signatureImagePath: String = ""
 )
 
 @Serializable
