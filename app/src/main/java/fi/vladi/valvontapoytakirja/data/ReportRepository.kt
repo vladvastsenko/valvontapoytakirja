@@ -35,6 +35,9 @@ class ReportRepository(private val context: Context) {
         File(settings.logoPath).takeIf { it.isFile }?.let { logo ->
             SharedDocumentsArchive.archiveFile(context, logo, "Asetukset", logo.name)
         }
+        File(settings.signatureImagePath).takeIf { it.isFile }?.let { signature ->
+            SharedDocumentsArchive.archiveFile(context, signature, "Asetukset", signature.name)
+        }
     }
 
     private fun customersDirectory(): File =
