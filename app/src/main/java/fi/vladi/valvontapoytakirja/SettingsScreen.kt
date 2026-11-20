@@ -117,11 +117,35 @@ fun SettingsScreen(
             onSettingsChange(settings.copy(footerText = it))
         }
         Text("Allekirjoitus", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold)
+        val signatureBitmap by produceState<Bitmap?>(initialValue = null, key1 = settings.signatureImagePath) {
+            value = if (settings.signatureImagePath.isBlank()) null else withContext(Dispatchers.IO) {
+                runCatching { BitmapFactory.decodeFile(settings.signatureImagePath) }.getOrNull()
+            }
+        }
+        if (settings.signatureImagePath.isNotBlank()) {
+            if (signatureBitmap != null) {
+                Surface(
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(10.dp),
+                    color = MaterialTheme.colorScheme.surfaceVariant
+                ) {
+                    Image(
+                        bitmap = signatureBitmap!!.asImageBitmap(),
+                        contentDescription = "Valittu allekirjoitus",
+                        modifier = Modifier.fillMaxWidth().height(120.dp).padding(8.dp),
+                        contentScale = ContentScale.Fit
+                    )
+                }
+            } else {
+                Text("Allekirjoituskuvaa ei löydy. Valitse tiedosto uudelleen.")
+            }
+        } else {
+            Text("Piirrä allekirjoitus tai lataa se kuvatiedostosta.")
+        }
         SignaturePad(
             strokes = settings.signatureStrokes,
             onChange = { onSettingsChange(settings.copy(signatureStrokes = it, signatureImagePath = "")) }
         )
-        Text(if (settings.signatureImagePath.isBlank()) "Allekirjoituskuvaa ei ole valittu." else "Allekirjoituskuva on tallennettu.")
         Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
             OutlinedButton(onClick = onPickSignature, modifier = Modifier.weight(1f)) {
                 Text(if (settings.signatureImagePath.isBlank()) "Lataa allekirjoitus tiedostosta" else "Vaihda allekirjoituskuva")
