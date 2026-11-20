@@ -275,6 +275,14 @@ private fun ValvontaApp(
         }
     }
 
+    val settingsSignatureLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.PickVisualMedia()
+    ) { uri ->
+        if (uri != null) repository.importSettingsSignature(uri)?.let { signature ->
+            saveAppSettings(appSettings.copy(signatureImagePath = signature.absolutePath, signatureStrokes = emptyList()))
+        }
+    }
+
     val active = currentReport
     if (active == null && showSettings) {
         SettingsScreen(
@@ -303,6 +311,8 @@ private fun ValvontaApp(
                 settingsLogoLauncher.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly))
             },
             onRemoveLogo = { saveAppSettings(appSettings.copy(logoPath = "")) },
+            onPickSignature = { settingsSignatureLauncher.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)) },
+            onRemoveSignature = { saveAppSettings(appSettings.copy(signatureImagePath = "")) },
             onBack = { showSettings = false }
         )
     } else if (active == null) {
