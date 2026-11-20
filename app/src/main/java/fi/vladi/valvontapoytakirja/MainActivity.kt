@@ -114,6 +114,7 @@ private fun UnifiedLauncher() {
     }
     var showValvoja by remember { mutableStateOf(false) }
     var openSettings by remember { mutableStateOf(false) }
+    var showManagement by remember { mutableStateOf(false) }
     var showCloudBackup by remember { mutableStateOf(false) }
 
     if (showCloudBackup) {
@@ -126,6 +127,15 @@ private fun UnifiedLauncher() {
                 openSettings = false
             }
         )
+    } else if (showManagement) {
+        ManagementScreen(
+            onSettings = {
+                openSettings = true
+                showValvoja = true
+            },
+            onCloudBackup = { showCloudBackup = true },
+            onBack = { showManagement = false }
+        )
     } else {
         UnifiedStartScreen(
             onValvoja = {
@@ -135,11 +145,7 @@ private fun UnifiedLauncher() {
             onTarkastus = {
                 context.startActivity(Intent(context, TarkastusMainActivity::class.java))
             },
-            onSettings = {
-                openSettings = true
-                showValvoja = true
-            },
-            onCloudBackup = { showCloudBackup = true }
+            onManagement = { showManagement = true }
         )
     }
 }
@@ -148,33 +154,57 @@ private fun UnifiedLauncher() {
 private fun UnifiedStartScreen(
     onValvoja: () -> Unit,
     onTarkastus: () -> Unit,
-    onSettings: () -> Unit,
-    onCloudBackup: () -> Unit
+    onManagement: () -> Unit
 ) {
     Column(
-        modifier = Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(24.dp),
+        modifier = Modifier.fillMaxSize().padding(24.dp),
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
-        Spacer(Modifier.height(28.dp))
-        Text("Tarkastus", style = MaterialTheme.typography.headlineLarge, fontWeight = FontWeight.Bold)
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(
+                "Tarkastus",
+                style = MaterialTheme.typography.headlineLarge,
+                fontWeight = FontWeight.Bold,
+                modifier = Modifier.weight(1f)
+            )
+            androidx.compose.material3.IconButton(onClick = onManagement) {
+                Text("⚙", style = MaterialTheme.typography.headlineMedium)
+            }
+        }
+        Spacer(Modifier.height(20.dp))
         Text("Valitse luotavan pöytäkirjan tyyppi.")
-        Text(
-            "Tallennuskansio: Documents/Tarkastus",
-            style = MaterialTheme.typography.bodySmall,
-            color = MaterialTheme.colorScheme.onSurfaceVariant
-        )
         Button(onClick = onValvoja, modifier = Modifier.fillMaxWidth()) {
             Text("Valvontapöytäkirja")
         }
         Button(onClick = onTarkastus, modifier = Modifier.fillMaxWidth()) {
             Text("Tarkastuspöytäkirja")
         }
-        Spacer(Modifier.height(8.dp))
-        OutlinedButton(onClick = onSettings, modifier = Modifier.fillMaxWidth()) {
+    }
+}
+
+@Composable
+private fun ManagementScreen(
+    onSettings: () -> Unit,
+    onCloudBackup: () -> Unit,
+    onBack: () -> Unit
+) {
+    Column(
+        modifier = Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(24.dp),
+        verticalArrangement = Arrangement.spacedBy(16.dp)
+    ) {
+        Text("Asetukset ja synkronointi", style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.Bold)
+        Button(onClick = onSettings, modifier = Modifier.fillMaxWidth()) {
             Text("Yhteiset asetukset")
         }
-        OutlinedButton(onClick = onCloudBackup, modifier = Modifier.fillMaxWidth()) {
-            Text("Pilvivarmuuskopio")
+        Button(onClick = onCloudBackup, modifier = Modifier.fillMaxWidth()) {
+            Text("Pilvivarmuuskopio ja synkronointi")
+        }
+        Spacer(Modifier.height(8.dp))
+        OutlinedButton(onClick = onBack, modifier = Modifier.fillMaxWidth()) {
+            Text("← Takaisin")
         }
     }
 }
