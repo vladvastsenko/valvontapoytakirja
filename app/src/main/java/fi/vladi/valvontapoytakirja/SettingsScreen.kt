@@ -119,7 +119,7 @@ fun SettingsScreen(
         Text("Allekirjoitus", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold)
         SignaturePad(
             strokes = settings.signatureStrokes,
-            onChange = { onSettingsChange(settings.copy(signatureStrokes = it)) }
+            onChange = { onSettingsChange(settings.copy(signatureStrokes = it, signatureImagePath = "")) }
         )
         Text(if (settings.signatureImagePath.isBlank()) "Allekirjoituskuvaa ei ole valittu." else "Allekirjoituskuva on tallennettu.")
         Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
