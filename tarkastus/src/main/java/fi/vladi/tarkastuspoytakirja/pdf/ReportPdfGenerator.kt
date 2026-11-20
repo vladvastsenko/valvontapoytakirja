@@ -82,7 +82,8 @@ object ReportPdfGenerator {
         val inspectorPhone = if (report.settingsSnapshotCreated) report.inspectorPhone else report.inspectorPhone.ifBlank { settings.inspectorPhone }
         val inspectorEmail = if (report.settingsSnapshotCreated) report.inspectorEmail else report.inspectorEmail.ifBlank { settings.inspectorEmail }
         val signature = if (report.settingsSnapshotCreated) report.signatureStrokes else report.signatureStrokes.ifEmpty { settings.signatureStrokes }
-        if (inspectorName.isNotBlank() || inspectorCertificate.isNotBlank() || inspectorPhone.isNotBlank() || inspectorEmail.isNotBlank() || report.inspectionDate.isNotBlank() || signature.isNotEmpty()) {
+        val signatureImagePath = if (report.settingsSnapshotCreated) report.signatureImagePath else report.signatureImagePath.ifBlank { settings.signatureImagePath }
+        if (inspectorName.isNotBlank() || inspectorCertificate.isNotBlank() || inspectorPhone.isNotBlank() || inspectorEmail.isNotBlank() || report.inspectionDate.isNotBlank() || signature.isNotEmpty() || signatureImagePath.isNotBlank()) {
             writer.spacer(18f)
             writer.section("TARKASTAJA")
             writer.field("Nimi", inspectorName)
@@ -90,7 +91,7 @@ object ReportPdfGenerator {
             writer.field("Puhelin", inspectorPhone)
             writer.field("Sähköposti", inspectorEmail)
             writer.field("Tarkastuspäivä", report.inspectionDate)
-            writer.signature(signature)
+            writer.signature(signature, signatureImagePath)
         }
         writer.finish()
         return document to writer.pageCount
@@ -333,10 +334,29 @@ object ReportPdfGenerator {
             }
         }
 
-        fun signature(strokes: List<SignatureStroke>) {
-            if (strokes.isEmpty()) return
+        fun signature(strokes: List<SignatureStroke>, imagePath: String) {
+            if (strokes.isEmpty() && imagePath.isBlank()) return
             ensureSpace(100f)
             page.canvas.drawText("Allekirjoitus", margin, y + 12f, boldPaint)
+            if (imagePath.isNotBlank()) {
+                val signatureImage = BitmapFactory.decodeFile(imagePath)
+                if (signatureImage != null) {
+                    val sourceWidth = signatureImage.width.toFloat().coerceAtLeast(1f)
+                    val sourceHeight = signatureImage.height.toFloat().coerceAtLeast(1f)
+                    val scale = minOf(230f / sourceWidth, 69f / sourceHeight)
+                    val width = sourceWidth * scale
+                    val height = sourceHeight * scale
+                    page.canvas.drawBitmap(
+                        signatureImage, null,
+                        RectF(margin, y + 18f, margin + width, y + 18f + height),
+                        imagePaint
+                    )
+                    signatureImage.recycle()
+                    y += 96f
+                    return
+                }
+            }
+            if (strokes.isEmpty()) return
             val bitmap = Bitmap.createBitmap(1800, 540, Bitmap.Config.ARGB_8888)
             val signatureCanvas = Canvas(bitmap)
             val signaturePaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
