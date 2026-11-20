@@ -125,6 +125,10 @@ private fun UnifiedLauncher() {
             onBackToLauncher = {
                 showValvoja = false
                 openSettings = false
+            },
+            onBackFromSettings = {
+                showValvoja = false
+                openSettings = false
             }
         )
     } else if (showManagement) {
@@ -212,7 +216,8 @@ private fun ManagementScreen(
 @Composable
 private fun ValvontaApp(
     initialShowSettings: Boolean = false,
-    onBackToLauncher: () -> Unit = {}
+    onBackToLauncher: () -> Unit = {},
+    onBackFromSettings: () -> Unit = {}
 ) {
     val context = LocalContext.current
     val repository = remember { ReportRepository(context) }
@@ -343,7 +348,7 @@ private fun ValvontaApp(
             onRemoveLogo = { saveAppSettings(appSettings.copy(logoPath = "")) },
             onPickSignature = { settingsSignatureLauncher.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)) },
             onRemoveSignature = { saveAppSettings(appSettings.copy(signatureImagePath = "")) },
-            onBack = { showSettings = false }
+            onBack = onBackFromSettings
         )
     } else if (active == null) {
         HomeScreen(
