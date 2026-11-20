@@ -70,7 +70,7 @@ object ReportPdfGenerator {
         }
         if (filledObservations.isNotEmpty()) {
             writer.section("TARKASTUSKOHTEET")
-            filledObservations.forEachIndexed { index, observation -> writer.observation(observation, index + 1) }
+            filledObservations.forEach { observation -> writer.observation(observation) }
         }
         if (report.summary.isNotBlank()) {
             writer.section("YHTEENVETO")
@@ -230,14 +230,18 @@ object ReportPdfGenerator {
             drawWrapped("$label: $value", bodyPaint, 14f)
         }
 
-        fun observation(observation: InspectionObservation, number: Int) {
-            section("KIRJAUS $number")
-            field("Tila / sijainti", observation.location)
+        private fun highlightedField(label: String, value: String) {
+            if (value.isBlank()) return
+            val emphasisPaint = Paint(sectionPaint).apply { textSize = 12f }
+            drawWrapped("$label: $value", emphasisPaint, 16f)
+        }
+
+        fun observation(observation: InspectionObservation) {
+            highlightedField("Tila / sijainti", observation.location)
             field("Kuvaus / tilanne", observation.description)
             field("Toimenpiteet / lisätiedot", observation.recommendedAction)
             if (observation.photos.isNotEmpty()) {
                 var photoIndex = 0
-                var photoPageIndex = 0
                 while (photoIndex < observation.photos.size) {
                     val remaining = observation.photos.size - photoIndex
                     val columns = 2
@@ -257,19 +261,12 @@ object ReportPdfGenerator {
                     val rowsOnThisPage = minOf(remainingRows, rowsThatFitAtFixedSize, maxRowsPerPage)
                     val photosOnThisPage = minOf(remaining, rowsOnThisPage * columns)
                     val pagePhotos = observation.photos.subList(photoIndex, photoIndex + photosOnThisPage)
-                    photoGridHeader(number, ++photoPageIndex, 0)
                     drawPhotoGrid(pagePhotos, cellHeight, columns)
                     photoIndex += photosOnThisPage
                     if (photoIndex < observation.photos.size) nextPage()
                 }
             }
             spacer(8f)
-        }
-
-        private fun photoGridHeader(observationNumber: Int, pageIndex: Int, pageCount: Int) {
-            val suffix = if (pageCount > 1) " ($pageIndex/$pageCount)" else ""
-            page.canvas.drawText("KIRJAUS $observationNumber – VALOKUVAT$suffix", margin, y + 16f, sectionPaint)
-            y += 25f
         }
 
         private fun drawPhotoGrid(photos: List<ReportPhoto>, cellHeight: Float, columns: Int) {
