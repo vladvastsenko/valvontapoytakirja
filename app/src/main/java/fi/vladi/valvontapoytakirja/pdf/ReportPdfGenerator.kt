@@ -127,7 +127,7 @@ object ReportPdfGenerator {
                 settings.inspectorPhone.isNotBlank() ||
                 settings.inspectorEmail.isNotBlank() ||
                 report.inspectionDate.isNotBlank() ||
-                settings.signatureStrokes.isNotEmpty()
+                settings.signatureStrokes.isNotEmpty() || settings.signatureImagePath.isNotBlank()
             if (hasInspectorDetails) {
                 writer.spacer(28f)
                 writer.section("TARKASTAJA")
@@ -136,7 +136,7 @@ object ReportPdfGenerator {
                 if (settings.inspectorPhone.isNotBlank()) writer.field("Puhelin", settings.inspectorPhone)
                 if (settings.inspectorEmail.isNotBlank()) writer.field("Sähköposti", settings.inspectorEmail)
                 if (report.inspectionDate.isNotBlank()) writer.field("Tarkastuspäivä", report.inspectionDate)
-                writer.signature(settings.signatureStrokes)
+                writer.signature(settings.signatureStrokes, settings.signatureImagePath)
             }
     
             if (report.photos.isNotEmpty()) {
@@ -310,8 +310,8 @@ object ReportPdfGenerator {
             }
         }
 
-        fun signature(strokes: List<SignatureStroke>) {
-            if (strokes.isEmpty()) return
+        fun signature(strokes: List<SignatureStroke>, imagePath: String = "") {
+            if (strokes.isEmpty() && imagePath.isBlank()) return
             ensureSpace(100f)
 
             page.canvas.drawText("Allekirjoitus", margin, y + 12f, boldPaint)
@@ -325,6 +325,20 @@ object ReportPdfGenerator {
                 strokeJoin = Paint.Join.ROUND
             }
 
+            if (imagePath.isNotBlank()) {
+                val imported = BitmapFactory.decodeFile(imagePath)
+                if (imported != null) {
+                    val target = RectF(margin, y + 20f, margin + 220f, y + 86f)
+                    val scale = minOf(target.width() / imported.width, target.height() / imported.height)
+                    val width = imported.width * scale
+                    val height = imported.height * scale
+                    val destination = RectF(target.left, target.top, target.left + width, target.top + height)
+                    page.canvas.drawBitmap(imported, null, destination, Paint(Paint.ANTI_ALIAS_FLAG or Paint.FILTER_BITMAP_FLAG))
+                    imported.recycle()
+                    y += 92f
+                    return
+                }
+            }
             strokes.forEach { stroke ->
                 if (stroke.points.isNotEmpty()) {
                     val path = Path()
