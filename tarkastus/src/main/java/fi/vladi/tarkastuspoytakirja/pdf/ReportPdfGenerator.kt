@@ -244,16 +244,17 @@ object ReportPdfGenerator {
                     val maxRowsPerPage = 2
                     val remainingRows = (remaining + columns - 1) / columns
                     val availableHeight = pageHeight - 45f - y - 25f - 10f
-                    val rowsThatFitAtMinimumSize = kotlin.math.floor(
-                        (availableHeight + 8f) / (205f + 8f)
+                    // Keep photo dimensions identical on every page. Use only as many
+                    // complete rows as fit; never shrink photos to squeeze in four.
+                    val cellHeight = 300f
+                    val rowsThatFitAtFixedSize = kotlin.math.floor(
+                        (availableHeight + 8f) / (cellHeight + 8f)
                     ).toInt().coerceAtLeast(0).coerceAtMost(maxRowsPerPage)
-                    if (rowsThatFitAtMinimumSize == 0) {
+                    if (rowsThatFitAtFixedSize == 0) {
                         nextPage()
                         continue
                     }
-                    val rowsOnThisPage = minOf(remainingRows, rowsThatFitAtMinimumSize, maxRowsPerPage)
-                    val verticalGaps = (rowsOnThisPage - 1).coerceAtLeast(0) * 8f
-                    val cellHeight = minOf(300f, (availableHeight - verticalGaps) / rowsOnThisPage)
+                    val rowsOnThisPage = minOf(remainingRows, rowsThatFitAtFixedSize, maxRowsPerPage)
                     val photosOnThisPage = minOf(remaining, rowsOnThisPage * columns)
                     val pagePhotos = observation.photos.subList(photoIndex, photoIndex + photosOnThisPage)
                     photoGridHeader(number, ++photoPageIndex, 0)
