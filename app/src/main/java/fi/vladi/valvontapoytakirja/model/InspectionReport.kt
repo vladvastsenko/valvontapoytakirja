@@ -145,7 +145,8 @@ data class AppSettings(
     val inspectorCertificateNumber: String = "",
     val inspectorPhone: String = "",
     val inspectorEmail: String = "",
-    val signatureStrokes: List<SignatureStroke> = emptyList()
+    val signatureStrokes: List<SignatureStroke> = emptyList(),
+    val signatureImagePath: String = ""
 )
 
 @Serializable
