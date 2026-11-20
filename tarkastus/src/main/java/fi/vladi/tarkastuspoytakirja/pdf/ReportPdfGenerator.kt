@@ -69,7 +69,7 @@ object ReportPdfGenerator {
             it.location.isNotBlank() || it.description.isNotBlank() || it.recommendedAction.isNotBlank() || it.photos.isNotEmpty()
         }
         if (filledObservations.isNotEmpty()) {
-            writer.section("HAVAITUT PUUTTEET JA VIRHEET")
+            writer.section("TARKASTUSKOHTEET")
             filledObservations.forEachIndexed { index, observation -> writer.observation(observation, index + 1) }
         }
         if (report.summary.isNotBlank()) {
@@ -231,10 +231,10 @@ object ReportPdfGenerator {
         }
 
         fun observation(observation: InspectionObservation, number: Int) {
-            section("HAVAINTO $number")
+            section("KIRJAUS $number")
             field("Tila / sijainti", observation.location)
-            field("Havaitun puutteen kuvaus", observation.description)
-            field("Suositeltu korjaustoimenpide", observation.recommendedAction)
+            field("Kuvaus / tilanne", observation.description)
+            field("Toimenpiteet / lisätiedot", observation.recommendedAction)
             if (observation.photos.isNotEmpty()) {
                 var photoIndex = 0
                 var photoPageIndex = 0
@@ -267,7 +267,7 @@ object ReportPdfGenerator {
 
         private fun photoGridHeader(observationNumber: Int, pageIndex: Int, pageCount: Int) {
             val suffix = if (pageCount > 1) " ($pageIndex/$pageCount)" else ""
-            page.canvas.drawText("HAVAINTO $observationNumber – VALOKUVAT$suffix", margin, y + 16f, sectionPaint)
+            page.canvas.drawText("KIRJAUS $observationNumber – VALOKUVAT$suffix", margin, y + 16f, sectionPaint)
             y += 25f
         }
 
