@@ -289,11 +289,20 @@ private fun TarkastusApp() {
             onDeletePhoto = { observationId, photo ->
                 repository.deletePhoto(photo.filePath)
                 if (photo.annotatedPath.isNotBlank()) repository.deletePhoto(photo.annotatedPath)
-                saveReport(active.copy(observations = active.observations.map { observation ->
+                val latest = currentReport ?: active
+                saveReport(latest.copy(observations = latest.observations.map { observation ->
                     if (observation.id == observationId) {
                         observation.copy(photos = observation.photos.filterNot { it.id == photo.id })
                     } else observation
                 }))
+            },
+            onDeleteObservation = { observation ->
+                observation.photos.forEach { photo ->
+                    repository.deletePhoto(photo.filePath)
+                    if (photo.annotatedPath.isNotBlank()) repository.deletePhoto(photo.annotatedPath)
+                }
+                val latest = currentReport ?: active
+                saveReport(latest.copy(observations = latest.observations.filterNot { it.id == observation.id }))
             }
         )
     }
@@ -517,7 +526,15 @@ private fun EditorScreen(
                 shape = RoundedCornerShape(16.dp)
             ) {
                 Column(Modifier.padding(12.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                    Text("KIRJAUS ${index + 1}", style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold)
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Text("KIRJAUS ${index + 1}", style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold)
+                        if (index > 0) {
+                            Spacer(Modifier.weight(1f))
+                            TextButton(onClick = { onDeleteObservation(observation) }) {
+                                Text("Poista")
+                            }
+                        }
+                    }
                     Field("Tila / sijainti", observation.location) { value ->
                         onChange(report.copy(observations = report.observations.map {
                             if (it.id == observation.id) it.copy(location = value) else it
