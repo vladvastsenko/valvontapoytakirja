@@ -54,6 +54,8 @@ fun SettingsScreen(
     onDeleteSite: (String) -> Unit,
     onPickLogo: () -> Unit,
     onRemoveLogo: () -> Unit,
+    onPickSignature: () -> Unit,
+    onRemoveSignature: () -> Unit,
     onBack: () -> Unit
 ) {
     var editingCustomer by remember { mutableStateOf<CustomerProfile?>(null) }
@@ -119,6 +121,13 @@ fun SettingsScreen(
             strokes = settings.signatureStrokes,
             onChange = { onSettingsChange(settings.copy(signatureStrokes = it)) }
         )
+        Text(if (settings.signatureImagePath.isBlank()) "Allekirjoituskuvaa ei ole valittu." else "Allekirjoituskuva on tallennettu.")
+        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            OutlinedButton(onClick = onPickSignature, modifier = Modifier.weight(1f)) {
+                Text(if (settings.signatureImagePath.isBlank()) "Lataa allekirjoitus tiedostosta" else "Vaihda allekirjoituskuva")
+            }
+            if (settings.signatureImagePath.isNotBlank()) TextButton(onClick = onRemoveSignature) { Text("Poista kuva") }
+        }
 
         SettingsSection("VAKIOASIAKKAAT")
         Text("Tallenna asiakkaat kerran. Uutta pöytäkirjaa tehdessä valitset asiakkaan ja kohteen listasta.")
