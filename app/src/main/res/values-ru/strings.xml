@@ -13,4 +13,22 @@
     <string name="trial">Пробный период 14 дней</string>
     <string name="sign_in">Войти через Google</string>
     <string name="sign_out">Выйти</string>
+    <string name="auth_title">Войти или создать аккаунт</string>
+    <string name="email">Электронная почта</string>
+    <string name="password">Пароль</string>
+    <string name="create_account">Зарегистрироваться</string>
+    <string name="email_sign_in">Войти по Email</string>
+    <string name="already_registered">Уже есть аккаунт? Войти</string>
+    <string name="new_user">Нет аккаунта? Зарегистрироваться</string>
+    <string name="forgot_password">Забыли пароль?</string>
+    <string name="or">Или</string>
+    <string name="email_required">Сначала введите Email</string>
+    <string name="password_short">Введите Email и пароль не короче 6 символов</string>
+    <string name="reset_sent">Письмо для сброса пароля отправлено</string>
+    <string name="auth_failed">Ошибка авторизации</string>
+    <string name="reset_failed">Не удалось сбросить пароль</string>
+    <string name="google_failed">Ошибка входа через Google</string>
+    <string name="logout_confirm">Выйти из аккаунта?</string>
+    <string name="cancel">Отмена</string>
+    <string name="confirm">Выйти</string>
 </resources>
