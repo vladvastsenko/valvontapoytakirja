@@ -13,4 +13,22 @@
     <string name="trial">14-day free trial</string>
     <string name="sign_in">Sign in with Google</string>
     <string name="sign_out">Sign out</string>
+    <string name="auth_title">Sign in or create an account</string>
+    <string name="email">Email</string>
+    <string name="password">Password</string>
+    <string name="create_account">Create account</string>
+    <string name="email_sign_in">Sign in with email</string>
+    <string name="already_registered">Already registered? Sign in</string>
+    <string name="new_user">New user? Create account</string>
+    <string name="forgot_password">Forgot password?</string>
+    <string name="or">Or</string>
+    <string name="email_required">Enter your email first</string>
+    <string name="password_short">Enter an email and a password of at least 6 characters</string>
+    <string name="reset_sent">Password reset email sent</string>
+    <string name="auth_failed">Authentication failed</string>
+    <string name="reset_failed">Password reset failed</string>
+    <string name="google_failed">Google sign-in failed</string>
+    <string name="logout_confirm">Sign out of your account?</string>
+    <string name="cancel">Cancel</string>
+    <string name="confirm">Sign out</string>
 </resources>
