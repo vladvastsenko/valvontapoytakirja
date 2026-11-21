@@ -56,7 +56,7 @@ fun CloudBackupScreen(onBack: () -> Unit) {
                     backups = found
                     selectedBackupUri = found.firstOrNull()?.uri?.toString()
                     status = if (found.isEmpty()) context.getString(R.string.cloud_no_found)
-                        else "Löytyi ${found.size} varmuuskopiota. Uusin on valittuna."
+                        else context.getString(R.string.cloud_found_backups, found.size)
                 }.onFailure { error -> status = context.getString(R.string.cloud_read_error, error.message ?: context.getString(R.string.cloud_unknown_error)) }
         } else {
             backups = emptyList()
@@ -92,7 +92,7 @@ fun CloudBackupScreen(onBack: () -> Unit) {
                     busy = true
                     restoreCompleted = false
                     scope.launch {
-                        status = try { withContext(Dispatchers.IO) { CloudSyncManager.sync(context, uri) }.asMessage() }
+                        status = try { withContext(Dispatchers.IO) { CloudSyncManager.sync(context, uri) }.let { result -> context.getString(R.string.cloud_sync_complete, result.uploaded, result.downloaded, result.deleted, result.conflicts, result.pdfFoundLocal, result.pdfFoundDrive, result.pdfUploaded, result.pdfDownloaded, result.pdfDeleted, result.pdfConflicts) } }
                         catch (error: Throwable) { context.getString(R.string.cloud_sync_error, error.message ?: context.getString(R.string.cloud_unknown_error)) }
                         finally { busy = false }
                     }
