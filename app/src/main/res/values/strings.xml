@@ -1,3 +1,16 @@
 <resources>
     <string name="app_name">Tarkastus Cloud</string>
+    <string name="choose_report">Valitse luotavan pöytäkirjan tyyppi.</string>
+    <string name="settings_sync">Asetukset ja synkronointi</string>
+    <string name="shared_settings">Yhteiset asetukset</string>
+    <string name="cloud_sync">Pilvivarmuuskopio ja synkronointi</string>
+    <string name="back">Takaisin</string>
+    <string name="language">Kieli</string>
+    <string name="report_valvonta">Valvontapöytäkirja</string>
+    <string name="report_tarkastus">Tarkastuspöytäkirja</string>
+    <string name="free">Ilmainen</string>
+    <string name="pro">Pro</string>
+    <string name="trial">14 päivän kokeilu</string>
+    <string name="sign_in">Kirjaudu Google-tilillä</string>
+    <string name="sign_out">Kirjaudu ulos</string>
 </resources>
