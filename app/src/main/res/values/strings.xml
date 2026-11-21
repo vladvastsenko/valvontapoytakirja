@@ -190,4 +190,13 @@
     <string name="manufacturer_missing">Valmistajaa ei ole määritetty</string>
     <string name="manufacturer_family">Valmistaja: %1$s • sama järjestelmä</string>
     <string name="share_report">Jaa raportti</string>
+    <string name="cloud_read_error">Varmuuskopioiden lukeminen epäonnistui: %1$s</string>
+    <string name="cloud_sync_error">Synkronointi epäonnistui: %1$s</string>
+    <string name="cloud_backup_saved">Varmuuskopio tallennettu. %1$s</string>
+    <string name="cloud_backup_error">Varmuuskopiointi epäonnistui: %1$s</string>
+    <string name="cloud_size_label">Koko: %1$s</string>
+    <string name="cloud_sync_warning">Synkronointi käsittelee muutoksia molempiin suuntiin. Jos sama tiedosto muuttui eri tavoin molemmilla laitteilla, paikallinen versio tallennetaan Drive-kansion Tarkastus_Sync/Conflicts-kansioon ja ristiriita ilmoitetaan. Älä sulje sovellusta kesken synkronoinnin.</string>
+    <string name="cloud_restore_confirm_details">Palautetaanko kopio %1$s (%2$s)? Ennen palautusta nykyisistä tiedoista luodaan automaattisesti uusi suojakopio Google Driveen.</string>
+    <string name="cloud_restore_error">Palautus epäonnistui: %1$s</string>
+    <string name="cloud_unknown_error">Tuntematon virhe</string>
 </resources>
