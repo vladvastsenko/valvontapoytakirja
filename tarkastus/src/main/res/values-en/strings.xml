@@ -1,0 +1,24 @@
+<resources>
+    <string name="ui_new_report">New report</string>
+    <string name="ui_no_reports">No saved reports yet.</string>
+    <string name="ui_delete">Delete</string>
+    <string name="ui_back">← Back</string>
+    <string name="ui_create_pdf">Create PDF</string>
+    <string name="ui_save_template">Save as template</string>
+    <string name="ui_share_pdf">Create and share PDF</string>
+    <string name="ui_select">Select</string>
+    <string name="ui_cancel">Cancel</string>
+    <string name="ui_remove_photo">Remove photo</string>
+    <string name="ui_back_reports">← Back to report selection</string>
+    <string name="ui_camera_photo">Take photo</string>
+    <string name="ui_photos">Photos</string>
+    <string name="ui_add_item">+ Add item</string>
+    <string name="ui_edit_photo">Edit photo</string>
+    <string name="ui_undo">Undo</string>
+    <string name="ui_clear">Clear</string>
+    <string name="ui_save_marks">Save annotations</string>
+    <string name="ui_remove_field">Remove field</string>
+    <string name="ui_add_field">+ Add custom field</string>
+    <string name="ui_back_plain">Back</string>
+    <string name="ui_draw_hint">Draw on the photo with your finger or stylus. Annotations will also appear in the PDF.</string>
+</resources>
