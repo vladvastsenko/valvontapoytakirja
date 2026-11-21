@@ -1,0 +1,16 @@
+<resources>
+    <string name="app_name">Tarkastus Cloud</string>
+    <string name="choose_report">Выберите тип создаваемого отчёта.</string>
+    <string name="settings_sync">Настройки и синхронизация</string>
+    <string name="shared_settings">Общие настройки</string>
+    <string name="cloud_sync">Облачное резервное копирование и синхронизация</string>
+    <string name="back">Назад</string>
+    <string name="language">Язык</string>
+    <string name="report_valvonta">Протокол контроля</string>
+    <string name="report_tarkastus">Акт осмотра</string>
+    <string name="free">Бесплатно</string>
+    <string name="pro">Pro</string>
+    <string name="trial">Пробный период 14 дней</string>
+    <string name="sign_in">Войти через Google</string>
+    <string name="sign_out">Выйти</string>
+</resources>
