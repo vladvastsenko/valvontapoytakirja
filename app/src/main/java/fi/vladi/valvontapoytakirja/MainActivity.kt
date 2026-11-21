@@ -1,5 +1,6 @@
 package fi.vladi.valvontapoytakirja
 
+import android.content.Context
 import android.content.Intent
 import android.graphics.BitmapFactory
 import android.os.Bundle
@@ -57,6 +58,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.core.content.FileProvider
+import fi.vladi.tarkastuspoytakirja.AppLanguage
 import fi.vladi.tarkastuspoytakirja.MainActivity as TarkastusMainActivity
 import fi.vladi.valvontapoytakirja.cloud.CloudBackupScreen
 import fi.vladi.tarkastuspoytakirja.storage.SharedDocumentsArchive
@@ -95,6 +97,10 @@ private fun isWaterproofingFamilyCategory(category: String): Boolean =
     category.trim().lowercase() in WATERPROOFING_FAMILY_CATEGORIES
 
 class MainActivity : ComponentActivity() {
+    override fun attachBaseContext(newBase: Context) {
+        super.attachBaseContext(AppLanguage.wrap(newBase))
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
@@ -196,11 +202,30 @@ private fun ManagementScreen(
     onCloudBackup: () -> Unit,
     onBack: () -> Unit
 ) {
+    val context = LocalContext.current
+    var languageMenu by remember { mutableStateOf(false) }
     Column(
         modifier = Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(24.dp),
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
         Text(stringResource(R.string.settings_sync), style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.Bold)
+        Text(stringResource(R.string.language), fontWeight = FontWeight.Bold)
+        Box {
+            OutlinedButton(onClick = { languageMenu = true }, modifier = Modifier.fillMaxWidth()) {
+                Text(when (AppLanguage.selected(context)) { "ru" -> "Русский"; "sv" -> "Svenska"; "en" -> "English"; else -> "Suomi" } + " ▾")
+            }
+            DropdownMenu(expanded = languageMenu, onDismissRequest = { languageMenu = false }) {
+                listOf("fi" to "Suomi", "sv" to "Svenska", "ru" to "Русский", "en" to "English").forEach { (code, label) ->
+                    DropdownMenuItem(text = { Text(label) }, onClick = {
+                        languageMenu = false
+                        if (AppLanguage.selected(context) != code) {
+                            AppLanguage.save(context, code)
+                            (context as? android.app.Activity)?.recreate()
+                        }
+                    })
+                }
+            }
+        }
         Button(onClick = onSettings, modifier = Modifier.fillMaxWidth()) {
             Text(stringResource(R.string.shared_settings))
         }
