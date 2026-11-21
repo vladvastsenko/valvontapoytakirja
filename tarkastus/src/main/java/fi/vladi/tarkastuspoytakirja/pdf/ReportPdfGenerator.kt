@@ -335,14 +335,14 @@ object ReportPdfGenerator {
 
         fun signature(strokes: List<SignatureStroke>, imagePath: String) {
             if (strokes.isEmpty() && imagePath.isBlank()) return
-            ensureSpace(100f)
+            ensureSpace(125f)
             page.canvas.drawText(labels.text("Allekirjoitus"), margin, y + 12f, boldPaint)
             if (imagePath.isNotBlank()) {
-                val signatureImage = BitmapFactory.decodeFile(imagePath)
+                val signatureImage = SignatureImage.prepare(imagePath)
                 if (signatureImage != null) {
                     val sourceWidth = signatureImage.width.toFloat().coerceAtLeast(1f)
                     val sourceHeight = signatureImage.height.toFloat().coerceAtLeast(1f)
-                    val scale = minOf(230f / sourceWidth, 69f / sourceHeight)
+                    val scale = minOf(320f / sourceWidth, 95f / sourceHeight)
                     val width = sourceWidth * scale
                     val height = sourceHeight * scale
                     page.canvas.drawBitmap(
@@ -351,7 +351,7 @@ object ReportPdfGenerator {
                         imagePaint
                     )
                     signatureImage.recycle()
-                    y += 96f
+                    y += 125f
                     return
                 }
             }
