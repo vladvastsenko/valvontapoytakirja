@@ -212,4 +212,5 @@
     <string name="cloud_found_backups">Hittade %1$d säkerhetskopior. Den senaste är vald.</string>
     <string name="cloud_sync_complete">Synkronisering klar. Filer: uppladdade %1$d, nedladdade %2$d, borttagna %3$d, konflikter %4$d. PDF: på enheten %5$d, på Drive %6$d; uppladdade %7$d, nedladdade %8$d, borttagna %9$d, konflikter %10$d.</string>
     <string name="ui_preview_pdf">Förhandsgranska PDF</string>
+    <string name="ui_preview_unavailable">Ingen PDF-visare är installerad</string>
 </resources>
