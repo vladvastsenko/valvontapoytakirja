@@ -211,4 +211,5 @@
     <string name="ui_add_category">Lisää:</string>
     <string name="cloud_found_backups">Löytyi %1$d varmuuskopiota. Uusin on valittuna.</string>
     <string name="cloud_sync_complete">Synkronointi valmis. Tiedostot: lähetetty %1$d, ladattu %2$d, poistettu %3$d, ristiriitoja %4$d. PDF:t: laitteella %5$d, Drivessa %6$d; lähetetty %7$d, ladattu %8$d, poistettu %9$d, ristiriitoja %10$d.</string>
+    <string name="ui_preview_pdf">Esikatsele PDF</string>
 </resources>
