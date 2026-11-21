@@ -31,4 +31,21 @@
     <string name="logout_confirm">Sign out of your account?</string>
     <string name="cancel">Cancel</string>
     <string name="confirm">Sign out</string>
+    <string name="ui_new_report">New report</string>
+    <string name="ui_no_reports">No saved reports yet.</string>
+    <string name="ui_delete">Delete</string>
+    <string name="ui_back">← Back</string>
+    <string name="ui_create_pdf">Create PDF</string>
+    <string name="ui_save_template">Save as template</string>
+    <string name="ui_share_pdf">Create and share PDF</string>
+    <string name="ui_select">Select</string>
+    <string name="ui_cancel">Cancel</string>
+    <string name="ui_remove_photo">Remove photo</string>
+    <string name="ui_back_reports">← Back to report selection</string>
+    <string name="ui_gallery">Gallery</string>
+    <string name="ui_camera">Open camera</string>
+    <string name="ui_approved">Approved</string>
+    <string name="ui_rejected">Rejected</string>
+    <string name="ui_add_material">+ Add material</string>
+    <string name="ui_floor_slope">Floor slope</string>
 </resources>
