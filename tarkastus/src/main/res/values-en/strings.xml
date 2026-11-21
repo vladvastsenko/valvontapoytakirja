@@ -44,4 +44,8 @@
     <string name="loc2_pdf_title_tarkastus">INSPECTION REPORT</string>
     <string name="loc2_no_customers">Add saved customers in Settings first.</string>
     <string name="loc2_no_sites">Add sites for this customer in Settings.</string>
+    <string name="loc3_general_intro">General inspection reports</string>
+    <string name="loc3_folder">Folder: </string>
+    <string name="loc3_photo_edit_title">Edit photograph</string>
+    <string name="loc3_photo_error">Could not open the photograph.</string>
 </resources>
