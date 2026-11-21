@@ -94,4 +94,15 @@
     <string name="settings_add_field">+ Добавить поле</string>
     <string name="settings_save_site">Сохранить объект</string>
     <string name="report_pdf_language">Язык PDF этого отчёта</string>
+    <string name="settings_upload_signature">Загрузить подпись из файла</string>
+    <string name="settings_change_signature">Заменить изображение подписи</string>
+    <string name="settings_no_logo">Логотип не выбран.</string>
+    <string name="settings_logo_missing">Файл логотипа не найден. Выберите его заново.</string>
+    <string name="settings_logo_saved">Логотип сохранён.</string>
+    <string name="settings_choose_logo">Выбрать логотип</string>
+    <string name="settings_change_logo">Заменить логотип</string>
+    <string name="settings_sites_count">Объектов: %1$d</string>
+    <string name="settings_extra_fields">Дополнительные поля: %1$s</string>
+    <string name="settings_delete_action">Удалить</string>
+    <string name="settings_cancel_action">Отмена</string>
 </resources>
