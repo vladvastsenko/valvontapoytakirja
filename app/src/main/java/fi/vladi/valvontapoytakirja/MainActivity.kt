@@ -507,14 +507,14 @@ private fun HomeScreen(
             Text(stringResource(R.string.ui_new_report))
         }
         if (templates.isNotEmpty()) {
-            Text("Pöytäkirjamallit", style = MaterialTheme.typography.titleLarge)
+            Text(stringResource(R.string.loc_templates), style = MaterialTheme.typography.titleLarge)
             templates.forEach { template ->
                 OutlinedButton(onClick = { onCreateFromTemplate(template) }, modifier = Modifier.fillMaxWidth()) {
                     Text(template.templateName + " • " + template.siteAddress + " • " + (template.materials.firstOrNull { it.manufacturer.isNotBlank() }?.manufacturer ?: "Valmistaja määrittämättä"))
                 }
             }
         }
-        Text("Tallennetut pöytäkirjat", style = MaterialTheme.typography.titleLarge)
+        Text(stringResource(R.string.loc_saved), style = MaterialTheme.typography.titleLarge)
         if (reports.isEmpty()) {
             Text(stringResource(R.string.ui_no_reports))
         } else {
@@ -567,7 +567,7 @@ private fun EditorScreen(
             Button(onClick = onExport) { Text(stringResource(R.string.ui_create_pdf)) }
         }
         Text("VALVONTAPÖYTÄKIRJA", style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.Bold)
-        Text("Täytä tiedot. Muutokset tallentuvat automaattisesti tähän puhelimeen.", style = MaterialTheme.typography.bodySmall)
+        Text(stringResource(R.string.loc_fill), style = MaterialTheme.typography.bodySmall)
 
         SectionTitle("VAKIOASIAKAS JA KOHDE")
         Box {
@@ -639,7 +639,7 @@ private fun EditorScreen(
                 }
             }
             if (report.siteFieldValues.isNotEmpty()) {
-                Text("Kohteen lisätiedot", style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.SemiBold)
+                Text(stringResource(R.string.loc_site_info), style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.SemiBold)
                 report.siteFieldValues.forEachIndexed { index, field ->
                     Field(field.label, field.value) { value ->
                         onChange(report.copy(siteFieldValues = report.siteFieldValues.mapIndexed { fieldIndex, item ->
@@ -650,14 +650,14 @@ private fun EditorScreen(
             }
         }
 
-        SectionTitle("1. TYÖMAA JA OSAPUOLET")
+        SectionTitle(stringResource(R.string.loc_site_parties))
         Field("Kansio / alikansio (esim. Asiakkaat/Helsinki/Kohde)", report.folderPath) {
             onChange(report.copy(folderPath = it.trim('/')))
         }
-        Field("Kohteen osoite", report.siteAddress) { onChange(report.copy(siteAddress = it)) }
+        Field(stringResource(R.string.loc_site_address), report.siteAddress) { onChange(report.copy(siteAddress = it)) }
         Field("Tilaaja / kohteen edustaja", report.clientOrRepresentative) { onChange(report.copy(clientOrRepresentative = it)) }
-        Field("Tilaajan puhelinnumero", report.clientPhone) { onChange(report.copy(clientPhone = it)) }
-        Field("Tilaajan sähköposti", report.clientEmail) { onChange(report.copy(clientEmail = it)) }
+        Field(stringResource(R.string.loc_phone), report.clientPhone) { onChange(report.copy(clientPhone = it)) }
+        Field(stringResource(R.string.loc_email), report.clientEmail) { onChange(report.copy(clientEmail = it)) }
         Field("Vedeneristäjän nimi", report.installerName) { onChange(report.copy(installerName = it)) }
         Field("Sertifikaattinumero", report.installerCertificateNumber) { onChange(report.copy(installerCertificateNumber = it)) }
         Field("Vedeneristäjän puhelin", report.installerPhone) { onChange(report.copy(installerPhone = it)) }
@@ -683,7 +683,7 @@ private fun EditorScreen(
         Field("Suhteellinen kosteus (%)", report.relativeHumidityPercent) { onChange(report.copy(relativeHumidityPercent = it)) }
         Field("Alustan kosteus (%)", report.substrateMoisturePercent) { onChange(report.copy(substrateMoisturePercent = it)) }
 
-        SectionTitle("3. KÄYTETYT MATERIAALIT")
+        SectionTitle(stringResource(R.string.loc_materials))
         Text("Valitse sama valmistaja koko vedeneristysjärjestelmälle: pohjuste, vedeneriste, kaivolaippa, vahvikenauhat, läpivientivahvikkeet, tiivistysmassa ja kiinnityslaasti.")
         val knownFamilyManufacturers = MaterialCatalog.manufacturersFor("vedeneriste")
         val familyManufacturer = report.materials.firstOrNull {
@@ -879,7 +879,7 @@ private fun EditorScreen(
         Field("Lattia – mitattu kuivakalvon paksuus (mm)", report.floorDryFilmThicknessMm) { onChange(report.copy(floorDryFilmThicknessMm = it)) }
         Field("Lattia – valmistajan vaatima kuivakalvon vähimmäispaksuus (mm)", report.floorRequiredMinimumThicknessMm) { onChange(report.copy(floorRequiredMinimumThicknessMm = it)) }
 
-        SectionTitle("7. VALOKUVAT")
+        SectionTitle(stringResource(R.string.loc_photos_section))
         Text("Voit ottaa kuvan kameralla tai valita useita kuvia galleriasta.")
         Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
             OutlinedButton(onClick = onCamera, modifier = Modifier.weight(1f)) { Text(stringResource(R.string.ui_camera)) }
@@ -895,7 +895,7 @@ private fun EditorScreen(
             )
         }
 
-        SectionTitle("8. TARKASTUKSEN TULOS")
+        SectionTitle(stringResource(R.string.loc_result_section))
         Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
             if (report.inspectionResult == "HYVÄKSYTTY") {
                 Button(
@@ -925,7 +925,7 @@ private fun EditorScreen(
         Field("Lisähuomiot", report.additionalNotes, minLines = 3) { onChange(report.copy(additionalNotes = it)) }
 
         SectionTitle("9. TARKASTUSPÄIVÄ")
-        DateField("Tarkastuspäivä", report.inspectionDate) {
+        DateField(stringResource(R.string.loc_date), report.inspectionDate) {
             onChange(report.copy(inspectionDate = it))
         }
 
@@ -1099,8 +1099,8 @@ private fun MaterialCard(
                 }
             }
             if (!isFamilyMaterial) {
-                Field("Valmistaja", material.manufacturer) { onChange(material.copy(manufacturer = it)) }
-                Field("Tuotteen nimi", material.productName) { onChange(material.copy(productName = it)) }
+                Field(stringResource(R.string.loc_manufacturer), material.manufacturer) { onChange(material.copy(manufacturer = it)) }
+                Field(stringResource(R.string.loc_product_name), material.productName) { onChange(material.copy(productName = it)) }
             } else if (productOptions.isEmpty()) {
                 Text("Tälle valmistajalle ei ole tuotetta tässä kategoriassa. Valitse vain valmistajan järjestelmään kuuluva tuote toisesta sopivasta kohdasta.")
             }
@@ -1109,7 +1109,7 @@ private fun MaterialCard(
             ) {
                 Text(material.surface.ifBlank { "Pinta määrittämättä" })
             }
-            Field("Lisätiedot", material.notes) { onChange(material.copy(notes = it)) }
+            Field(stringResource(R.string.loc_additional), material.notes) { onChange(material.copy(notes = it)) }
         }
     }
 }
@@ -1135,7 +1135,7 @@ private fun PhotoCard(
             } else {
                 Text("Kuvaa ei voitu näyttää: ${File(photo.filePath).name}")
             }
-            Field("Kommentti (valinnainen)", photo.caption, minLines = 2, onValueChange = onCaptionChange)
+            Field(stringResource(R.string.loc_comment), photo.caption, minLines = 2, onValueChange = onCaptionChange)
             TextButton(onClick = onDelete) { Text(stringResource(R.string.ui_remove_photo)) }
         }
     }
