@@ -13,4 +13,22 @@
     <string name="trial">14 päivän kokeilu</string>
     <string name="sign_in">Kirjaudu Google-tilillä</string>
     <string name="sign_out">Kirjaudu ulos</string>
+    <string name="auth_title">Kirjaudu sisään tai luo tili</string>
+    <string name="email">Sähköposti</string>
+    <string name="password">Salasana</string>
+    <string name="create_account">Luo tili</string>
+    <string name="email_sign_in">Kirjaudu sähköpostilla</string>
+    <string name="already_registered">Onko sinulla jo tili? Kirjaudu</string>
+    <string name="new_user">Uusi käyttäjä? Luo tili</string>
+    <string name="forgot_password">Unohditko salasanan?</string>
+    <string name="or">Tai</string>
+    <string name="email_required">Anna sähköpostiosoite</string>
+    <string name="password_short">Anna sähköposti ja vähintään 6 merkin salasana</string>
+    <string name="reset_sent">Salasanan palautusviesti lähetetty</string>
+    <string name="auth_failed">Kirjautuminen epäonnistui</string>
+    <string name="reset_failed">Salasanan palautus epäonnistui</string>
+    <string name="google_failed">Google-kirjautuminen epäonnistui</string>
+    <string name="logout_confirm">Haluatko kirjautua ulos?</string>
+    <string name="cancel">Peruuta</string>
+    <string name="confirm">Kirjaudu ulos</string>
 </resources>
