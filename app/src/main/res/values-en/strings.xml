@@ -212,4 +212,5 @@
     <string name="cloud_found_backups">Found %1$d backups. The latest is selected.</string>
     <string name="cloud_sync_complete">Synchronization complete. Files: uploaded %1$d, downloaded %2$d, deleted %3$d, conflicts %4$d. PDFs: on device %5$d, on Drive %6$d; uploaded %7$d, downloaded %8$d, deleted %9$d, conflicts %10$d.</string>
     <string name="ui_preview_pdf">Preview PDF</string>
+    <string name="ui_preview_unavailable">No PDF viewer is installed</string>
 </resources>
