@@ -86,4 +86,10 @@
     <string name="loc2_additional_notes">Additional notes</string>
     <string name="loc2_pdf_title_valvonta">SUPERVISION REPORT</string>
     <string name="loc2_pdf_photo_hint">Take a photo or select multiple images from the gallery.</string>
+    <string name="loc3_waterproof_intro">Wet-room waterproofing inspection reports</string>
+    <string name="loc3_folder">Folder: </string>
+    <string name="loc3_wall_coating">Walls — waterproofing used (kg or l)</string>
+    <string name="loc3_floor_coating">Floor — waterproofing used (kg or l)</string>
+    <string name="loc3_wall_film">Walls — measured dry film thickness (mm)</string>
+    <string name="loc3_floor_film">Floor — measured dry film thickness (mm)</string>
 </resources>
