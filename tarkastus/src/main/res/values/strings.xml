@@ -105,4 +105,10 @@
     <string name="settings_extra_fields">Lisäkentät: %1$s</string>
     <string name="settings_delete_action">Poista</string>
     <string name="settings_cancel_action">Peruuta</string>
+    <string name="new_report_fallback">Uusi pöytäkirja</string>
+    <string name="new_template_fallback">Uusi malli</string>
+    <string name="choose_site_fallback">Valitse kohde</string>
+    <string name="manufacturer_missing">Valmistajaa ei ole määritetty</string>
+    <string name="manufacturer_family">Valmistaja: %1$s • sama järjestelmä</string>
+    <string name="share_report">Jaa raportti</string>
 </resources>
