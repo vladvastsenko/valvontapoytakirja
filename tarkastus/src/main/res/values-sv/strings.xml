@@ -58,4 +58,7 @@
     <string name="loc4_contact_person">Kontaktperson: </string>
     <string name="loc4_local_save_tarkastus">Tarkastuspöytäkirja 1.0.0 • Data sparas på den här telefonen.</string>
     <string name="loc4_inspection_date_prefix">Besiktningsdatum: %1$s</string>
+    <string name="loc4_observation_count">Anmärkningar: %1$d</string>
+    <string name="loc4_customer_prefix">Kund: %1$s</string>
+    <string name="loc4_observation_number">ANTECKNING %1$d</string>
 </resources>
