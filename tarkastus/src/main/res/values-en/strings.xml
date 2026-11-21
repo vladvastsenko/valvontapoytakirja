@@ -21,4 +21,24 @@
     <string name="ui_add_field">+ Add custom field</string>
     <string name="ui_back_plain">Back</string>
     <string name="ui_draw_hint">Draw on the photo with your finger or stylus. Annotations will also appear in the PDF.</string>
+    <string name="loc_templates">Report templates</string>
+    <string name="loc_saved">Saved reports</string>
+    <string name="loc_fill">Fill in the details. Changes are automatically saved on this phone.</string>
+    <string name="loc_site_parties">1. SITE AND PARTIES</string>
+    <string name="loc_phone">Client phone number</string>
+    <string name="loc_email">Client email</string>
+    <string name="loc_date">Inspection date</string>
+    <string name="loc_site_detail">Site details</string>
+    <string name="loc_purpose_section">2. INSPECTION PURPOSE AND SCOPE</string>
+    <string name="loc_purpose">Inspection purpose and scope</string>
+    <string name="loc_general_section">3. GENERAL NOTES</string>
+    <string name="loc_general">General notes</string>
+    <string name="loc_custom_section">4. CUSTOM FIELDS</string>
+    <string name="loc_observations_section">5. INSPECTION ITEMS</string>
+    <string name="loc_summary_section">6. SUMMARY</string>
+    <string name="loc_conclusions">Conclusions and required actions</string>
+    <string name="loc_field_title">Field title</string>
+    <string name="loc_field_content">Content</string>
+    <string name="loc_pdf_heading">Heading in PDF</string>
+    <string name="loc_photo_comment">Photo comment (optional)</string>
 </resources>
