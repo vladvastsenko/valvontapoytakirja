@@ -355,7 +355,7 @@ private fun HomeScreen(
                         Text(report.siteAddress.ifBlank { "Uusi pöytäkirja" }, fontWeight = FontWeight.SemiBold)
                         if (report.folderPath.isNotBlank()) Text(stringResource(R.string.loc3_folder) + report.folderPath, style = MaterialTheme.typography.bodySmall)
                         Text(stringResource(R.string.loc4_inspection_date_prefix, report.inspectionDate.ifBlank { "—" }))
-                        Text("${report.observations.size} havaintoa", style = MaterialTheme.typography.bodySmall)
+                        Text(stringResource(R.string.loc4_observation_count, report.observations.size), style = MaterialTheme.typography.bodySmall)
                         TextButton(onClick = { onDelete(report) }) { Text(stringResource(R.string.ui_delete)) }
                     }
                 }
@@ -442,7 +442,7 @@ private fun EditorScreen(
         } else if (report.customerId.isNotBlank()) {
             val selectedCustomer = customers.firstOrNull { it.id == report.customerId }
             if (selectedCustomer != null) {
-                Text("Asiakas: ${selectedCustomer.name}", fontWeight = FontWeight.SemiBold)
+                Text(stringResource(R.string.loc4_customer_prefix, selectedCustomer.name), fontWeight = FontWeight.SemiBold)
                 val customerSites = sites.filter { it.customerId == selectedCustomer.id }
                 ChoiceField(
                     label = "Kohde",
@@ -534,7 +534,7 @@ private fun EditorScreen(
             ) {
                 Column(Modifier.padding(12.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
                     Row(verticalAlignment = Alignment.CenterVertically) {
-                        Text("KIRJAUS ${index + 1}", style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold)
+                        Text(stringResource(R.string.loc4_observation_number, index + 1), style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold)
                         if (index > 0) {
                             Spacer(Modifier.weight(1f))
                             TextButton(onClick = { onDeleteObservation(observation) }) {
