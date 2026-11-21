@@ -211,4 +211,5 @@
     <string name="ui_add_category">Добавить:</string>
     <string name="cloud_found_backups">Найдено резервных копий: %1$d. Выбрана последняя.</string>
     <string name="cloud_sync_complete">Синхронизация завершена. Файлы: отправлено %1$d, загружено %2$d, удалено %3$d, конфликтов %4$d. PDF: на устройстве %5$d, на Диске %6$d; отправлено %7$d, загружено %8$d, удалено %9$d, конфликтов %10$d.</string>
+    <string name="ui_preview_pdf">Предпросмотр PDF</string>
 </resources>
