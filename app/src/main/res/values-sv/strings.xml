@@ -31,4 +31,21 @@
     <string name="logout_confirm">Vill du logga ut?</string>
     <string name="cancel">Avbryt</string>
     <string name="confirm">Logga ut</string>
+    <string name="ui_new_report">Nytt protokoll</string>
+    <string name="ui_no_reports">Inga sparade protokoll ännu.</string>
+    <string name="ui_delete">Ta bort</string>
+    <string name="ui_back">← Tillbaka</string>
+    <string name="ui_create_pdf">Skapa PDF</string>
+    <string name="ui_save_template">Spara som mall</string>
+    <string name="ui_share_pdf">Skapa och dela PDF</string>
+    <string name="ui_select">Välj</string>
+    <string name="ui_cancel">Avbryt</string>
+    <string name="ui_remove_photo">Ta bort bild</string>
+    <string name="ui_back_reports">← Tillbaka till protokollval</string>
+    <string name="ui_gallery">Galleri</string>
+    <string name="ui_camera">Öppna kameran</string>
+    <string name="ui_approved">Godkänd</string>
+    <string name="ui_rejected">Underkänd</string>
+    <string name="ui_add_material">+ Lägg till material</string>
+    <string name="ui_floor_slope">Golvfall</string>
 </resources>
