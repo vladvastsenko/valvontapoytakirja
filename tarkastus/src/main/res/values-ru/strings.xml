@@ -48,4 +48,13 @@
     <string name="loc3_folder">Папка: </string>
     <string name="loc3_photo_edit_title">Редактировать фотографию</string>
     <string name="loc3_photo_error">Не удалось открыть фотографию.</string>
+    <string name="loc4_folder_path">Папка / подпапка (например, Клиенты/Хельсинки/Объект)</string>
+    <string name="loc4_client_rep">Заказчик / представитель объекта</string>
+    <string name="loc4_location">Помещение / расположение</string>
+    <string name="loc4_description">Описание / состояние</string>
+    <string name="loc4_actions">Меры / дополнительные сведения</string>
+    <string name="loc4_image_failed">Не удалось показать фото: %1$s</string>
+    <string name="loc4_business_id">Регистрационный номер: </string>
+    <string name="loc4_contact_person">Контактное лицо: </string>
+    <string name="loc4_local_save_tarkastus">Tarkastuspöytäkirja 1.0.0 • Данные сохраняются на этом телефоне.</string>
 </resources>
