@@ -566,10 +566,10 @@ private fun EditorScreen(
             Spacer(Modifier.weight(1f))
             Button(onClick = onExport) { Text(stringResource(R.string.ui_create_pdf)) }
         }
-        Text("VALVONTAPÖYTÄKIRJA", style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.Bold)
+        Text(stringResource(R.string.loc2_pdf_title_valvonta), style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.Bold)
         Text(stringResource(R.string.loc_fill), style = MaterialTheme.typography.bodySmall)
 
-        SectionTitle("VAKIOASIAKAS JA KOHDE")
+        SectionTitle(stringResource(R.string.loc2_site_parties))
         Box {
             OutlinedButton(onClick = { customerMenuExpanded = true }, modifier = Modifier.fillMaxWidth()) {
                 Text(selectedCustomer?.name ?: "Valitse vakioasiakas")
@@ -658,30 +658,30 @@ private fun EditorScreen(
         Field("Tilaaja / kohteen edustaja", report.clientOrRepresentative) { onChange(report.copy(clientOrRepresentative = it)) }
         Field(stringResource(R.string.loc_phone), report.clientPhone) { onChange(report.copy(clientPhone = it)) }
         Field(stringResource(R.string.loc_email), report.clientEmail) { onChange(report.copy(clientEmail = it)) }
-        Field("Vedeneristäjän nimi", report.installerName) { onChange(report.copy(installerName = it)) }
-        Field("Sertifikaattinumero", report.installerCertificateNumber) { onChange(report.copy(installerCertificateNumber = it)) }
-        Field("Vedeneristäjän puhelin", report.installerPhone) { onChange(report.copy(installerPhone = it)) }
-        Field("Vedeneristäjän sähköposti", report.installerEmail) { onChange(report.copy(installerEmail = it)) }
-        DateField("Asennustyön aloituspäivä", report.workStartDate) {
+        Field(stringResource(R.string.loc2_installer), report.installerName) { onChange(report.copy(installerName = it)) }
+        Field(stringResource(R.string.loc2_certificate), report.installerCertificateNumber) { onChange(report.copy(installerCertificateNumber = it)) }
+        Field(stringResource(R.string.loc2_installer_phone), report.installerPhone) { onChange(report.copy(installerPhone = it)) }
+        Field(stringResource(R.string.loc2_installer_email), report.installerEmail) { onChange(report.copy(installerEmail = it)) }
+        DateField(stringResource(R.string.loc2_start_date), report.workStartDate) {
             onChange(report.copy(workStartDate = it))
         }
-        DateField("Asennustyön päättymispäivä", report.workEndDate) {
+        DateField(stringResource(R.string.loc2_end_date), report.workEndDate) {
             onChange(report.copy(workEndDate = it))
         }
 
-        SectionTitle("2. ALUSTAT JA TYÖOLOSUHTEET")
+        SectionTitle(stringResource(R.string.loc2_surfaces))
         Field("Seinien alusta / rakenne", report.wallSubstrate) { onChange(report.copy(wallSubstrate = it)) }
         Field("Lattian alusta / rakenne", report.floorSubstrate) { onChange(report.copy(floorSubstrate = it)) }
         Row(verticalAlignment = Alignment.CenterVertically) {
-            Text("Työohjeet annettu ja luettu", modifier = Modifier.weight(1f))
+            Text(stringResource(R.string.loc2_instructions), modifier = Modifier.weight(1f))
             Switch(
                 checked = report.workInstructionsProvidedAndRead,
                 onCheckedChange = { onChange(report.copy(workInstructionsProvidedAndRead = it)) }
             )
         }
-        Field("Työtilan lämpötila (°C)", report.roomTemperatureC) { onChange(report.copy(roomTemperatureC = it)) }
-        Field("Suhteellinen kosteus (%)", report.relativeHumidityPercent) { onChange(report.copy(relativeHumidityPercent = it)) }
-        Field("Alustan kosteus (%)", report.substrateMoisturePercent) { onChange(report.copy(substrateMoisturePercent = it)) }
+        Field(stringResource(R.string.loc2_temperature), report.roomTemperatureC) { onChange(report.copy(roomTemperatureC = it)) }
+        Field(stringResource(R.string.loc2_humidity), report.relativeHumidityPercent) { onChange(report.copy(relativeHumidityPercent = it)) }
+        Field(stringResource(R.string.loc2_substrate_moisture), report.substrateMoisturePercent) { onChange(report.copy(substrateMoisturePercent = it)) }
 
         SectionTitle(stringResource(R.string.loc_materials))
         Text("Valitse sama valmistaja koko vedeneristysjärjestelmälle: pohjuste, vedeneriste, kaivolaippa, vahvikenauhat, läpivientivahvikkeet, tiivistysmassa ja kiinnityslaasti.")
@@ -825,8 +825,8 @@ private fun EditorScreen(
             modifier = Modifier.fillMaxWidth()
         ) { Text(stringResource(R.string.ui_add_material)) }
 
-        SectionTitle("4. RAKENTEET JA MITAT")
-        Field("Lattialämmitys", report.floorHeating) { onChange(report.copy(floorHeating = it)) }
+        SectionTitle(stringResource(R.string.loc2_structures))
+        Field(stringResource(R.string.loc2_heating), report.floorHeating) { onChange(report.copy(floorHeating = it)) }
         Field("Kynnys / viemärin nosto (mm)", report.thresholdOrDrainLiftMm) { onChange(report.copy(thresholdOrDrainLiftMm = it)) }
         Text(stringResource(R.string.ui_floor_slope))
         Row(horizontalArrangement = Arrangement.spacedBy(16.dp), verticalAlignment = Alignment.CenterVertically) {
@@ -851,21 +851,21 @@ private fun EditorScreen(
             onChange(report.copy(floorSlopes = it))
         }
 
-        SectionTitle("5. PINTA-ALAT JA MENEKKI")
+        SectionTitle(stringResource(R.string.loc2_areas))
         if (report.waterproofingSpecSource.isNotBlank()) {
             Text(
                 "Valmistajan tuotetietojen mukaan esitäytetyt arvot: ${report.waterproofingSpecSource}. Tarkista aina tuotteen ajantasainen työohje.",
                 style = MaterialTheme.typography.bodySmall
             )
         }
-        Field("Seinien pinta-ala (m²)", report.wallAreaM2) { onChange(report.copy(wallAreaM2 = it)) }
+        Field(stringResource(R.string.loc2_wall_area), report.wallAreaM2) { onChange(report.copy(wallAreaM2 = it)) }
         Field("Seinät – valmistajan vaatima vedeneristeen menekki (kg/m² tai l/m²)", report.wallRequiredWaterproofingConsumptionPerM2) {
             onChange(report.copy(wallRequiredWaterproofingConsumptionPerM2 = it))
         }
         Field("Seinät – käytetty vedeneristeen kokonaismäärä (kg tai l)", report.wallWaterproofingConsumptionLitres) {
             onChange(report.copy(wallWaterproofingConsumptionLitres = it))
         }
-        Field("Lattian pinta-ala (m²)", report.floorAreaM2) { onChange(report.copy(floorAreaM2 = it)) }
+        Field(stringResource(R.string.loc2_floor_area), report.floorAreaM2) { onChange(report.copy(floorAreaM2 = it)) }
         Field("Lattia – valmistajan vaatima vedeneristeen menekki (kg/m² tai l/m²)", report.floorRequiredWaterproofingConsumptionPerM2) {
             onChange(report.copy(floorRequiredWaterproofingConsumptionPerM2 = it))
         }
@@ -873,14 +873,14 @@ private fun EditorScreen(
             onChange(report.copy(floorWaterproofingConsumptionLitres = it))
         }
 
-        SectionTitle("6. KUIVAKALVON PAKSUUS")
+        SectionTitle(stringResource(R.string.loc2_film))
         Field("Seinät – mitattu kuivakalvon paksuus (mm)", report.wallDryFilmThicknessMm) { onChange(report.copy(wallDryFilmThicknessMm = it)) }
         Field("Seinät – valmistajan vaatima kuivakalvon vähimmäispaksuus (mm)", report.wallRequiredMinimumThicknessMm) { onChange(report.copy(wallRequiredMinimumThicknessMm = it)) }
         Field("Lattia – mitattu kuivakalvon paksuus (mm)", report.floorDryFilmThicknessMm) { onChange(report.copy(floorDryFilmThicknessMm = it)) }
         Field("Lattia – valmistajan vaatima kuivakalvon vähimmäispaksuus (mm)", report.floorRequiredMinimumThicknessMm) { onChange(report.copy(floorRequiredMinimumThicknessMm = it)) }
 
         SectionTitle(stringResource(R.string.loc_photos_section))
-        Text("Voit ottaa kuvan kameralla tai valita useita kuvia galleriasta.")
+        Text(stringResource(R.string.loc2_pdf_photo_hint))
         Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
             OutlinedButton(onClick = onCamera, modifier = Modifier.weight(1f)) { Text(stringResource(R.string.ui_camera)) }
             OutlinedButton(onClick = onGallery, modifier = Modifier.weight(1f)) { Text(stringResource(R.string.ui_gallery)) }
@@ -922,9 +922,9 @@ private fun EditorScreen(
                 ) { Text(stringResource(R.string.ui_rejected)) }
             }
         }
-        Field("Lisähuomiot", report.additionalNotes, minLines = 3) { onChange(report.copy(additionalNotes = it)) }
+        Field(stringResource(R.string.loc2_additional_notes), report.additionalNotes, minLines = 3) { onChange(report.copy(additionalNotes = it)) }
 
-        SectionTitle("9. TARKASTUSPÄIVÄ")
+        SectionTitle(stringResource(R.string.loc2_inspection_date_section))
         DateField(stringResource(R.string.loc_date), report.inspectionDate) {
             onChange(report.copy(inspectionDate = it))
         }
