@@ -86,4 +86,10 @@
     <string name="loc2_additional_notes">Дополнительные замечания</string>
     <string name="loc2_pdf_title_valvonta">ПРОТОКОЛ КОНТРОЛЯ</string>
     <string name="loc2_pdf_photo_hint">Сделайте фото камерой или выберите несколько из галереи.</string>
+    <string name="loc3_waterproof_intro">Протоколы контроля гидроизоляции влажных помещений</string>
+    <string name="loc3_folder">Папка: </string>
+    <string name="loc3_wall_coating">Стены — расход гидроизоляции (кг или л)</string>
+    <string name="loc3_floor_coating">Пол — расход гидроизоляции (кг или л)</string>
+    <string name="loc3_wall_film">Стены — измеренная толщина сухой плёнки (мм)</string>
+    <string name="loc3_floor_film">Пол — измеренная толщина сухой плёнки (мм)</string>
 </resources>
