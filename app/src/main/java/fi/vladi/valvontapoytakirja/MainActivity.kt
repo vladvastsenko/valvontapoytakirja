@@ -207,6 +207,8 @@ private fun ManagementScreen(
 ) {
     val context = LocalContext.current
     var languageMenu by remember { mutableStateOf(false) }
+    var pdfLanguageMenu by remember { mutableStateOf(false) }
+    var defaultPdfLanguage by remember { mutableStateOf(context.getSharedPreferences("tarkastus_pdf_language", android.content.Context.MODE_PRIVATE).getString("default", "fi") ?: "fi") }
     var confirmSignOut by remember { mutableStateOf(false) }
     if (confirmSignOut) {
         AlertDialog(
@@ -235,6 +237,22 @@ private fun ManagementScreen(
                             AppLanguage.save(context, code)
                             (context as? android.app.Activity)?.recreate()
                         }
+                    })
+                }
+            }
+        }
+        Text(stringResource(R.string.pdf_language_default), fontWeight = FontWeight.Bold)
+        Box {
+            OutlinedButton(onClick = { pdfLanguageMenu = true }, modifier = Modifier.fillMaxWidth()) {
+                Text(when (defaultPdfLanguage) { "ru" -> "Русский"; "sv" -> "Svenska"; "en" -> "English"; else -> "Suomi" } + " ▾")
+            }
+            DropdownMenu(expanded = pdfLanguageMenu, onDismissRequest = { pdfLanguageMenu = false }) {
+                listOf("fi" to "Suomi", "sv" to "Svenska", "ru" to "Русский", "en" to "English").forEach { (code, label) ->
+                    DropdownMenuItem(text = { Text(label) }, onClick = {
+                        pdfLanguageMenu = false
+                        defaultPdfLanguage = code
+                        context.getSharedPreferences("tarkastus_pdf_language", android.content.Context.MODE_PRIVATE)
+                            .edit().putString("default", code).apply()
                     })
                 }
             }
