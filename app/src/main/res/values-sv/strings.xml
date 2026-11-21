@@ -13,4 +13,22 @@
     <string name="trial">14 dagars provperiod</string>
     <string name="sign_in">Logga in med Google</string>
     <string name="sign_out">Logga ut</string>
+    <string name="auth_title">Logga in eller skapa ett konto</string>
+    <string name="email">E-post</string>
+    <string name="password">Lösenord</string>
+    <string name="create_account">Skapa konto</string>
+    <string name="email_sign_in">Logga in med e-post</string>
+    <string name="already_registered">Har du redan ett konto? Logga in</string>
+    <string name="new_user">Ny användare? Skapa konto</string>
+    <string name="forgot_password">Glömt lösenordet?</string>
+    <string name="or">Eller</string>
+    <string name="email_required">Ange din e-postadress först</string>
+    <string name="password_short">Ange e-post och ett lösenord med minst 6 tecken</string>
+    <string name="reset_sent">E-post för återställning har skickats</string>
+    <string name="auth_failed">Inloggningen misslyckades</string>
+    <string name="reset_failed">Det gick inte att återställa lösenordet</string>
+    <string name="google_failed">Google-inloggningen misslyckades</string>
+    <string name="logout_confirm">Vill du logga ut?</string>
+    <string name="cancel">Avbryt</string>
+    <string name="confirm">Logga ut</string>
 </resources>
