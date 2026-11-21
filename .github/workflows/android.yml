@@ -2,7 +2,7 @@ name: Android build
 
 on:
   push:
-    branches: [ main, android-app-mvp, unified-valvoja, tarkastus, cloud-backup-drive ]
+    branches: [ main, android-app-mvp, unified-valvoja, tarkastus, cloud-backup-drive, auth-registration ]
   pull_request:
     branches: [ main ]
 
@@ -21,10 +21,21 @@ jobs:
         uses: gradle/actions/setup-gradle@v4
         with:
           gradle-version: "8.11.1"
+      - name: Prepare persistent Cloud signing key (if configured)
+        if: ${{ secrets.CLOUD_KEYSTORE_BASE64 != '' }}
+        env:
+          CLOUD_KEYSTORE_BASE64: ${{ secrets.CLOUD_KEYSTORE_BASE64 }}
+        run: |
+          mkdir -p signing
+          echo "$CLOUD_KEYSTORE_BASE64" | base64 --decode > signing/cloud-keystore.jks
       - name: Build debug APK
+        env:
+          CLOUD_KEYSTORE_PATH: ${{ secrets.CLOUD_KEYSTORE_BASE64 != '' && 'signing/cloud-keystore.jks' || '' }}
+          CLOUD_KEYSTORE_PASSWORD: ${{ secrets.CLOUD_KEYSTORE_PASSWORD }}
+          CLOUD_KEY_ALIAS: ${{ secrets.CLOUD_KEY_ALIAS }}
         run: gradle assembleDebug
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
-          name: valvontapoytakirja-debug
+          name: tarkastus-cloud-debug
           path: app/build/outputs/apk/debug/app-debug.apk
