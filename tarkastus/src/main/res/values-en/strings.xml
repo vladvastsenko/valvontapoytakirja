@@ -48,4 +48,13 @@
     <string name="loc3_folder">Folder: </string>
     <string name="loc3_photo_edit_title">Edit photograph</string>
     <string name="loc3_photo_error">Could not open the photograph.</string>
+    <string name="loc4_folder_path">Folder / subfolder (e.g. Customers/Helsinki/Site)</string>
+    <string name="loc4_client_rep">Client / site representative</string>
+    <string name="loc4_location">Room / location</string>
+    <string name="loc4_description">Description / condition</string>
+    <string name="loc4_actions">Actions / additional information</string>
+    <string name="loc4_image_failed">Could not display photo: %1$s</string>
+    <string name="loc4_business_id">Business ID: </string>
+    <string name="loc4_contact_person">Contact person: </string>
+    <string name="loc4_local_save_tarkastus">Tarkastuspöytäkirja 1.0.0 • Data is saved on this phone.</string>
 </resources>
