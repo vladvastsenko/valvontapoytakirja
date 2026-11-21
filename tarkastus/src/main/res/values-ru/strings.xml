@@ -1,0 +1,24 @@
+<resources>
+    <string name="ui_new_report">Новый отчёт</string>
+    <string name="ui_no_reports">Сохранённых отчётов пока нет.</string>
+    <string name="ui_delete">Удалить</string>
+    <string name="ui_back">← Назад</string>
+    <string name="ui_create_pdf">Создать PDF</string>
+    <string name="ui_save_template">Сохранить как шаблон</string>
+    <string name="ui_share_pdf">Создать и отправить PDF</string>
+    <string name="ui_select">Выбрать</string>
+    <string name="ui_cancel">Отмена</string>
+    <string name="ui_remove_photo">Удалить фото</string>
+    <string name="ui_back_reports">← К выбору отчёта</string>
+    <string name="ui_camera_photo">Сделать фото</string>
+    <string name="ui_photos">Фотографии</string>
+    <string name="ui_add_item">+ Добавить пункт</string>
+    <string name="ui_edit_photo">Редактировать фото</string>
+    <string name="ui_undo">Отменить действие</string>
+    <string name="ui_clear">Очистить</string>
+    <string name="ui_save_marks">Сохранить пометки</string>
+    <string name="ui_remove_field">Удалить поле</string>
+    <string name="ui_add_field">+ Добавить своё поле</string>
+    <string name="ui_back_plain">Назад</string>
+    <string name="ui_draw_hint">Рисуйте пальцем или стилусом поверх фотографии. Пометки появятся и в PDF.</string>
+</resources>
