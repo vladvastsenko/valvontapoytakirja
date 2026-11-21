@@ -492,7 +492,7 @@ private fun ValvontaApp(
                     putExtra(Intent.EXTRA_STREAM, uri)
                     addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
                 }
-                context.startActivity(Intent.createChooser(sendIntent, "Jaa valvontapöytäkirja"))
+                context.startActivity(Intent.createChooser(sendIntent, context.getString(R.string.share_report)))
                 }
             },
             onDeletePhoto = { photoPath ->
@@ -527,7 +527,7 @@ private fun HomeScreen(
             Text(stringResource(R.string.loc_templates), style = MaterialTheme.typography.titleLarge)
             templates.forEach { template ->
                 OutlinedButton(onClick = { onCreateFromTemplate(template) }, modifier = Modifier.fillMaxWidth()) {
-                    Text(template.templateName + " • " + template.siteAddress + " • " + (template.materials.firstOrNull { it.manufacturer.isNotBlank() }?.manufacturer ?: "Valmistaja määrittämättä"))
+                    Text(template.templateName + " • " + template.siteAddress + " • " + (template.materials.firstOrNull { it.manufacturer.isNotBlank() }?.manufacturer ?: stringResource(R.string.manufacturer_missing)))
                 }
             }
         }
@@ -541,7 +541,7 @@ private fun HomeScreen(
                     shape = RoundedCornerShape(12.dp)
                 ) {
                     Column(Modifier.padding(16.dp)) {
-                        Text(report.siteAddress.ifBlank { "Uusi pöytäkirja" }, fontWeight = FontWeight.SemiBold)
+                        Text(report.siteAddress.ifBlank { context.getString(R.string.new_report_fallback) }, fontWeight = FontWeight.SemiBold)
                         if (report.folderPath.isNotBlank()) Text(stringResource(R.string.loc3_folder) + report.folderPath, style = MaterialTheme.typography.bodySmall)
                         Text(stringResource(R.string.loc4_inspection_date_prefix, report.inspectionDate.ifBlank { "—" }))
                         Text(stringResource(R.string.loc4_result_prefix, report.inspectionResult.ifBlank { "Ei valittu" }))
@@ -641,7 +641,7 @@ private fun EditorScreen(
                     modifier = Modifier.fillMaxWidth()
                 ) {
                     Column(horizontalAlignment = Alignment.Start) {
-                        Text(report.siteName.ifBlank { "Valitse kohde" })
+                        Text(report.siteName.ifBlank { stringResource(R.string.choose_site_fallback) })
                         report.siteAddress.takeIf { it.isNotBlank() }?.let {
                             Text(it, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                         }
@@ -967,7 +967,7 @@ private fun EditorScreen(
         }
 
         Spacer(Modifier.height(12.dp))
-        OutlinedButton(onClick = { onSaveTemplate(report.siteAddress.ifBlank { "Uusi malli" }) }, modifier = Modifier.fillMaxWidth()) {
+        OutlinedButton(onClick = { onSaveTemplate(report.siteAddress.ifBlank { context.getString(R.string.new_template_fallback) }) }, modifier = Modifier.fillMaxWidth()) {
             Text(stringResource(R.string.ui_save_template))
         }
         Button(onClick = onExport, modifier = Modifier.fillMaxWidth()) { Text(stringResource(R.string.ui_share_pdf)) }
@@ -1089,7 +1089,7 @@ private fun MaterialCard(
                 TextButton(onClick = onRemove) { Text(stringResource(R.string.ui_delete)) }
             }
             if (lockedFamilyManufacturer && !isFamilyAnchor) {
-                Text("Valmistaja: $familyManufacturer • sama järjestelmä")
+                Text(stringResource(R.string.manufacturer_family, familyManufacturer))
             } else if (manufacturers.isNotEmpty()) {
                 Box {
                     OutlinedButton(onClick = { manufacturerExpanded = true }, modifier = Modifier.fillMaxWidth()) {
