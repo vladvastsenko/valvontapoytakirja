@@ -57,7 +57,7 @@ fun CloudBackupScreen(onBack: () -> Unit) {
                     selectedBackupUri = found.firstOrNull()?.uri?.toString()
                     status = if (found.isEmpty()) context.getString(R.string.cloud_no_found)
                         else "Löytyi ${found.size} varmuuskopiota. Uusin on valittuna."
-                }.onFailure { error -> status = "Varmuuskopioiden lukeminen epäonnistui: ${error.message ?: "Tuntematon virhe"}" }
+                }.onFailure { error -> status = context.getString(R.string.cloud_read_error, error.message ?: context.getString(R.string.cloud_unknown_error)) }
         } else {
             backups = emptyList()
             selectedBackupUri = null
@@ -93,7 +93,7 @@ fun CloudBackupScreen(onBack: () -> Unit) {
                     restoreCompleted = false
                     scope.launch {
                         status = try { withContext(Dispatchers.IO) { CloudSyncManager.sync(context, uri) }.asMessage() }
-                        catch (error: Throwable) { "Synkronointi epäonnistui: ${error.message ?: "Tuntematon virhe"}" }
+                        catch (error: Throwable) { context.getString(R.string.cloud_sync_error, error.message ?: context.getString(R.string.cloud_unknown_error)) }
                         finally { busy = false }
                     }
                 }
@@ -113,8 +113,8 @@ fun CloudBackupScreen(onBack: () -> Unit) {
                             val refreshed = withContext(Dispatchers.IO) { CloudBackupManager.listBackups(context, uri) }
                             backups = refreshed
                             selectedBackupUri = refreshed.firstOrNull()?.uri?.toString()
-                            "Varmuuskopio tallennettu. $result".also { preferences.edit().putString("last_backup_status", it).apply() }
-                        } catch (error: Throwable) { "Varmuuskopiointi epäonnistui: ${error.message ?: "Tuntematon virhe"}" }
+                            context.getString(R.string.cloud_backup_saved, result).also { preferences.edit().putString("last_backup_status", it).apply() }
+                        } catch (error: Throwable) { context.getString(R.string.cloud_backup_error, error.message ?: context.getString(R.string.cloud_unknown_error)) }
                         finally { busy = false }
                     }
                 }
@@ -132,7 +132,7 @@ fun CloudBackupScreen(onBack: () -> Unit) {
                         Column(Modifier.weight(1f)) {
                             Text(if (index == 0) context.getString(R.string.cloud_latest) else formatBackupDate(context, backup.name), style = MaterialTheme.typography.titleSmall)
                             if (index == 0) Text(formatBackupDate(context, backup.name), style = MaterialTheme.typography.bodySmall)
-                            Text("Koko: ${formatBackupSize(backup.sizeBytes)}", style = MaterialTheme.typography.bodySmall)
+                            Text(stringResource(R.string.cloud_size_label, formatBackupSize(backup.sizeBytes)), style = MaterialTheme.typography.bodySmall)
                         }
                     }
                 }
@@ -147,7 +147,7 @@ fun CloudBackupScreen(onBack: () -> Unit) {
         if (restoreCompleted) Button(onClick = { (context as? Activity)?.recreate() }, modifier = Modifier.fillMaxWidth()) {
             Text(stringResource(R.string.cloud_reload))
         }
-        Text("Synkronointi käsittelee muutoksia molempiin suuntiin. Jos sama tiedosto muuttui eri tavoin molemmilla laitteilla, paikallinen versio tallennetaan Drive-kansion Tarkastus_Sync/Conflicts-kansioon ja ristiriita ilmoitetaan. Älä sulje sovellusta kesken synkronoinnin.",
+        Text(stringResource(R.string.cloud_sync_warning),
             style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
         Spacer(Modifier.height(8.dp))
     }
@@ -156,7 +156,7 @@ fun CloudBackupScreen(onBack: () -> Unit) {
         AlertDialog(
             onDismissRequest = { if (!busy) showRestoreConfirmation = false },
             title = { Text(stringResource(R.string.cloud_confirm_title)) },
-            text = { Text("Palautetaanko kopio ${formatBackupDate(context, selectedBackup.name)} (${formatBackupSize(selectedBackup.sizeBytes)})? Ennen palautusta nykyisistä tiedoista luodaan automaattisesti uusi suojakopio Google Driveen.") },
+            text = { Text(stringResource(R.string.cloud_restore_confirm_details, formatBackupDate(context, selectedBackup.name), formatBackupSize(selectedBackup.sizeBytes))) },
             confirmButton = {
                 TextButton(enabled = !busy, onClick = {
                     showRestoreConfirmation = false
@@ -172,7 +172,7 @@ fun CloudBackupScreen(onBack: () -> Unit) {
                             restoreCompleted = true
                             "$result\nSuojakopio ennen palautusta: $safetyCopy"
                         } catch (error: Throwable) {
-                            "Palautus epäonnistui: ${error.message ?: "Tuntematon virhe"}"
+                            context.getString(R.string.cloud_restore_error, error.message ?: context.getString(R.string.cloud_unknown_error))
                         } finally { busy = false }
                     }
                 }) { Text(stringResource(R.string.cloud_restore)) }
