@@ -354,7 +354,7 @@ private fun HomeScreen(
                     Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
                         Text(report.siteAddress.ifBlank { "Uusi pöytäkirja" }, fontWeight = FontWeight.SemiBold)
                         if (report.folderPath.isNotBlank()) Text(stringResource(R.string.loc3_folder) + report.folderPath, style = MaterialTheme.typography.bodySmall)
-                        Text("Tarkastuspäivä: ${report.inspectionDate.ifBlank { "—" }}")
+                        Text(stringResource(R.string.loc4_inspection_date_prefix, report.inspectionDate.ifBlank { "—" }))
                         Text("${report.observations.size} havaintoa", style = MaterialTheme.typography.bodySmall)
                         TextButton(onClick = { onDelete(report) }) { Text(stringResource(R.string.ui_delete)) }
                     }
