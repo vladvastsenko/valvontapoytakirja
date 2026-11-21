@@ -478,12 +478,11 @@ private fun ValvontaApp(
                         ReportPdfGenerator.generate(context, latest, appSettings)
                     }
                     withContext(Dispatchers.IO) {
-                        val safeName = active.siteAddress.replace(Regex("[^A-Za-z0-9ÄÖÅäöå_-]+"), "_").trim('_').ifBlank { "kohde" }
                         SharedDocumentsArchive.archiveFile(
                             context,
                             pdf,
                             "Raportit/PDF/Valvontapoytakirja",
-                            "valvontapoytakirja_${safeName}.pdf",
+                            pdf.name,
                             "application/pdf"
                         )
                     }
