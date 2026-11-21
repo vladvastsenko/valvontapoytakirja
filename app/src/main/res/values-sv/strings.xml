@@ -1,0 +1,16 @@
+<resources>
+    <string name="app_name">Tarkastus Cloud</string>
+    <string name="choose_report">Välj vilken typ av protokoll du vill skapa.</string>
+    <string name="settings_sync">Inställningar och synkronisering</string>
+    <string name="shared_settings">Gemensamma inställningar</string>
+    <string name="cloud_sync">Molnsäkerhetskopiering och synkronisering</string>
+    <string name="back">Tillbaka</string>
+    <string name="language">Språk</string>
+    <string name="report_valvonta">Övervakningsprotokoll</string>
+    <string name="report_tarkastus">Besiktningsprotokoll</string>
+    <string name="free">Gratis</string>
+    <string name="pro">Pro</string>
+    <string name="trial">14 dagars provperiod</string>
+    <string name="sign_in">Logga in med Google</string>
+    <string name="sign_out">Logga ut</string>
+</resources>
