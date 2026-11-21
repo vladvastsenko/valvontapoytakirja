@@ -112,4 +112,5 @@
     <string name="manufacturer_family">Tillverkare: %1$s • samma system</string>
     <string name="share_report">Dela rapport</string>
     <string name="ui_preview_pdf">Förhandsgranska PDF</string>
+    <string name="ui_preview_unavailable">Ingen PDF-visare är installerad</string>
 </resources>
