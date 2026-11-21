@@ -92,4 +92,19 @@
     <string name="loc3_floor_coating">Floor — waterproofing used (kg or l)</string>
     <string name="loc3_wall_film">Walls — measured dry film thickness (mm)</string>
     <string name="loc3_floor_film">Floor — measured dry film thickness (mm)</string>
+    <string name="loc4_folder_path">Folder / subfolder (e.g. Customers/Helsinki/Site)</string>
+    <string name="loc4_client_rep">Client / site representative</string>
+    <string name="loc4_wall_base">Wall substrate / structure</string>
+    <string name="loc4_floor_base">Floor substrate / structure</string>
+    <string name="loc4_threshold">Threshold / drain elevation (mm)</string>
+    <string name="loc4_slopes_info">Slope locations / additional details</string>
+    <string name="loc4_wall_consumption">Walls — manufacturer-required consumption (kg/m² or l/m²)</string>
+    <string name="loc4_floor_consumption">Floor — manufacturer-required consumption (kg/m² or l/m²)</string>
+    <string name="loc4_wall_minfilm">Walls — minimum required dry film thickness (mm)</string>
+    <string name="loc4_floor_minfilm">Floor — minimum required dry film thickness (mm)</string>
+    <string name="loc4_other_product">Other / custom product</string>
+    <string name="loc4_family_hint">Choose one manufacturer for the entire waterproofing system: primer, membrane, drain collar, reinforcing tapes, seals and tile adhesive.</string>
+    <string name="loc4_family_missing">No product is available for this manufacturer in this category. Choose only products belonging to the same system.</string>
+    <string name="loc4_image_failed">Could not display photo: %1$s</string>
+    <string name="loc4_local_save_valvoja">Valvoja 0.4.7 • Data is saved on this phone.</string>
 </resources>
