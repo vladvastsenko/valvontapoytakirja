@@ -190,4 +190,13 @@
     <string name="manufacturer_missing">Производитель не указан</string>
     <string name="manufacturer_family">Производитель: %1$s • одна система</string>
     <string name="share_report">Поделиться отчётом</string>
+    <string name="cloud_read_error">Не удалось прочитать резервные копии: %1$s</string>
+    <string name="cloud_sync_error">Ошибка синхронизации: %1$s</string>
+    <string name="cloud_backup_saved">Резервная копия сохранена. %1$s</string>
+    <string name="cloud_backup_error">Ошибка резервного копирования: %1$s</string>
+    <string name="cloud_size_label">Размер: %1$s</string>
+    <string name="cloud_sync_warning">Синхронизация выполняется в обе стороны. Если один файл был изменён по-разному на двух устройствах, локальная версия сохраняется в папке Tarkastus_Sync/Conflicts на Google Диске. Не закрывайте приложение во время синхронизации.</string>
+    <string name="cloud_restore_confirm_details">Восстановить копию от %1$s (%2$s)? Перед восстановлением текущие данные будут автоматически сохранены в новую резервную копию на Google Диске.</string>
+    <string name="cloud_restore_error">Ошибка восстановления: %1$s</string>
+    <string name="cloud_unknown_error">Неизвестная ошибка</string>
 </resources>
