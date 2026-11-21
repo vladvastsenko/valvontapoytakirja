@@ -121,7 +121,7 @@ object ReportPdfGenerator {
             writer.field("Lattia – valmistajan vaatima kuivakalvon vähimmäispaksuus (mm)", report.floorRequiredMinimumThicknessMm)
     
             writer.section("TARKASTUKSEN TULOS")
-            writer.field("Tulos", report.inspectionResult)
+            writer.field("Tulos", PdfLabels(language).text(report.inspectionResult))
             writer.field("Lisähuomiot", report.additionalNotes)
     
             val hasInspectorDetails = settings.inspectorName.isNotBlank() ||
@@ -289,7 +289,7 @@ object ReportPdfGenerator {
 
         fun field(label: String, value: String) {
             if (label.isBlank() || value.isBlank()) return
-            drawWrapped("$label: $value", bodyPaint, 14f)
+            drawWrapped("${labels.text(label)}: $value", bodyPaint, 14f)
         }
 
         private fun drawWrapped(value: String, paint: Paint, lineHeight: Float) {
