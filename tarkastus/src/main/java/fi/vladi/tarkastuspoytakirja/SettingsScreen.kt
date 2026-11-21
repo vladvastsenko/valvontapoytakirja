@@ -78,10 +78,10 @@ fun SettingsScreen(
             onSettingsChange(settings.copy(inspectorEmail = it))
         }
         Text(stringResource(R.string.settings_logo))
-        Text(if (settings.logoPath.isBlank()) "Logoa ei ole valittu." else "Logo tallennettu.")
+        Text(if (settings.logoPath.isBlank()) stringResource(R.string.settings_no_logo) else stringResource(R.string.settings_logo_saved))
         Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
             OutlinedButton(onClick = onPickLogo, modifier = Modifier.weight(1f)) {
-                Text(if (settings.logoPath.isBlank()) "Valitse logo" else "Vaihda logo")
+                Text(if (settings.logoPath.isBlank()) stringResource(R.string.settings_choose_logo) else stringResource(R.string.settings_change_logo))
             }
             if (settings.logoPath.isNotBlank()) {
                 TextButton(onClick = onRemoveLogo) { Text(stringResource(R.string.settings_delete)) }
