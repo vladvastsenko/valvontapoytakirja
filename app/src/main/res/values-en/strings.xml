@@ -107,4 +107,6 @@
     <string name="loc4_family_missing">No product is available for this manufacturer in this category. Choose only products belonging to the same system.</string>
     <string name="loc4_image_failed">Could not display photo: %1$s</string>
     <string name="loc4_local_save_valvoja">Valvoja 0.4.7 • Data is saved on this phone.</string>
+    <string name="loc4_inspection_date_prefix">Inspection date: %1$s</string>
+    <string name="loc4_result_prefix">Result: %1$s</string>
 </resources>
