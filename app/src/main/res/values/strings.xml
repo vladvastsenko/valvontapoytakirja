@@ -48,4 +48,20 @@
     <string name="ui_rejected">Hylätty</string>
     <string name="ui_add_material">+ Lisää materiaali</string>
     <string name="ui_floor_slope">Lattian kaato</string>
+    <string name="loc_templates">Pöytäkirjamallit</string>
+    <string name="loc_saved">Tallennetut pöytäkirjat</string>
+    <string name="loc_fill">Täytä tiedot. Muutokset tallentuvat automaattisesti tähän puhelimeen.</string>
+    <string name="loc_site_parties">1. TYÖMAA JA OSAPUOLET</string>
+    <string name="loc_phone">Tilaajan puhelinnumero</string>
+    <string name="loc_email">Tilaajan sähköposti</string>
+    <string name="loc_date">Tarkastuspäivä</string>
+    <string name="loc_site_address">Kohteen osoite</string>
+    <string name="loc_additional">Lisätiedot</string>
+    <string name="loc_comment">Kommentti (valinnainen)</string>
+    <string name="loc_site_info">Kohteen lisätiedot</string>
+    <string name="loc_manufacturer">Valmistaja</string>
+    <string name="loc_product_name">Tuotteen nimi</string>
+    <string name="loc_materials">3. KÄYTETYT MATERIAALIT</string>
+    <string name="loc_photos_section">7. VALOKUVAT</string>
+    <string name="loc_result_section">8. TARKASTUKSEN TULOS</string>
 </resources>
