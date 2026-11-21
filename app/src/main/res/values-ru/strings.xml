@@ -109,4 +109,5 @@
     <string name="loc4_local_save_valvoja">Valvoja 0.4.7 • Данные сохраняются на этом телефоне.</string>
     <string name="loc4_inspection_date_prefix">Дата проверки: %1$s</string>
     <string name="loc4_result_prefix">Результат: %1$s</string>
+    <string name="loc4_photo_count">Фотографий: %1$d</string>
 </resources>
