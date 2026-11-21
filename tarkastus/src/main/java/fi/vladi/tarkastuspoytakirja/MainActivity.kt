@@ -417,6 +417,7 @@ private fun EditorScreen(
         )
         return
     }
+    val defaultTemplateName = stringResource(R.string.new_template_fallback)
     Column(
         modifier = Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(16.dp),
         verticalArrangement = Arrangement.spacedBy(10.dp)
@@ -642,7 +643,7 @@ private fun EditorScreen(
         }
 
         Spacer(Modifier.height(12.dp))
-        OutlinedButton(onClick = { onSaveTemplate(report.siteAddress.ifBlank { stringResource(R.string.new_template_fallback) }) }, modifier = Modifier.fillMaxWidth()) {
+        OutlinedButton(onClick = { onSaveTemplate(report.siteAddress.ifBlank { defaultTemplateName }) }, modifier = Modifier.fillMaxWidth()) {
             Text(stringResource(R.string.ui_save_template))
         }
         OutlinedButton(onClick = onPreview, modifier = Modifier.fillMaxWidth()) { Text(stringResource(R.string.ui_preview_pdf)) }
