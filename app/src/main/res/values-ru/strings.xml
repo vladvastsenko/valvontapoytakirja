@@ -171,4 +171,5 @@
     <string name="cloud_drive_selected">Папка Google Drive выбрана.</string>
     <string name="cloud_drive_missing">Папка Google Drive не выбрана.</string>
     <string name="cloud_date_missing">Дата недоступна</string>
+    <string name="pdf_language_default">Язык PDF по умолчанию</string>
 </resources>
