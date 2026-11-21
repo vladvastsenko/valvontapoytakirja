@@ -19,11 +19,12 @@ import java.io.FileOutputStream
 
 object ReportPdfGenerator {
     fun generate(context: Context, report: InspectionReport, settings: AppSettings = AppSettings()): File {
-        val firstPass = render(report, settings, totalPages = null)
+        val selectedLanguage = report.pdfLanguage.ifBlank { context.getSharedPreferences("tarkastus_pdf_language", Context.MODE_PRIVATE).getString("default", "fi") ?: "fi" }
+        val firstPass = render(report, settings, totalPages = null, language = selectedLanguage)
         val totalPages = firstPass.second
         firstPass.first.close()
 
-        val finalPass = render(report, settings, totalPages)
+        val finalPass = render(report, settings, totalPages, language = selectedLanguage)
         val exportDirectory = File(context.cacheDir, "exports").apply { mkdirs() }
         val safeName = report.siteAddress
             .replace(Regex("[^A-Za-z0-9ÄÖÅäöå_-]+"), "_")
@@ -35,12 +36,12 @@ object ReportPdfGenerator {
         return output
     }
 
-    private fun render(report: InspectionReport, settings: AppSettings, totalPages: Int?): Pair<PdfDocument, Int> {
+    private fun render(report: InspectionReport, settings: AppSettings, totalPages: Int?, language: String): Pair<PdfDocument, Int> {
         val document = PdfDocument()
         val logoPath = if (report.settingsSnapshotCreated) report.logoPath else report.logoPath.ifBlank { settings.logoPath }
         val headerText = if (report.settingsSnapshotCreated) report.headerText else report.headerText.ifBlank { settings.headerText }
         val footerText = if (report.settingsSnapshotCreated) report.footerText else report.footerText.ifBlank { settings.footerText }
-        val writer = PdfWriter(document, logoPath, headerText, footerText, totalPages)
+        val writer = PdfWriter(document, logoPath, headerText, footerText, totalPages, language)
         writer.title("TARKASTUSPÖYTÄKIRJA")
         if (report.customerName.isNotBlank()) writer.field("Tilaaja", report.customerName)
         if (report.customerBusinessId.isNotBlank()) writer.field("Y-tunnus", report.customerBusinessId)
@@ -101,8 +102,10 @@ object ReportPdfGenerator {
         private val logoPath: String,
         private val headerText: String,
         private val footerText: String,
-        private val totalPages: Int?
+        private val totalPages: Int?,
+        language: String
     ) {
+        private val labels = PdfLabels(language)
         val pageCount: Int get() = pageNumber
         private val pageWidth = 595
         private val pageHeight = 842
@@ -204,7 +207,7 @@ object ReportPdfGenerator {
 
         fun title(value: String) {
             ensureSpace(38f)
-            page.canvas.drawText(value, margin, y + 17f, titlePaint)
+            page.canvas.drawText(labels.text(value), margin, y + 17f, titlePaint)
             y += 32f
             page.canvas.drawLine(margin, y, pageWidth - margin, y, Paint().apply {
                 color = Color.rgb(170, 185, 195)
@@ -221,7 +224,7 @@ object ReportPdfGenerator {
         fun section(value: String) {
             ensureSpace(30f)
             y += 7f
-            page.canvas.drawText(value, margin, y + 12f, sectionPaint)
+            page.canvas.drawText(labels.text(value), margin, y + 12f, sectionPaint)
             y += 22f
         }
 
@@ -337,7 +340,7 @@ object ReportPdfGenerator {
         fun signature(strokes: List<SignatureStroke>, imagePath: String) {
             if (strokes.isEmpty() && imagePath.isBlank()) return
             ensureSpace(100f)
-            page.canvas.drawText("Allekirjoitus", margin, y + 12f, boldPaint)
+            page.canvas.drawText(labels.text("Allekirjoitus"), margin, y + 12f, boldPaint)
             if (imagePath.isNotBlank()) {
                 val signatureImage = BitmapFactory.decodeFile(imagePath)
                 if (signatureImage != null) {
