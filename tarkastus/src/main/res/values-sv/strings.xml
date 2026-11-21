@@ -44,4 +44,8 @@
     <string name="loc2_pdf_title_tarkastus">BESIKTNINGSPROTOKOLL</string>
     <string name="loc2_no_customers">Lägg först till kunder i Inställningar.</string>
     <string name="loc2_no_sites">Lägg till objekt för kunden i Inställningar.</string>
+    <string name="loc3_general_intro">Allmänna besiktningsrapporter</string>
+    <string name="loc3_folder">Mapp: </string>
+    <string name="loc3_photo_edit_title">Redigera fotografi</string>
+    <string name="loc3_photo_error">Det gick inte att öppna bilden.</string>
 </resources>
