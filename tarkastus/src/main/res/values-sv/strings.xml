@@ -21,4 +21,24 @@
     <string name="ui_add_field">+ Lägg till eget fält</string>
     <string name="ui_back_plain">Tillbaka</string>
     <string name="ui_draw_hint">Rita på bilden med fingret eller en penna. Markeringarna visas även i PDF-filen.</string>
+    <string name="loc_templates">Protokollmallar</string>
+    <string name="loc_saved">Sparade protokoll</string>
+    <string name="loc_fill">Fyll i uppgifterna. Ändringarna sparas automatiskt på telefonen.</string>
+    <string name="loc_site_parties">1. ARBETSPLATS OCH PARTER</string>
+    <string name="loc_phone">Beställarens telefonnummer</string>
+    <string name="loc_email">Beställarens e-post</string>
+    <string name="loc_date">Besiktningsdatum</string>
+    <string name="loc_site_detail">Objektets precisering</string>
+    <string name="loc_purpose_section">2. BESIKTNINGENS SYFTE OCH OMFATTNING</string>
+    <string name="loc_purpose">Besiktningens syfte och omfattning</string>
+    <string name="loc_general_section">3. ALLMÄNNA ANMÄRKNINGAR</string>
+    <string name="loc_general">Allmänna anmärkningar</string>
+    <string name="loc_custom_section">4. EGNA FÄLT</string>
+    <string name="loc_observations_section">5. BESIKTNINGSPUNKTER</string>
+    <string name="loc_summary_section">6. SAMMANFATTNING</string>
+    <string name="loc_conclusions">Slutsatser och nödvändiga åtgärder</string>
+    <string name="loc_field_title">Fältrubrik</string>
+    <string name="loc_field_content">Innehåll</string>
+    <string name="loc_pdf_heading">Rubrik i PDF</string>
+    <string name="loc_photo_comment">Bildkommentar (valfri)</string>
 </resources>
