@@ -21,4 +21,24 @@
     <string name="ui_add_field">+ Lisää oma kenttä</string>
     <string name="ui_back_plain">Takaisin</string>
     <string name="ui_draw_hint">Piirrä sormella tai kynällä kuvan päälle. Merkinnät näkyvät myös PDF-raportissa.</string>
+    <string name="loc_templates">Pöytäkirjamallit</string>
+    <string name="loc_saved">Tallennetut pöytäkirjat</string>
+    <string name="loc_fill">Täytä tiedot. Muutokset tallentuvat automaattisesti tähän puhelimeen.</string>
+    <string name="loc_site_parties">1. TYÖMAA JA OSAPUOLET</string>
+    <string name="loc_phone">Tilaajan puhelinnumero</string>
+    <string name="loc_email">Tilaajan sähköposti</string>
+    <string name="loc_date">Tarkastuspäivä</string>
+    <string name="loc_site_detail">Kohteen tarkenne</string>
+    <string name="loc_purpose_section">2. TARKASTUKSEN TARKOITUS JA LAAJUUS</string>
+    <string name="loc_purpose">Tarkastuksen tarkoitus ja laajuus</string>
+    <string name="loc_general_section">3. YLEISET HUOMIOT</string>
+    <string name="loc_general">Yleiset huomiot</string>
+    <string name="loc_custom_section">4. OMAT LISÄKENTÄT</string>
+    <string name="loc_observations_section">5. TARKASTUSKOHTEET</string>
+    <string name="loc_summary_section">6. YHTEENVETO</string>
+    <string name="loc_conclusions">Johtopäätökset ja tarvittavat toimenpiteet</string>
+    <string name="loc_field_title">Kentän otsikko</string>
+    <string name="loc_field_content">Sisältö</string>
+    <string name="loc_pdf_heading">Otsikko PDF-raportissa</string>
+    <string name="loc_photo_comment">Kuvan kommentti (valinnainen)</string>
 </resources>
