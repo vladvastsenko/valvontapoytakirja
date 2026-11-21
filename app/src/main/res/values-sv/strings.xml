@@ -86,4 +86,10 @@
     <string name="loc2_additional_notes">Ytterligare anmärkningar</string>
     <string name="loc2_pdf_title_valvonta">ÖVERVAKNINGSPROTOKOLL</string>
     <string name="loc2_pdf_photo_hint">Ta ett foto eller välj flera bilder från galleriet.</string>
+    <string name="loc3_waterproof_intro">Kontrollrapporter för tätskikt i våtrum</string>
+    <string name="loc3_folder">Mapp: </string>
+    <string name="loc3_wall_coating">Väggar – förbrukat tätskikt (kg eller l)</string>
+    <string name="loc3_floor_coating">Golv – förbrukat tätskikt (kg eller l)</string>
+    <string name="loc3_wall_film">Väggar – uppmätt torrfilmstjocklek (mm)</string>
+    <string name="loc3_floor_film">Golv – uppmätt torrfilmstjocklek (mm)</string>
 </resources>
