@@ -48,4 +48,20 @@
     <string name="ui_rejected">Rejected</string>
     <string name="ui_add_material">+ Add material</string>
     <string name="ui_floor_slope">Floor slope</string>
+    <string name="loc_templates">Report templates</string>
+    <string name="loc_saved">Saved reports</string>
+    <string name="loc_fill">Fill in the details. Changes are automatically saved on this phone.</string>
+    <string name="loc_site_parties">1. SITE AND PARTIES</string>
+    <string name="loc_phone">Client phone number</string>
+    <string name="loc_email">Client email</string>
+    <string name="loc_date">Inspection date</string>
+    <string name="loc_site_address">Site address</string>
+    <string name="loc_additional">Additional information</string>
+    <string name="loc_comment">Comment (optional)</string>
+    <string name="loc_site_info">Site information</string>
+    <string name="loc_manufacturer">Manufacturer</string>
+    <string name="loc_product_name">Product name</string>
+    <string name="loc_materials">3. MATERIALS USED</string>
+    <string name="loc_photos_section">7. PHOTOGRAPHS</string>
+    <string name="loc_result_section">8. INSPECTION RESULT</string>
 </resources>
