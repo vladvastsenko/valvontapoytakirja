@@ -105,4 +105,10 @@
     <string name="settings_extra_fields">Extra fält: %1$s</string>
     <string name="settings_delete_action">Ta bort</string>
     <string name="settings_cancel_action">Avbryt</string>
+    <string name="new_report_fallback">Nytt protokoll</string>
+    <string name="new_template_fallback">Ny mall</string>
+    <string name="choose_site_fallback">Välj objekt</string>
+    <string name="manufacturer_missing">Tillverkare saknas</string>
+    <string name="manufacturer_family">Tillverkare: %1$s • samma system</string>
+    <string name="share_report">Dela rapport</string>
 </resources>
