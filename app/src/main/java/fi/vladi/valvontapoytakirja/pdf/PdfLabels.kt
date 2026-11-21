@@ -67,8 +67,13 @@ internal class PdfLabels(private val language: String) {
         "HYLÄTTY" to listOf("ОТКЛОНЕНО", "REJECTED", "UNDERKÄND"),
         "Hyväksytty" to listOf("Принято", "Approved", "Godkänd"),
         "Hylätty" to listOf("Отклонено", "Rejected", "Underkänd"),
-        "Seinä" to listOf("Стена", "Wall", "Vägg"),
+        "Seinät" to listOf("Стены", "Walls", "Väggar"),
+        "Lattiat" to listOf("Полы", "Floors", "Golv"),
         "Lattia" to listOf("Пол", "Floor", "Golv"),
+        "Seinä" to listOf("Стена", "Wall", "Vägg"),
+        "seinät" to listOf("стены", "walls", "väggar"),
+        "lattia" to listOf("пол", "floor", "golv"),
+        "Seinät ja lattia" to listOf("Стены и пол", "Walls and floor", "Väggar och golv"),,
         "Menekki" to listOf("Расход", "Consumption", "Åtgång"),
         "Kuivakalvo" to listOf("Сухая плёнка", "Dry film", "Torrfilm")
     )
