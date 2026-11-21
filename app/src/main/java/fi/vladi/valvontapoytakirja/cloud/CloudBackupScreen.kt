@@ -98,7 +98,7 @@ fun CloudBackupScreen(onBack: () -> Unit) {
                     }
                 }
             }, modifier = Modifier.fillMaxWidth(), enabled = !busy && selectedTree != null
-        ) { Text(stringResource(R.string.cloud_sync)) }
+        ) { Text(stringResource(R.string.cloud_sync_now)) }
         Text(stringResource(R.string.cloud_sync_hint),
             style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
 
