@@ -199,4 +199,14 @@
     <string name="cloud_restore_confirm_details">Восстановить копию от %1$s (%2$s)? Перед восстановлением текущие данные будут автоматически сохранены в новую резервную копию на Google Диске.</string>
     <string name="cloud_restore_error">Ошибка восстановления: %1$s</string>
     <string name="cloud_unknown_error">Неизвестная ошибка</string>
+    <string name="ui_not_selected">Не выбрано</string>
+    <string name="ui_select_saved_customer">Выберите постоянного клиента</string>
+    <string name="ui_choose_date">Выберите дату</string>
+    <string name="ui_choose_manufacturer">Выберите производителя</string>
+    <string name="ui_choose_product">Выберите продукт</string>
+    <string name="ui_surface_unspecified">Поверхность не указана</string>
+    <string name="ui_prefilled_material_warning">Значения заполнены по данным производителя: %1$s. Всегда проверяйте актуальную инструкцию по применению.</string>
+    <string name="ui_walls">Стены</string>
+    <string name="ui_floor">Пол</string>
+    <string name="ui_add_category">Добавить:</string>
 </resources>
