@@ -109,4 +109,5 @@
     <string name="loc4_local_save_valvoja">Valvoja 0.4.7 • Tallennus tapahtuu tässä puhelimessa.</string>
     <string name="loc4_inspection_date_prefix">Tarkastuspäivä: %1$s</string>
     <string name="loc4_result_prefix">Tulos: %1$s</string>
+    <string name="loc4_photo_count">%1$d valokuvaa</string>
 </resources>
