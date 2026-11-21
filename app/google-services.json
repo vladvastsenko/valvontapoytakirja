@@ -12,6 +12,20 @@
           "package_name": "fi.vladi.tarkastuscloud"
         }
       },
+      "oauth_client": [
+        {
+          "client_id": "425303240003-781bldsen60qlu1dfcgi840c1a2p03jm.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "fi.vladi.tarkastuscloud",
+            "certificate_hash": "2dfca62cccd193fac86a8e42b82bc00e15f10588"
+          }
+        },
+        {
+          "client_id": "425303240003-4vbv8vsk4peam32nv3j86vg80ft3ho99.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
       "api_key": [
         {
           "current_key": "AIzaSyCC03HqU9lXuUTJOv_7BsFQo78Ptc_8TIU"
@@ -19,7 +33,12 @@
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": []
+          "other_platform_oauth_client": [
+            {
+              "client_id": "425303240003-4vbv8vsk4peam32nv3j86vg80ft3ho99.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
         }
       }
     }
