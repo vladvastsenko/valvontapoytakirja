@@ -535,7 +535,7 @@ private fun HomeScreen(
             }
         }
         Spacer(Modifier.height(20.dp))
-        Text("Valvoja 0.4.7 • Tallennus tapahtuu tässä puhelimessa.", style = MaterialTheme.typography.bodySmall)
+        Text(stringResource(R.string.loc4_local_save_valvoja), style = MaterialTheme.typography.bodySmall)
     }
 }
 
@@ -651,11 +651,11 @@ private fun EditorScreen(
         }
 
         SectionTitle(stringResource(R.string.loc_site_parties))
-        Field("Kansio / alikansio (esim. Asiakkaat/Helsinki/Kohde)", report.folderPath) {
+        Field(stringResource(R.string.loc4_folder_path), report.folderPath) {
             onChange(report.copy(folderPath = it.trim('/')))
         }
         Field(stringResource(R.string.loc_site_address), report.siteAddress) { onChange(report.copy(siteAddress = it)) }
-        Field("Tilaaja / kohteen edustaja", report.clientOrRepresentative) { onChange(report.copy(clientOrRepresentative = it)) }
+        Field(stringResource(R.string.loc4_client_rep), report.clientOrRepresentative) { onChange(report.copy(clientOrRepresentative = it)) }
         Field(stringResource(R.string.loc_phone), report.clientPhone) { onChange(report.copy(clientPhone = it)) }
         Field(stringResource(R.string.loc_email), report.clientEmail) { onChange(report.copy(clientEmail = it)) }
         Field(stringResource(R.string.loc2_installer), report.installerName) { onChange(report.copy(installerName = it)) }
@@ -670,8 +670,8 @@ private fun EditorScreen(
         }
 
         SectionTitle(stringResource(R.string.loc2_surfaces))
-        Field("Seinien alusta / rakenne", report.wallSubstrate) { onChange(report.copy(wallSubstrate = it)) }
-        Field("Lattian alusta / rakenne", report.floorSubstrate) { onChange(report.copy(floorSubstrate = it)) }
+        Field(stringResource(R.string.loc4_wall_base), report.wallSubstrate) { onChange(report.copy(wallSubstrate = it)) }
+        Field(stringResource(R.string.loc4_floor_base), report.floorSubstrate) { onChange(report.copy(floorSubstrate = it)) }
         Row(verticalAlignment = Alignment.CenterVertically) {
             Text(stringResource(R.string.loc2_instructions), modifier = Modifier.weight(1f))
             Switch(
@@ -684,7 +684,7 @@ private fun EditorScreen(
         Field(stringResource(R.string.loc2_substrate_moisture), report.substrateMoisturePercent) { onChange(report.copy(substrateMoisturePercent = it)) }
 
         SectionTitle(stringResource(R.string.loc_materials))
-        Text("Valitse sama valmistaja koko vedeneristysjärjestelmälle: pohjuste, vedeneriste, kaivolaippa, vahvikenauhat, läpivientivahvikkeet, tiivistysmassa ja kiinnityslaasti.")
+        Text(stringResource(R.string.loc4_family_hint))
         val knownFamilyManufacturers = MaterialCatalog.manufacturersFor("vedeneriste")
         val familyManufacturer = report.materials.firstOrNull {
             isWaterproofingFamilyCategory(it.category) && it.manufacturer in knownFamilyManufacturers
@@ -827,7 +827,7 @@ private fun EditorScreen(
 
         SectionTitle(stringResource(R.string.loc2_structures))
         Field(stringResource(R.string.loc2_heating), report.floorHeating) { onChange(report.copy(floorHeating = it)) }
-        Field("Kynnys / viemärin nosto (mm)", report.thresholdOrDrainLiftMm) { onChange(report.copy(thresholdOrDrainLiftMm = it)) }
+        Field(stringResource(R.string.loc4_threshold), report.thresholdOrDrainLiftMm) { onChange(report.copy(thresholdOrDrainLiftMm = it)) }
         Text(stringResource(R.string.ui_floor_slope))
         Row(horizontalArrangement = Arrangement.spacedBy(16.dp), verticalAlignment = Alignment.CenterVertically) {
             listOf("1:50", "1:100").forEach { ratio ->
@@ -847,7 +847,7 @@ private fun EditorScreen(
                 }
             }
         }
-        Field("Kaatojen sijainnit / lisätiedot", report.floorSlopes, minLines = 2) {
+        Field(stringResource(R.string.loc4_slopes_info), report.floorSlopes, minLines = 2) {
             onChange(report.copy(floorSlopes = it))
         }
 
@@ -859,14 +859,14 @@ private fun EditorScreen(
             )
         }
         Field(stringResource(R.string.loc2_wall_area), report.wallAreaM2) { onChange(report.copy(wallAreaM2 = it)) }
-        Field("Seinät – valmistajan vaatima vedeneristeen menekki (kg/m² tai l/m²)", report.wallRequiredWaterproofingConsumptionPerM2) {
+        Field(stringResource(R.string.loc4_wall_consumption), report.wallRequiredWaterproofingConsumptionPerM2) {
             onChange(report.copy(wallRequiredWaterproofingConsumptionPerM2 = it))
         }
         Field(stringResource(R.string.loc3_wall_coating), report.wallWaterproofingConsumptionLitres) {
             onChange(report.copy(wallWaterproofingConsumptionLitres = it))
         }
         Field(stringResource(R.string.loc2_floor_area), report.floorAreaM2) { onChange(report.copy(floorAreaM2 = it)) }
-        Field("Lattia – valmistajan vaatima vedeneristeen menekki (kg/m² tai l/m²)", report.floorRequiredWaterproofingConsumptionPerM2) {
+        Field(stringResource(R.string.loc4_floor_consumption), report.floorRequiredWaterproofingConsumptionPerM2) {
             onChange(report.copy(floorRequiredWaterproofingConsumptionPerM2 = it))
         }
         Field(stringResource(R.string.loc3_floor_coating), report.floorWaterproofingConsumptionLitres) {
@@ -875,9 +875,9 @@ private fun EditorScreen(
 
         SectionTitle(stringResource(R.string.loc2_film))
         Field(stringResource(R.string.loc3_wall_film), report.wallDryFilmThicknessMm) { onChange(report.copy(wallDryFilmThicknessMm = it)) }
-        Field("Seinät – valmistajan vaatima kuivakalvon vähimmäispaksuus (mm)", report.wallRequiredMinimumThicknessMm) { onChange(report.copy(wallRequiredMinimumThicknessMm = it)) }
+        Field(stringResource(R.string.loc4_wall_minfilm), report.wallRequiredMinimumThicknessMm) { onChange(report.copy(wallRequiredMinimumThicknessMm = it)) }
         Field(stringResource(R.string.loc3_floor_film), report.floorDryFilmThicknessMm) { onChange(report.copy(floorDryFilmThicknessMm = it)) }
-        Field("Lattia – valmistajan vaatima kuivakalvon vähimmäispaksuus (mm)", report.floorRequiredMinimumThicknessMm) { onChange(report.copy(floorRequiredMinimumThicknessMm = it)) }
+        Field(stringResource(R.string.loc4_floor_minfilm), report.floorRequiredMinimumThicknessMm) { onChange(report.copy(floorRequiredMinimumThicknessMm = it)) }
 
         SectionTitle(stringResource(R.string.loc_photos_section))
         Text(stringResource(R.string.loc2_pdf_photo_hint))
@@ -1088,7 +1088,7 @@ private fun MaterialCard(
                         }
                         if (!isFamilyMaterial && !lockedFamilyManufacturer) {
                             DropdownMenuItem(
-                                text = { Text("Muu / oma tuote") },
+                                text = { Text(stringResource(R.string.loc4_other_product)) },
                                 onClick = {
                                     onChange(material.copy(manufacturer = "", productName = ""))
                                     expanded = false
@@ -1102,7 +1102,7 @@ private fun MaterialCard(
                 Field(stringResource(R.string.loc_manufacturer), material.manufacturer) { onChange(material.copy(manufacturer = it)) }
                 Field(stringResource(R.string.loc_product_name), material.productName) { onChange(material.copy(productName = it)) }
             } else if (productOptions.isEmpty()) {
-                Text("Tälle valmistajalle ei ole tuotetta tässä kategoriassa. Valitse vain valmistajan järjestelmään kuuluva tuote toisesta sopivasta kohdasta.")
+                Text(stringResource(R.string.loc4_family_missing))
             }
             if (material.category.equals("vedeneriste", ignoreCase = true) ||
                 material.category.equals("tasoite", ignoreCase = true)
@@ -1133,7 +1133,7 @@ private fun PhotoCard(
                     contentScale = ContentScale.Crop
                 )
             } else {
-                Text("Kuvaa ei voitu näyttää: ${File(photo.filePath).name}")
+                Text(stringResource(R.string.loc4_image_failed, File(photo.filePath).name))
             }
             Field(stringResource(R.string.loc_comment), photo.caption, minLines = 2, onValueChange = onCaptionChange)
             TextButton(onClick = onDelete) { Text(stringResource(R.string.ui_remove_photo)) }
