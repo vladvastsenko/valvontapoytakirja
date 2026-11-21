@@ -621,7 +621,6 @@ private fun EditorScreen(
         Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
             TextButton(onClick = onBack) { Text(stringResource(R.string.ui_back)) }
             Spacer(Modifier.weight(1f))
-            OutlinedButton(onClick = onPreview) { Text(stringResource(R.string.ui_preview_pdf)) }
             Button(onClick = onExport) { Text(stringResource(R.string.ui_create_pdf)) }
         }
         Text(stringResource(R.string.loc2_pdf_title_valvonta), style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.Bold)
