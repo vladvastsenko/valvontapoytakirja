@@ -1,0 +1,24 @@
+<resources>
+    <string name="ui_new_report">Uusi pöytäkirja</string>
+    <string name="ui_no_reports">Ei vielä tallennettuja pöytäkirjoja.</string>
+    <string name="ui_delete">Poista</string>
+    <string name="ui_back">← Takaisin</string>
+    <string name="ui_create_pdf">Luo PDF</string>
+    <string name="ui_save_template">Tallenna raportti malliksi</string>
+    <string name="ui_share_pdf">Luo ja jaa PDF-raportti</string>
+    <string name="ui_select">Valitse</string>
+    <string name="ui_cancel">Peruuta</string>
+    <string name="ui_remove_photo">Poista kuva</string>
+    <string name="ui_back_reports">← Takaisin asiakirjan valintaan</string>
+    <string name="ui_camera_photo">Ota kuva</string>
+    <string name="ui_photos">Kuvat</string>
+    <string name="ui_add_item">+ Lisää kohde</string>
+    <string name="ui_edit_photo">Muokkaa kuvaa</string>
+    <string name="ui_undo">Kumoa</string>
+    <string name="ui_clear">Tyhjennä</string>
+    <string name="ui_save_marks">Tallenna merkinnät</string>
+    <string name="ui_remove_field">Poista kenttä</string>
+    <string name="ui_add_field">+ Lisää oma kenttä</string>
+    <string name="ui_back_plain">Takaisin</string>
+    <string name="ui_draw_hint">Piirrä sormella tai kynällä kuvan päälle. Merkinnät näkyvät myös PDF-raportissa.</string>
+</resources>
