@@ -24,6 +24,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
@@ -32,7 +33,7 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.GoogleAuthProvider
 
 @Composable
-internal fun CloudAuthGate(content: @Composable () -> Unit) {
+internal fun CloudAuthGate(content: @Composable (onSignOut: () -> Unit) -> Unit) {
     val context = LocalContext.current
     val auth = remember { FirebaseAuth.getInstance() }
     var signedIn by remember { mutableStateOf(auth.currentUser != null) }
@@ -63,7 +64,7 @@ internal fun CloudAuthGate(content: @Composable () -> Unit) {
                         signedIn = true
                         error = null
                     } else {
-                        error = task.exception?.localizedMessage ?: "Google sign-in failed"
+                        error = task.exception?.localizedMessage ?: context.getString(R.string.google_failed)
                     }
                 }
             } catch (exception: Exception) {
@@ -73,16 +74,23 @@ internal fun CloudAuthGate(content: @Composable () -> Unit) {
         }
     }
     if (signedIn) {
-        content()
+        content({
+            auth.signOut()
+            GoogleSignIn.getClient(context, options).signOut()
+            signedIn = false
+            password = ""
+            error = null
+            message = null
+        })
     } else {
         Column(
             modifier = Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(24.dp),
             verticalArrangement = Arrangement.spacedBy(20.dp)
         ) {
             Text("Tarkastus Cloud", style = MaterialTheme.typography.headlineLarge)
-            Text("Sign in or create an account")
-            OutlinedTextField(value = email, onValueChange = { email = it }, label = { Text("Email") }, singleLine = true, modifier = Modifier.fillMaxWidth())
-            OutlinedTextField(value = password, onValueChange = { password = it }, label = { Text("Password") }, singleLine = true, visualTransformation = PasswordVisualTransformation(), modifier = Modifier.fillMaxWidth())
+            Text(stringResource(R.string.auth_title))
+            OutlinedTextField(value = email, onValueChange = { email = it }, label = { Text(stringResource(R.string.email)) }, singleLine = true, modifier = Modifier.fillMaxWidth())
+            OutlinedTextField(value = password, onValueChange = { password = it }, label = { Text(stringResource(R.string.password)) }, singleLine = true, visualTransformation = PasswordVisualTransformation(), modifier = Modifier.fillMaxWidth())
             message?.let { Text(it) }
             Button(onClick = {
                 busy = true
@@ -91,7 +99,7 @@ internal fun CloudAuthGate(content: @Composable () -> Unit) {
                 val address = email.trim()
                 if (address.isBlank() || password.length < 6) {
                     busy = false
-                    error = "Enter an email and a password of at least 6 characters"
+                    error = context.getString(R.string.password_short)
                 } else {
                     val task = if (register) auth.createUserWithEmailAndPassword(address, password) else auth.signInWithEmailAndPassword(address, password)
                     task.addOnCompleteListener { result ->
@@ -99,26 +107,26 @@ internal fun CloudAuthGate(content: @Composable () -> Unit) {
                         if (result.isSuccessful) {
                             signedIn = true
                             if (register) auth.currentUser?.sendEmailVerification()
-                        } else error = result.exception?.localizedMessage ?: "Authentication failed"
+                        } else error = result.exception?.localizedMessage ?: context.getString(R.string.auth_failed)
                     }
                 }
-            }, enabled = !busy, modifier = Modifier.fillMaxWidth()) { Text(if (register) "Create account" else "Sign in with email") }
+            }, enabled = !busy, modifier = Modifier.fillMaxWidth()) { Text(if (register) stringResource(R.string.create_account) else stringResource(R.string.email_sign_in)) }
             TextButton(onClick = { register = !register; error = null }, enabled = !busy) {
-                Text(if (register) "Already registered? Sign in" else "New user? Create account")
+                Text(if (register) stringResource(R.string.already_registered) else stringResource(R.string.new_user))
             }
             TextButton(onClick = {
-                if (email.trim().isBlank()) error = "Enter your email first"
+                if (email.trim().isBlank()) error = context.getString(R.string.email_required)
                 else {
                     busy = true
                     error = null
                     auth.sendPasswordResetEmail(email.trim()).addOnCompleteListener { result ->
                         busy = false
-                        if (result.isSuccessful) message = "Password reset email sent"
-                        else error = result.exception?.localizedMessage ?: "Password reset failed"
+                        if (result.isSuccessful) message = context.getString(R.string.reset_sent)
+                        else error = result.exception?.localizedMessage ?: context.getString(R.string.reset_failed)
                     }
                 }
-            }, enabled = !busy) { Text("Forgot password?") }
-            Text("Or")
+            }, enabled = !busy) { Text(stringResource(R.string.forgot_password)) }
+            Text(stringResource(R.string.or))
             if (busy) CircularProgressIndicator()
             error?.let { Text(it, color = MaterialTheme.colorScheme.error) }
             Button(
@@ -130,7 +138,7 @@ internal fun CloudAuthGate(content: @Composable () -> Unit) {
                 enabled = !busy,
                 modifier = Modifier.fillMaxWidth()
             ) {
-                Text("Sign in with Google")
+                Text(stringResource(R.string.sign_in))
             }
         }
     }
