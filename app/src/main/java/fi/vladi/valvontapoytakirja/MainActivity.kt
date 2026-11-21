@@ -579,6 +579,26 @@ private fun EditorScreen(
         modifier = Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(16.dp),
         verticalArrangement = Arrangement.spacedBy(10.dp)
     ) {
+        var reportLanguageMenu by remember(report.id) { mutableStateOf(false) }
+        val pdfContext = LocalContext.current
+        val reportLanguage = report.pdfLanguage.ifBlank {
+            pdfContext.getSharedPreferences("tarkastus_pdf_language", android.content.Context.MODE_PRIVATE).getString("default", "fi") ?: "fi"
+        }
+        Text(stringResource(R.string.report_pdf_language), fontWeight = FontWeight.SemiBold)
+        Box {
+            OutlinedButton(onClick = { reportLanguageMenu = true }, modifier = Modifier.fillMaxWidth()) {
+                Text(when (reportLanguage) { "ru" -> "Русский"; "sv" -> "Svenska"; "en" -> "English"; else -> "Suomi" } + " ▾")
+            }
+            DropdownMenu(expanded = reportLanguageMenu, onDismissRequest = { reportLanguageMenu = false }) {
+                listOf("fi" to "Suomi", "sv" to "Svenska", "ru" to "Русский", "en" to "English").forEach { (code, label) ->
+                    DropdownMenuItem(text = { Text(label) }, onClick = {
+                        reportLanguageMenu = false
+                        onChange(report.copy(pdfLanguage = code))
+                    })
+                }
+            }
+        }
+
         Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
             TextButton(onClick = onBack) { Text(stringResource(R.string.ui_back)) }
             Spacer(Modifier.weight(1f))
