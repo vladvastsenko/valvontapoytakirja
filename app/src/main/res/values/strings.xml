@@ -86,4 +86,10 @@
     <string name="loc2_additional_notes">Lisähuomiot</string>
     <string name="loc2_pdf_title_valvonta">VALVONTAPÖYTÄKIRJA</string>
     <string name="loc2_pdf_photo_hint">Voit ottaa kuvan kameralla tai valita useita kuvia galleriasta.</string>
+    <string name="loc3_waterproof_intro">Märkätilojen vedeneristyksen tarkastusraportit</string>
+    <string name="loc3_folder">Kansio: </string>
+    <string name="loc3_wall_coating">Seinät – käytetty vedeneristeen kokonaismäärä (kg tai l)</string>
+    <string name="loc3_floor_coating">Lattia – käytetty vedeneristeen kokonaismäärä (kg tai l)</string>
+    <string name="loc3_wall_film">Seinät – mitattu kuivakalvon paksuus (mm)</string>
+    <string name="loc3_floor_film">Lattia – mitattu kuivakalvon paksuus (mm)</string>
 </resources>
