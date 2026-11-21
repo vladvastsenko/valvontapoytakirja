@@ -351,7 +351,7 @@ private fun HomeScreen(
                     shape = RoundedCornerShape(12.dp)
                 ) {
                     Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
-                        Text(report.siteAddress.ifBlank { context.getString(R.string.new_report_fallback) }, fontWeight = FontWeight.SemiBold)
+                        Text(report.siteAddress.ifBlank { stringResource(R.string.new_report_fallback) }, fontWeight = FontWeight.SemiBold)
                         if (report.folderPath.isNotBlank()) Text(stringResource(R.string.loc3_folder) + report.folderPath, style = MaterialTheme.typography.bodySmall)
                         Text(stringResource(R.string.loc4_inspection_date_prefix, report.inspectionDate.ifBlank { "—" }))
                         Text(stringResource(R.string.loc4_observation_count, report.observations.size), style = MaterialTheme.typography.bodySmall)
@@ -622,7 +622,7 @@ private fun EditorScreen(
         }
 
         Spacer(Modifier.height(12.dp))
-        OutlinedButton(onClick = { onSaveTemplate(report.siteAddress.ifBlank { context.getString(R.string.new_template_fallback) }) }, modifier = Modifier.fillMaxWidth()) {
+        OutlinedButton(onClick = { onSaveTemplate(report.siteAddress.ifBlank { stringResource(R.string.new_template_fallback) }) }, modifier = Modifier.fillMaxWidth()) {
             Text(stringResource(R.string.ui_save_template))
         }
         Button(onClick = onExport, modifier = Modifier.fillMaxWidth()) { Text(stringResource(R.string.ui_share_pdf)) }
