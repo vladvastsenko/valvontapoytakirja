@@ -64,4 +64,26 @@
     <string name="loc_materials">3. KÄYTETYT MATERIAALIT</string>
     <string name="loc_photos_section">7. VALOKUVAT</string>
     <string name="loc_result_section">8. TARKASTUKSEN TULOS</string>
+    <string name="loc2_site_parties">VAKIOASIAKAS JA KOHDE</string>
+    <string name="loc2_surfaces">2. ALUSTAT JA TYÖOLOSUHTEET</string>
+    <string name="loc2_structures">4. RAKENTEET JA MITAT</string>
+    <string name="loc2_areas">5. PINTA-ALAT JA MENEKKI</string>
+    <string name="loc2_film">6. KUIVAKALVON PAKSUUS</string>
+    <string name="loc2_inspection_date_section">9. TARKASTUSPÄIVÄ</string>
+    <string name="loc2_instructions">Työohjeet annettu ja luettu</string>
+    <string name="loc2_installer">Vedeneristäjän nimi</string>
+    <string name="loc2_certificate">Sertifikaattinumero</string>
+    <string name="loc2_installer_phone">Vedeneristäjän puhelin</string>
+    <string name="loc2_installer_email">Vedeneristäjän sähköposti</string>
+    <string name="loc2_start_date">Asennustyön aloituspäivä</string>
+    <string name="loc2_end_date">Asennustyön päättymispäivä</string>
+    <string name="loc2_temperature">Työtilan lämpötila (°C)</string>
+    <string name="loc2_humidity">Suhteellinen kosteus (%)</string>
+    <string name="loc2_substrate_moisture">Alustan kosteus (%)</string>
+    <string name="loc2_wall_area">Seinien pinta-ala (m²)</string>
+    <string name="loc2_floor_area">Lattian pinta-ala (m²)</string>
+    <string name="loc2_heating">Lattialämmitys</string>
+    <string name="loc2_additional_notes">Lisähuomiot</string>
+    <string name="loc2_pdf_title_valvonta">VALVONTAPÖYTÄKIRJA</string>
+    <string name="loc2_pdf_photo_hint">Voit ottaa kuvan kameralla tai valita useita kuvia galleriasta.</string>
 </resources>
