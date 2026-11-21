@@ -425,7 +425,7 @@ private fun EditorScreen(
         var reportLanguageMenu by remember(report.id) { mutableStateOf(false) }
         val pdfContext = LocalContext.current
         val reportLanguage = report.pdfLanguage.ifBlank {
-            pdfContext.getSharedPreferences("tarkastus_pdf_language", android.content.Context.MODE_PRIVATE).getString("default", "fi") ?: "fi"
+            AppLanguage.selected(pdfContext)
         }
         Text(stringResource(R.string.report_pdf_language), fontWeight = FontWeight.SemiBold)
         Box {
