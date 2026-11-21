@@ -92,4 +92,19 @@
     <string name="loc3_floor_coating">Golv – förbrukat tätskikt (kg eller l)</string>
     <string name="loc3_wall_film">Väggar – uppmätt torrfilmstjocklek (mm)</string>
     <string name="loc3_floor_film">Golv – uppmätt torrfilmstjocklek (mm)</string>
+    <string name="loc4_folder_path">Mapp / undermapp (t.ex. Kunder/Helsingfors/Objekt)</string>
+    <string name="loc4_client_rep">Beställare / objektets representant</string>
+    <string name="loc4_wall_base">Väggunderlag / konstruktion</string>
+    <string name="loc4_floor_base">Golvunderlag / konstruktion</string>
+    <string name="loc4_threshold">Tröskel / avloppshöjd (mm)</string>
+    <string name="loc4_slopes_info">Fallens placering / tilläggsuppgifter</string>
+    <string name="loc4_wall_consumption">Väggar – tillverkarens krav på åtgång (kg/m² eller l/m²)</string>
+    <string name="loc4_floor_consumption">Golv – tillverkarens krav på åtgång (kg/m² eller l/m²)</string>
+    <string name="loc4_wall_minfilm">Väggar – minsta torrfilmstjocklek (mm)</string>
+    <string name="loc4_floor_minfilm">Golv – minsta torrfilmstjocklek (mm)</string>
+    <string name="loc4_other_product">Annan / egen produkt</string>
+    <string name="loc4_family_hint">Välj samma tillverkare för hela tätskiktssystemet: primer, tätskikt, brunnsmanschett, förstärkningsband, tätmassa och fästmassa.</string>
+    <string name="loc4_family_missing">Det finns ingen produkt för denna tillverkare i kategorin. Välj endast produkter som ingår i samma system.</string>
+    <string name="loc4_image_failed">Det gick inte att visa bilden: %1$s</string>
+    <string name="loc4_local_save_valvoja">Valvoja 0.4.7 • Data sparas på den här telefonen.</string>
 </resources>
