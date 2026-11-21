@@ -93,4 +93,5 @@
     <string name="settings_field_name">Field name</string>
     <string name="settings_add_field">+ Add field</string>
     <string name="settings_save_site">Save site</string>
+    <string name="report_pdf_language">PDF language for this report</string>
 </resources>
