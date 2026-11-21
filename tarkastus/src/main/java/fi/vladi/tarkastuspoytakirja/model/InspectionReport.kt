@@ -9,6 +9,7 @@ data class InspectionReport(
     val id: String = UUID.randomUUID().toString(),
     val createdAt: String = LocalDate.now().toString(),
     val folderPath: String = "",
+    val pdfLanguage: String = "",
     val customerId: String = "",
     val siteId: String = "",
     val customerName: String = "",
