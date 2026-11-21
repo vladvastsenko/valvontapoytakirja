@@ -57,4 +57,5 @@
     <string name="loc4_business_id">Регистрационный номер: </string>
     <string name="loc4_contact_person">Контактное лицо: </string>
     <string name="loc4_local_save_tarkastus">Tarkastuspöytäkirja 1.0.0 • Данные сохраняются на этом телефоне.</string>
+    <string name="loc4_inspection_date_prefix">Дата проверки: %1$s</string>
 </resources>
