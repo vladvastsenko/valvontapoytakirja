@@ -41,7 +41,7 @@ jobs:
             echo "Cloud signing secrets are missing"
             exit 1
           fi
-          export CLOUD_KEYSTORE_PATH=signing/cloud-keystore.jks
+          export CLOUD_KEYSTORE_PATH=../signing/cloud-keystore.jks
           gradle assembleDebug
       - name: Verify APK signature
         run: |
