@@ -1,0 +1,16 @@
+<resources>
+    <string name="app_name">Tarkastus Cloud</string>
+    <string name="choose_report">Choose the type of report to create.</string>
+    <string name="settings_sync">Settings and synchronization</string>
+    <string name="shared_settings">Shared settings</string>
+    <string name="cloud_sync">Cloud backup and synchronization</string>
+    <string name="back">Back</string>
+    <string name="language">Language</string>
+    <string name="report_valvonta">Supervision report</string>
+    <string name="report_tarkastus">Inspection report</string>
+    <string name="free">Free</string>
+    <string name="pro">Pro</string>
+    <string name="trial">14-day free trial</string>
+    <string name="sign_in">Sign in with Google</string>
+    <string name="sign_out">Sign out</string>
+</resources>
