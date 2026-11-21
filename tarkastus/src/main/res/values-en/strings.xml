@@ -105,4 +105,10 @@
     <string name="settings_extra_fields">Additional fields: %1$s</string>
     <string name="settings_delete_action">Delete</string>
     <string name="settings_cancel_action">Cancel</string>
+    <string name="new_report_fallback">New report</string>
+    <string name="new_template_fallback">New template</string>
+    <string name="choose_site_fallback">Select site</string>
+    <string name="manufacturer_missing">Manufacturer not specified</string>
+    <string name="manufacturer_family">Manufacturer: %1$s • same system</string>
+    <string name="share_report">Share report</string>
 </resources>
