@@ -44,4 +44,8 @@
     <string name="loc2_pdf_title_tarkastus">TARKASTUSPÖYTÄKIRJA</string>
     <string name="loc2_no_customers">Lisää vakioasiakkaat ensin Asetukset-osiossa.</string>
     <string name="loc2_no_sites">Lisää tälle asiakkaalle kohteita Asetukset-osiossa.</string>
+    <string name="loc3_general_intro">Yleiset tarkastusraportit</string>
+    <string name="loc3_folder">Kansio: </string>
+    <string name="loc3_photo_edit_title">Muokkaa valokuvaa</string>
+    <string name="loc3_photo_error">Kuvaa ei voitu avata.</string>
 </resources>
