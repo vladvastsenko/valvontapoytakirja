@@ -199,4 +199,14 @@
     <string name="cloud_restore_confirm_details">Återställa säkerhetskopian från %1$s (%2$s)? Innan återställningen skapas automatiskt en ny säkerhetskopia av aktuella data på Google Drive.</string>
     <string name="cloud_restore_error">Återställning misslyckades: %1$s</string>
     <string name="cloud_unknown_error">Okänt fel</string>
+    <string name="ui_not_selected">Inte valt</string>
+    <string name="ui_select_saved_customer">Välj sparad kund</string>
+    <string name="ui_choose_date">Välj datum</string>
+    <string name="ui_choose_manufacturer">Välj tillverkare</string>
+    <string name="ui_choose_product">Välj produkt</string>
+    <string name="ui_surface_unspecified">Yta ej angiven</string>
+    <string name="ui_prefilled_material_warning">Värden förifyllda enligt tillverkarens produktuppgifter: %1$s. Kontrollera alltid aktuella arbetsanvisningar.</string>
+    <string name="ui_walls">Väggar</string>
+    <string name="ui_floor">Golv</string>
+    <string name="ui_add_category">Lägg till:</string>
 </resources>
