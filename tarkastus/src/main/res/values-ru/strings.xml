@@ -93,4 +93,5 @@
     <string name="settings_field_name">Название поля</string>
     <string name="settings_add_field">+ Добавить поле</string>
     <string name="settings_save_site">Сохранить объект</string>
+    <string name="report_pdf_language">Язык PDF этого отчёта</string>
 </resources>
