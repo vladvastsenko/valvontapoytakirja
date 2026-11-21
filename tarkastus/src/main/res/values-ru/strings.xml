@@ -41,4 +41,7 @@
     <string name="loc_field_content">Содержание</string>
     <string name="loc_pdf_heading">Заголовок в PDF</string>
     <string name="loc_photo_comment">Комментарий к фото (необязательно)</string>
+    <string name="loc2_pdf_title_tarkastus">АКТ ОСМОТРА</string>
+    <string name="loc2_no_customers">Сначала добавьте клиентов в настройках.</string>
+    <string name="loc2_no_sites">Добавьте объекты этого клиента в настройках.</string>
 </resources>
