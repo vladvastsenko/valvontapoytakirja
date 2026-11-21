@@ -41,4 +41,7 @@
     <string name="loc_field_content">Sisältö</string>
     <string name="loc_pdf_heading">Otsikko PDF-raportissa</string>
     <string name="loc_photo_comment">Kuvan kommentti (valinnainen)</string>
+    <string name="loc2_pdf_title_tarkastus">TARKASTUSPÖYTÄKIRJA</string>
+    <string name="loc2_no_customers">Lisää vakioasiakkaat ensin Asetukset-osiossa.</string>
+    <string name="loc2_no_sites">Lisää tälle asiakkaalle kohteita Asetukset-osiossa.</string>
 </resources>
