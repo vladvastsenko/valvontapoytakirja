@@ -52,6 +52,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -179,12 +180,12 @@ private fun UnifiedStartScreen(
             }
         }
         Spacer(Modifier.height(20.dp))
-        Text("Valitse luotavan pöytäkirjan tyyppi.")
+        Text(stringResource(R.string.choose_report))
         Button(onClick = onValvoja, modifier = Modifier.fillMaxWidth()) {
-            Text("Valvontapöytäkirja")
+            Text(stringResource(R.string.report_valvonta))
         }
         Button(onClick = onTarkastus, modifier = Modifier.fillMaxWidth()) {
-            Text("Tarkastuspöytäkirja")
+            Text(stringResource(R.string.report_tarkastus))
         }
     }
 }
@@ -199,16 +200,16 @@ private fun ManagementScreen(
         modifier = Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(24.dp),
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
-        Text("Asetukset ja synkronointi", style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.Bold)
+        Text(stringResource(R.string.settings_sync), style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.Bold)
         Button(onClick = onSettings, modifier = Modifier.fillMaxWidth()) {
-            Text("Yhteiset asetukset")
+            Text(stringResource(R.string.shared_settings))
         }
         Button(onClick = onCloudBackup, modifier = Modifier.fillMaxWidth()) {
-            Text("Pilvivarmuuskopio ja synkronointi")
+            Text(stringResource(R.string.cloud_sync))
         }
         Spacer(Modifier.height(8.dp))
         OutlinedButton(onClick = onBack, modifier = Modifier.fillMaxWidth()) {
-            Text("← Takaisin")
+            Text("← " + stringResource(R.string.back))
         }
     }
 }
