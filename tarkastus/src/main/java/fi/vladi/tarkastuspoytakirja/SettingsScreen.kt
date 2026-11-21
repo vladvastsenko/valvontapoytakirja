@@ -113,7 +113,7 @@ fun SettingsScreen(
                 Column(Modifier.padding(12.dp), verticalArrangement = Arrangement.spacedBy(3.dp)) {
                     Text(customer.name, fontWeight = FontWeight.SemiBold)
                     Text(listOf(customer.businessId, customer.city).filter { it.isNotBlank() }.joinToString(" • "))
-                    Text("Kohteita: ${sites.count { it.customerId == customer.id }}", style = MaterialTheme.typography.bodySmall)
+                    Text(stringResource(R.string.settings_sites_count, sites.count { it.customerId == customer.id }), style = MaterialTheme.typography.bodySmall)
                     TextButton(onClick = {
                         selectedCustomerId = customer.id
                         editingCustomer = customer
@@ -157,7 +157,7 @@ fun SettingsScreen(
                     editingCustomer = null
                     selectedCustomerId = ""
                     editingSite = null
-                }) { Text(if (customers.any { it.id == draft.id }) "Poista" else "Peruuta") }
+                }) { Text(if (customers.any { it.id == draft.id }) stringResource(R.string.settings_delete_action) else stringResource(R.string.settings_cancel_action)) }
             }
         }
 
@@ -169,7 +169,7 @@ fun SettingsScreen(
                         Text(site.name, fontWeight = FontWeight.SemiBold)
                         Text(site.address)
                         if (site.fieldDefinitions.isNotEmpty()) {
-                            Text("Lisäkentät: " + site.fieldDefinitions.joinToString { it.label }, style = MaterialTheme.typography.bodySmall)
+                            Text(stringResource(R.string.settings_extra_fields, site.fieldDefinitions.joinToString { it.label }), style = MaterialTheme.typography.bodySmall)
                         }
                         TextButton(onClick = { editingSite = site }) { Text(stringResource(R.string.settings_edit_site)) }
                     }
@@ -220,7 +220,7 @@ fun SettingsScreen(
                 TextButton(onClick = {
                     if (sites.any { it.id == draft.id }) onDeleteSite(draft.id)
                     editingSite = null
-                }) { Text(if (sites.any { it.id == draft.id }) "Poista" else "Peruuta") }
+                }) { Text(if (sites.any { it.id == draft.id }) stringResource(R.string.settings_delete_action) else stringResource(R.string.settings_cancel_action)) }
             }
         }
         Spacer(Modifier.height(24.dp))
