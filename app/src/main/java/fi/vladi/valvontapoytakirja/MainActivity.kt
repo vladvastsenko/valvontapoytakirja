@@ -33,6 +33,7 @@ import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.DatePicker
 import androidx.compose.material3.DatePickerDialog
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.material3.MaterialTheme
@@ -106,7 +107,7 @@ class MainActivity : ComponentActivity() {
         setContent {
             MaterialTheme {
                 Surface(modifier = Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background) {
-                    CloudAuthGate { UnifiedLauncher() }
+                    CloudAuthGate { signOut -> UnifiedLauncher(onSignOut = signOut) }
                 }
             }
         }
@@ -114,7 +115,7 @@ class MainActivity : ComponentActivity() {
 }
 
 @Composable
-private fun UnifiedLauncher() {
+private fun UnifiedLauncher(onSignOut: () -> Unit) {
     val context = LocalContext.current
     LaunchedEffect(Unit) {
         withContext(Dispatchers.IO) { SharedDocumentsArchive.ensureFolder(context) }
@@ -145,7 +146,8 @@ private fun UnifiedLauncher() {
                 showValvoja = true
             },
             onCloudBackup = { showCloudBackup = true },
-            onBack = { showManagement = false }
+            onBack = { showManagement = false },
+            onSignOut = onSignOut
         )
     } else {
         UnifiedStartScreen(
@@ -200,10 +202,21 @@ private fun UnifiedStartScreen(
 private fun ManagementScreen(
     onSettings: () -> Unit,
     onCloudBackup: () -> Unit,
-    onBack: () -> Unit
+    onBack: () -> Unit,
+    onSignOut: () -> Unit
 ) {
     val context = LocalContext.current
     var languageMenu by remember { mutableStateOf(false) }
+    var confirmSignOut by remember { mutableStateOf(false) }
+    if (confirmSignOut) {
+        AlertDialog(
+            onDismissRequest = { confirmSignOut = false },
+            title = { Text(stringResource(R.string.sign_out)) },
+            text = { Text(stringResource(R.string.logout_confirm)) },
+            confirmButton = { TextButton(onClick = { confirmSignOut = false; onSignOut() }) { Text(stringResource(R.string.confirm)) } },
+            dismissButton = { TextButton(onClick = { confirmSignOut = false }) { Text(stringResource(R.string.cancel)) } }
+        )
+    }
     Column(
         modifier = Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(24.dp),
         verticalArrangement = Arrangement.spacedBy(16.dp)
@@ -231,6 +244,9 @@ private fun ManagementScreen(
         }
         Button(onClick = onCloudBackup, modifier = Modifier.fillMaxWidth()) {
             Text(stringResource(R.string.cloud_sync))
+        }
+        OutlinedButton(onClick = { confirmSignOut = true }, modifier = Modifier.fillMaxWidth()) {
+            Text(stringResource(R.string.sign_out))
         }
         Spacer(Modifier.height(8.dp))
         OutlinedButton(onClick = onBack, modifier = Modifier.fillMaxWidth()) {
