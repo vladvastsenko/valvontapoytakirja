@@ -63,6 +63,7 @@ import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -329,9 +330,9 @@ private fun HomeScreen(
     ) {
         Text("Tarkastuspöytäkirja", style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.Bold)
         Text("Yleiset tarkastusraportit")
-        TextButton(onClick = onBackToDocumentSelection) { Text("← Takaisin asiakirjan valintaan") }
+        TextButton(onClick = onBackToDocumentSelection) { Text(stringResource(R.string.ui_back_reports)) }
         Button(onClick = onCreate, modifier = Modifier.fillMaxWidth()) {
-            Text("Uusi pöytäkirja")
+            Text(stringResource(R.string.ui_new_report))
         }
         if (templates.isNotEmpty()) {
             Text("Pöytäkirjamallit", style = MaterialTheme.typography.titleLarge)
@@ -343,7 +344,7 @@ private fun HomeScreen(
         }
         Text("Tallennetut pöytäkirjat", style = MaterialTheme.typography.titleLarge)
         if (reports.isEmpty()) {
-            Text("Ei vielä tallennettuja pöytäkirjoja.")
+            Text(stringResource(R.string.ui_no_reports))
         } else {
             reports.forEach { report ->
                 Card(
@@ -355,7 +356,7 @@ private fun HomeScreen(
                         if (report.folderPath.isNotBlank()) Text("Kansio: " + report.folderPath, style = MaterialTheme.typography.bodySmall)
                         Text("Tarkastuspäivä: ${report.inspectionDate.ifBlank { "—" }}")
                         Text("${report.observations.size} havaintoa", style = MaterialTheme.typography.bodySmall)
-                        TextButton(onClick = { onDelete(report) }) { Text("Poista") }
+                        TextButton(onClick = { onDelete(report) }) { Text(stringResource(R.string.ui_delete)) }
                     }
                 }
             }
@@ -402,9 +403,9 @@ private fun EditorScreen(
         verticalArrangement = Arrangement.spacedBy(10.dp)
     ) {
         Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-            TextButton(onClick = onBack) { Text("← Takaisin") }
+            TextButton(onClick = onBack) { Text(stringResource(R.string.ui_back)) }
             Spacer(Modifier.weight(1f))
-            Button(onClick = onExport) { Text("Luo PDF") }
+            Button(onClick = onExport) { Text(stringResource(R.string.ui_create_pdf)) }
         }
         Text("TARKASTUSPÖYTÄKIRJA", style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.Bold)
         Text("Täytä tiedot. Muutokset tallentuvat automaattisesti tähän puhelimeen.", style = MaterialTheme.typography.bodySmall)
@@ -516,14 +517,14 @@ private fun EditorScreen(
                     }
                     TextButton(onClick = {
                         onChange(report.copy(customFields = report.customFields.filterNot { it.id == customField.id }))
-                    }) { Text("Poista kenttä") }
+                    }) { Text(stringResource(R.string.ui_remove_field)) }
                 }
             }
         }
         OutlinedButton(
             onClick = { onChange(report.copy(customFields = report.customFields + CustomReportField(label = "Uusi kenttä"))) },
             modifier = Modifier.fillMaxWidth()
-        ) { Text("+ Lisää oma kenttä") }
+        ) { Text(stringResource(R.string.ui_add_field)) }
 
         SectionTitle("5. TARKASTUSKOHTEET")
         report.observations.forEachIndexed { index, observation ->
@@ -537,7 +538,7 @@ private fun EditorScreen(
                         if (index > 0) {
                             Spacer(Modifier.weight(1f))
                             TextButton(onClick = { onDeleteObservation(observation) }) {
-                                Text("Poista")
+                                Text(stringResource(R.string.ui_delete))
                             }
                         }
                     }
@@ -575,13 +576,13 @@ private fun EditorScreen(
                             onClick = { onCamera(observation.id) },
                             modifier = Modifier.weight(1f)
                         ) {
-                            Text("Ota kuva")
+                            Text(stringResource(R.string.ui_camera_photo))
                         }
                         OutlinedButton(
                             onClick = { onGallery(observation.id) },
                             modifier = Modifier.weight(1f)
                         ) {
-                            Text("Kuvat")
+                            Text(stringResource(R.string.ui_photos))
                         }
                     }
                 }
@@ -590,7 +591,7 @@ private fun EditorScreen(
         OutlinedButton(
             onClick = { onChange(report.copy(observations = report.observations + InspectionObservation())) },
             modifier = Modifier.fillMaxWidth()
-        ) { Text("+ Lisää kohde") }
+        ) { Text(stringResource(R.string.ui_add_item)) }
 
         SectionTitle("6. YHTEENVETO")
         Field("Johtopäätökset ja tarvittavat toimenpiteet", report.summary, minLines = 4) {
@@ -603,10 +604,10 @@ private fun EditorScreen(
 
         Spacer(Modifier.height(12.dp))
         OutlinedButton(onClick = { onSaveTemplate(report.siteAddress.ifBlank { "Uusi malli" }) }, modifier = Modifier.fillMaxWidth()) {
-            Text("Tallenna raportti malliksi")
+            Text(stringResource(R.string.ui_save_template))
         }
-        Button(onClick = onExport, modifier = Modifier.fillMaxWidth()) { Text("Luo ja jaa PDF-raportti") }
-        OutlinedButton(onClick = onBack, modifier = Modifier.fillMaxWidth()) { Text("← Takaisin") }
+        Button(onClick = onExport, modifier = Modifier.fillMaxWidth()) { Text(stringResource(R.string.ui_share_pdf)) }
+        OutlinedButton(onClick = onBack, modifier = Modifier.fillMaxWidth()) { Text(stringResource(R.string.ui_back)) }
         Spacer(Modifier.height(28.dp))
     }
 }
@@ -711,8 +712,8 @@ private fun PhotoCard(
             }
             Field("Kuvan kommentti (valinnainen)", photo.caption, minLines = 2, onValueChange = onCaptionChange)
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                OutlinedButton(onClick = onEdit, modifier = Modifier.weight(1f)) { Text("Muokkaa kuvaa") }
-                TextButton(onClick = onDelete) { Text("Poista kuva") }
+                OutlinedButton(onClick = onEdit, modifier = Modifier.weight(1f)) { Text(stringResource(R.string.ui_edit_photo)) }
+                TextButton(onClick = onDelete) { Text(stringResource(R.string.ui_remove_photo)) }
             }
         }
     }
@@ -738,9 +739,9 @@ private fun PhotoMarkupEditor(
         Row(verticalAlignment = Alignment.CenterVertically) {
             Text("Muokkaa valokuvaa", style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.Bold)
             Spacer(Modifier.weight(1f))
-            TextButton(onClick = onCancel) { Text("Takaisin") }
+            TextButton(onClick = onCancel) { Text(stringResource(R.string.ui_back_plain)) }
         }
-        Text("Piirrä sormella tai kynällä kuvan päälle. Merkinnät näkyvät myös PDF-raportissa.")
+        Text(stringResource(R.string.ui_draw_hint))
         if (loadedBitmap != null) {
             BoxWithConstraints(
                 modifier = Modifier.fillMaxWidth().weight(1f),
@@ -819,15 +820,15 @@ private fun PhotoMarkupEditor(
                 onClick = { if (strokes.isNotEmpty()) strokes = strokes.dropLast(1) },
                 enabled = strokes.isNotEmpty(),
                 modifier = Modifier.weight(1f)
-            ) { Text("Kumoa") }
+            ) { Text(stringResource(R.string.ui_undo)) }
             OutlinedButton(
                 onClick = { strokes = emptyList() },
                 enabled = strokes.isNotEmpty(),
                 modifier = Modifier.weight(1f)
-            ) { Text("Tyhjennä") }
+            ) { Text(stringResource(R.string.ui_clear)) }
         }
         Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-            OutlinedButton(onClick = onCancel, modifier = Modifier.weight(1f)) { Text("Peruuta") }
+            OutlinedButton(onClick = onCancel, modifier = Modifier.weight(1f)) { Text(stringResource(R.string.ui_cancel)) }
             Button(
                 onClick = {
                     val base = loadedBitmap
@@ -875,7 +876,7 @@ private fun PhotoMarkupEditor(
                 },
                 enabled = loadedBitmap != null,
                 modifier = Modifier.weight(1f)
-            ) { Text("Tallenna merkinnät") }
+            ) { Text(stringResource(R.string.ui_save_marks)) }
         }
     }
 }
@@ -918,9 +919,9 @@ private fun DateField(
                         onDateSelected(selectedDate.toString())
                     }
                     showPicker = false
-                }) { Text("Valitse") }
+                }) { Text(stringResource(R.string.ui_select)) }
             },
-            dismissButton = { TextButton(onClick = { showPicker = false }) { Text("Peruuta") } }
+            dismissButton = { TextButton(onClick = { showPicker = false }) { Text(stringResource(R.string.ui_cancel)) } }
         ) {
             androidx.compose.material3.DatePicker(state = pickerState)
         }
