@@ -26,11 +26,7 @@ object ReportPdfGenerator {
 
         val finalPass = render(report, settings, totalPages, language = selectedLanguage)
         val exportDirectory = File(context.cacheDir, "exports").apply { mkdirs() }
-        val safeName = report.siteAddress
-            .replace(Regex("[^A-Za-z0-9ÄÖÅäöå_-]+"), "_")
-            .trim('_')
-            .ifBlank { "kohde" }
-        val output = File(exportDirectory, "tarkastuspoytakirja_${safeName}.pdf")
+        val output = File(exportDirectory, PdfFileNames.name(report.pdfLanguage.ifBlank { selectedLanguage }, "tarkastus", report.siteAddress))
         FileOutputStream(output).use { finalPass.first.writeTo(it) }
         finalPass.first.close()
         return output
