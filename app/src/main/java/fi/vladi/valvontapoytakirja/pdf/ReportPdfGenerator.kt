@@ -18,7 +18,7 @@ import java.io.FileOutputStream
 
 object ReportPdfGenerator {
     fun generate(context: Context, report: InspectionReport, settings: AppSettings): File {
-        val selectedLanguage = report.pdfLanguage.ifBlank { context.getSharedPreferences("tarkastus_pdf_language", Context.MODE_PRIVATE).getString("default", "fi") ?: "fi" }
+        val selectedLanguage = report.pdfLanguage.ifBlank { fi.vladi.tarkastuspoytakirja.AppLanguage.selected(context) }
         val firstPass = render(report, settings, totalPages = null, language = selectedLanguage)
         val totalPages = firstPass.second
         firstPass.first.close()
