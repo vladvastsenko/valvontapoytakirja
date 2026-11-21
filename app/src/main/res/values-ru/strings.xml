@@ -31,4 +31,21 @@
     <string name="logout_confirm">Выйти из аккаунта?</string>
     <string name="cancel">Отмена</string>
     <string name="confirm">Выйти</string>
+    <string name="ui_new_report">Новый отчёт</string>
+    <string name="ui_no_reports">Сохранённых отчётов пока нет.</string>
+    <string name="ui_delete">Удалить</string>
+    <string name="ui_back">← Назад</string>
+    <string name="ui_create_pdf">Создать PDF</string>
+    <string name="ui_save_template">Сохранить как шаблон</string>
+    <string name="ui_share_pdf">Создать и отправить PDF</string>
+    <string name="ui_select">Выбрать</string>
+    <string name="ui_cancel">Отмена</string>
+    <string name="ui_remove_photo">Удалить фото</string>
+    <string name="ui_back_reports">← К выбору отчёта</string>
+    <string name="ui_gallery">Галерея</string>
+    <string name="ui_camera">Открыть камеру</string>
+    <string name="ui_approved">Принято</string>
+    <string name="ui_rejected">Отклонено</string>
+    <string name="ui_add_material">+ Добавить материал</string>
+    <string name="ui_floor_slope">Уклон пола</string>
 </resources>
