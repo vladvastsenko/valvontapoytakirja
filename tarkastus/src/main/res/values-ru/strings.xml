@@ -58,4 +58,7 @@
     <string name="loc4_contact_person">Контактное лицо: </string>
     <string name="loc4_local_save_tarkastus">Tarkastuspöytäkirja 1.0.0 • Данные сохраняются на этом телефоне.</string>
     <string name="loc4_inspection_date_prefix">Дата проверки: %1$s</string>
+    <string name="loc4_observation_count">Замечаний: %1$d</string>
+    <string name="loc4_customer_prefix">Клиент: %1$s</string>
+    <string name="loc4_observation_number">ЗАМЕЧАНИЕ %1$d</string>
 </resources>
