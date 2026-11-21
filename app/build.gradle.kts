@@ -5,6 +5,10 @@ plugins {
     id("org.jetbrains.kotlin.plugin.compose")
 }
 
+val cloudKeystorePath = System.getenv("CLOUD_KEYSTORE_PATH")
+val cloudKeystorePassword = System.getenv("CLOUD_KEYSTORE_PASSWORD")
+val cloudKeyAlias = System.getenv("CLOUD_KEY_ALIAS")
+
 android {
     namespace = "fi.vladi.valvontapoytakirja"
     compileSdk = 35
@@ -15,6 +19,19 @@ android {
         targetSdk = 35
         versionCode = 12
         versionName = "0.5.0"
+    }
+
+    if (!cloudKeystorePath.isNullOrBlank() &&
+        !cloudKeystorePassword.isNullOrBlank() &&
+        !cloudKeyAlias.isNullOrBlank()
+    ) {
+        signingConfigs.create("cloud") {
+            storeFile = file(cloudKeystorePath)
+            storePassword = cloudKeystorePassword
+            keyAlias = cloudKeyAlias
+            keyPassword = cloudKeystorePassword
+        }
+        buildTypes.getByName("debug").signingConfig = signingConfigs.getByName("cloud")
     }
 
     buildFeatures {
