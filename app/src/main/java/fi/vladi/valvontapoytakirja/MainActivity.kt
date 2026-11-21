@@ -468,6 +468,25 @@ private fun ValvontaApp(
                 repository.saveTemplate(active, name)
                 templates = repository.listTemplates()
             },
+            onPreview = {
+                coroutineScope.launch {
+                    pendingGalleryJob?.join()
+                    val latest = currentReport ?: active
+                    val pdf = withContext(Dispatchers.IO) {
+                        ReportPdfGenerator.generate(context, latest, appSettings)
+                    }
+                    val uri = FileProvider.getUriForFile(context, "${context.packageName}.fileprovider", pdf)
+                    val viewIntent = Intent(Intent.ACTION_VIEW).apply {
+                        setDataAndType(uri, "application/pdf")
+                        addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+                    }
+                    try {
+                        context.startActivity(viewIntent)
+                    } catch (_: android.content.ActivityNotFoundException) {
+                        android.widget.Toast.makeText(context, context.getString(R.string.ui_preview_unavailable), android.widget.Toast.LENGTH_LONG).show()
+                    }
+                }
+            },
             onExport = {
                 coroutineScope.launch {
                     pendingGalleryJob?.join()
@@ -567,6 +586,7 @@ private fun EditorScreen(
     onGallery: () -> Unit,
     onSaveTemplate: (String) -> Unit,
     onExport: () -> Unit,
+    onPreview: () -> Unit,
     onDeletePhoto: (String) -> Unit
 ) {
     var customerMenuExpanded by remember(report.id) { mutableStateOf(false) }
@@ -601,6 +621,7 @@ private fun EditorScreen(
         Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
             TextButton(onClick = onBack) { Text(stringResource(R.string.ui_back)) }
             Spacer(Modifier.weight(1f))
+            OutlinedButton(onClick = onPreview) { Text(stringResource(R.string.ui_preview_pdf)) }
             Button(onClick = onExport) { Text(stringResource(R.string.ui_create_pdf)) }
         }
         Text(stringResource(R.string.loc2_pdf_title_valvonta), style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.Bold)
@@ -970,6 +991,7 @@ private fun EditorScreen(
         OutlinedButton(onClick = { onSaveTemplate(report.siteAddress.ifBlank { stringResource(R.string.new_template_fallback) }) }, modifier = Modifier.fillMaxWidth()) {
             Text(stringResource(R.string.ui_save_template))
         }
+        OutlinedButton(onClick = onPreview, modifier = Modifier.fillMaxWidth()) { Text(stringResource(R.string.ui_preview_pdf)) }
         Button(onClick = onExport, modifier = Modifier.fillMaxWidth()) { Text(stringResource(R.string.ui_share_pdf)) }
         OutlinedButton(onClick = onBack, modifier = Modifier.fillMaxWidth()) { Text(stringResource(R.string.ui_back)) }
         Spacer(Modifier.height(28.dp))
