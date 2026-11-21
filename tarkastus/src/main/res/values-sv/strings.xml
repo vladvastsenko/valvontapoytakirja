@@ -57,4 +57,5 @@
     <string name="loc4_business_id">FO-nummer: </string>
     <string name="loc4_contact_person">Kontaktperson: </string>
     <string name="loc4_local_save_tarkastus">Tarkastuspöytäkirja 1.0.0 • Data sparas på den här telefonen.</string>
+    <string name="loc4_inspection_date_prefix">Besiktningsdatum: %1$s</string>
 </resources>
