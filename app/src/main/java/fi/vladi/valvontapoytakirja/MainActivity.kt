@@ -501,7 +501,7 @@ private fun HomeScreen(
         verticalArrangement = Arrangement.spacedBy(12.dp)
     ) {
         Text("Valvoja", style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.Bold)
-        Text("Märkätilojen vedeneristyksen tarkastusraportit")
+        Text(stringResource(R.string.loc3_waterproof_intro))
         TextButton(onClick = onBackToLauncher) { Text(stringResource(R.string.ui_back_reports)) }
         Button(onClick = onCreate, modifier = Modifier.fillMaxWidth()) {
             Text(stringResource(R.string.ui_new_report))
@@ -525,7 +525,7 @@ private fun HomeScreen(
                 ) {
                     Column(Modifier.padding(16.dp)) {
                         Text(report.siteAddress.ifBlank { "Uusi pöytäkirja" }, fontWeight = FontWeight.SemiBold)
-                        if (report.folderPath.isNotBlank()) Text("Kansio: " + report.folderPath, style = MaterialTheme.typography.bodySmall)
+                        if (report.folderPath.isNotBlank()) Text(stringResource(R.string.loc3_folder) + report.folderPath, style = MaterialTheme.typography.bodySmall)
                         Text("Tarkastuspäivä: ${report.inspectionDate.ifBlank { "—" }}")
                         Text("Tulos: ${report.inspectionResult.ifBlank { "Ei valittu" }}")
                         Text("${report.photos.size} valokuvaa", style = MaterialTheme.typography.bodySmall)
@@ -862,21 +862,21 @@ private fun EditorScreen(
         Field("Seinät – valmistajan vaatima vedeneristeen menekki (kg/m² tai l/m²)", report.wallRequiredWaterproofingConsumptionPerM2) {
             onChange(report.copy(wallRequiredWaterproofingConsumptionPerM2 = it))
         }
-        Field("Seinät – käytetty vedeneristeen kokonaismäärä (kg tai l)", report.wallWaterproofingConsumptionLitres) {
+        Field(stringResource(R.string.loc3_wall_coating), report.wallWaterproofingConsumptionLitres) {
             onChange(report.copy(wallWaterproofingConsumptionLitres = it))
         }
         Field(stringResource(R.string.loc2_floor_area), report.floorAreaM2) { onChange(report.copy(floorAreaM2 = it)) }
         Field("Lattia – valmistajan vaatima vedeneristeen menekki (kg/m² tai l/m²)", report.floorRequiredWaterproofingConsumptionPerM2) {
             onChange(report.copy(floorRequiredWaterproofingConsumptionPerM2 = it))
         }
-        Field("Lattia – käytetty vedeneristeen kokonaismäärä (kg tai l)", report.floorWaterproofingConsumptionLitres) {
+        Field(stringResource(R.string.loc3_floor_coating), report.floorWaterproofingConsumptionLitres) {
             onChange(report.copy(floorWaterproofingConsumptionLitres = it))
         }
 
         SectionTitle(stringResource(R.string.loc2_film))
-        Field("Seinät – mitattu kuivakalvon paksuus (mm)", report.wallDryFilmThicknessMm) { onChange(report.copy(wallDryFilmThicknessMm = it)) }
+        Field(stringResource(R.string.loc3_wall_film), report.wallDryFilmThicknessMm) { onChange(report.copy(wallDryFilmThicknessMm = it)) }
         Field("Seinät – valmistajan vaatima kuivakalvon vähimmäispaksuus (mm)", report.wallRequiredMinimumThicknessMm) { onChange(report.copy(wallRequiredMinimumThicknessMm = it)) }
-        Field("Lattia – mitattu kuivakalvon paksuus (mm)", report.floorDryFilmThicknessMm) { onChange(report.copy(floorDryFilmThicknessMm = it)) }
+        Field(stringResource(R.string.loc3_floor_film), report.floorDryFilmThicknessMm) { onChange(report.copy(floorDryFilmThicknessMm = it)) }
         Field("Lattia – valmistajan vaatima kuivakalvon vähimmäispaksuus (mm)", report.floorRequiredMinimumThicknessMm) { onChange(report.copy(floorRequiredMinimumThicknessMm = it)) }
 
         SectionTitle(stringResource(R.string.loc_photos_section))
