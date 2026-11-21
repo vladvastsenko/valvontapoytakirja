@@ -44,4 +44,8 @@
     <string name="loc2_pdf_title_tarkastus">АКТ ОСМОТРА</string>
     <string name="loc2_no_customers">Сначала добавьте клиентов в настройках.</string>
     <string name="loc2_no_sites">Добавьте объекты этого клиента в настройках.</string>
+    <string name="loc3_general_intro">Общие акты осмотра</string>
+    <string name="loc3_folder">Папка: </string>
+    <string name="loc3_photo_edit_title">Редактировать фотографию</string>
+    <string name="loc3_photo_error">Не удалось открыть фотографию.</string>
 </resources>
