@@ -199,4 +199,14 @@
     <string name="cloud_restore_confirm_details">Palautetaanko kopio %1$s (%2$s)? Ennen palautusta nykyisistä tiedoista luodaan automaattisesti uusi suojakopio Google Driveen.</string>
     <string name="cloud_restore_error">Palautus epäonnistui: %1$s</string>
     <string name="cloud_unknown_error">Tuntematon virhe</string>
+    <string name="ui_not_selected">Ei valittu</string>
+    <string name="ui_select_saved_customer">Valitse vakioasiakas</string>
+    <string name="ui_choose_date">Valitse päivämäärä</string>
+    <string name="ui_choose_manufacturer">Valitse valmistaja</string>
+    <string name="ui_choose_product">Valitse tuote</string>
+    <string name="ui_surface_unspecified">Pinta määrittämättä</string>
+    <string name="ui_prefilled_material_warning">Valmistajan tuotetietojen mukaan esitäytetyt arvot: %1$s. Tarkista aina tuotteen ajantasainen työohje.</string>
+    <string name="ui_walls">Seinät</string>
+    <string name="ui_floor">Lattia</string>
+    <string name="ui_add_category">Lisää:</string>
 </resources>
