@@ -130,8 +130,8 @@ fun CloudBackupScreen(onBack: () -> Unit) {
                     Row(Modifier.fillMaxWidth().padding(12.dp), verticalAlignment = Alignment.CenterVertically) {
                         RadioButton(selected = selectedBackupUri == backup.uri.toString(), onClick = { selectedBackupUri = backup.uri.toString() })
                         Column(Modifier.weight(1f)) {
-                            Text(if (index == 0) context.getString(R.string.cloud_latest) else formatBackupDate(backup.name), style = MaterialTheme.typography.titleSmall)
-                            if (index == 0) Text(formatBackupDate(backup.name), style = MaterialTheme.typography.bodySmall)
+                            Text(if (index == 0) context.getString(R.string.cloud_latest) else formatBackupDate(context, backup.name), style = MaterialTheme.typography.titleSmall)
+                            if (index == 0) Text(formatBackupDate(context, backup.name), style = MaterialTheme.typography.bodySmall)
                             Text("Koko: ${formatBackupSize(backup.sizeBytes)}", style = MaterialTheme.typography.bodySmall)
                         }
                     }
@@ -156,7 +156,7 @@ fun CloudBackupScreen(onBack: () -> Unit) {
         AlertDialog(
             onDismissRequest = { if (!busy) showRestoreConfirmation = false },
             title = { Text(stringResource(R.string.cloud_confirm_title)) },
-            text = { Text("Palautetaanko kopio ${formatBackupDate(selectedBackup.name)} (${formatBackupSize(selectedBackup.sizeBytes)})? Ennen palautusta nykyisistä tiedoista luodaan automaattisesti uusi suojakopio Google Driveen.") },
+            text = { Text("Palautetaanko kopio ${formatBackupDate(context, selectedBackup.name)} (${formatBackupSize(selectedBackup.sizeBytes)})? Ennen palautusta nykyisistä tiedoista luodaan automaattisesti uusi suojakopio Google Driveen.") },
             confirmButton = {
                 TextButton(enabled = !busy, onClick = {
                     showRestoreConfirmation = false
@@ -182,7 +182,7 @@ fun CloudBackupScreen(onBack: () -> Unit) {
     }
 }
 
-private fun formatBackupDate(name: String): String {
+private fun formatBackupDate(context: Context, name: String): String {
     val stamp = name.removePrefix("Tarkastus_backup_").removeSuffix(".zip")
     val date = listOf("yyyyMMdd_HHmmss_SSS", "yyyyMMdd_HHmmss").firstNotNullOfOrNull { pattern ->
         runCatching { SimpleDateFormat(pattern, Locale.US).parse(stamp) }.getOrNull()
