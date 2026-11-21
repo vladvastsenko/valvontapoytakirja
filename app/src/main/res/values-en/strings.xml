@@ -64,4 +64,26 @@
     <string name="loc_materials">3. MATERIALS USED</string>
     <string name="loc_photos_section">7. PHOTOGRAPHS</string>
     <string name="loc_result_section">8. INSPECTION RESULT</string>
+    <string name="loc2_site_parties">CUSTOMER AND SITE</string>
+    <string name="loc2_surfaces">2. SUBSTRATES AND CONDITIONS</string>
+    <string name="loc2_structures">4. STRUCTURES AND DIMENSIONS</string>
+    <string name="loc2_areas">5. AREAS AND CONSUMPTION</string>
+    <string name="loc2_film">6. DRY FILM THICKNESS</string>
+    <string name="loc2_inspection_date_section">9. INSPECTION DATE</string>
+    <string name="loc2_instructions">Work instructions provided and read</string>
+    <string name="loc2_installer">Waterproofing installer</string>
+    <string name="loc2_certificate">Certificate number</string>
+    <string name="loc2_installer_phone">Installer phone</string>
+    <string name="loc2_installer_email">Installer email</string>
+    <string name="loc2_start_date">Installation start date</string>
+    <string name="loc2_end_date">Installation end date</string>
+    <string name="loc2_temperature">Room temperature (°C)</string>
+    <string name="loc2_humidity">Relative humidity (%)</string>
+    <string name="loc2_substrate_moisture">Substrate moisture (%)</string>
+    <string name="loc2_wall_area">Wall area (m²)</string>
+    <string name="loc2_floor_area">Floor area (m²)</string>
+    <string name="loc2_heating">Underfloor heating</string>
+    <string name="loc2_additional_notes">Additional notes</string>
+    <string name="loc2_pdf_title_valvonta">SUPERVISION REPORT</string>
+    <string name="loc2_pdf_photo_hint">Take a photo or select multiple images from the gallery.</string>
 </resources>
