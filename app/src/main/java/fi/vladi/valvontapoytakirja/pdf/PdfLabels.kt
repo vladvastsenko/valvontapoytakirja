@@ -74,12 +74,29 @@ internal class PdfLabels(private val language: String) {
         "seinät" to listOf("стены", "walls", "väggar"),
         "lattia" to listOf("пол", "floor", "golv"),
         "Seinät ja lattia" to listOf("Стены и пол", "Walls and floor", "Väggar och golv"),
+        "Tasoite" to listOf("Шпаклёвка / выравнивающая смесь", "Levelling compound", "Spackel / avjämningsmassa"),
+        "Pohjuste (primer)" to listOf("Грунтовка (праймер)", "Primer", "Primer"),
+        "Vedeneriste" to listOf("Гидроизоляция", "Waterproofing membrane", "Tätskikt"),
+        "Kaivotyyppi" to listOf("Тип трапа", "Floor drain type", "Golvbrunnstyp"),
+        "Kaivolaippa / lattiakaivovahvike" to listOf("Манжета / усиление трапа", "Drain flange / reinforcement", "Brunnsmanschett / förstärkning"),
+        "Nurkkavahvike / vahvikenauha" to listOf("Угловое усиление / армирующая лента", "Corner reinforcement / reinforcing tape", "Hörnförstärkning / armeringsband"),
+        "Läpivientivahvike" to listOf("Манжета для проходок", "Pipe penetration reinforcement", "Rörgenomföringsförstärkning"),
+        "Läpivientien tiivistysmassa" to listOf("Герметик для проходок", "Penetration sealant", "Tätningsmassa för genomföringar"),
+        "Kiinnityslaasti" to listOf("Плиточный клей", "Tile adhesive", "Fästmassa"),
+        "Laatat" to listOf("Плитка", "Tiles", "Plattor"),
+        "Seinäsaumaus" to listOf("Затирка швов стен", "Wall tile grouting", "Fogning av väggplattor"),
+        "Lattiasaumaus" to listOf("Затирка швов пола", "Floor tile grouting", "Fogning av golvplattor"),
+        "Elastinen saumausmassa" to listOf("Эластичный герметик", "Elastic joint sealant", "Elastisk fogmassa"),
+        "Saumalaasti" to listOf("Затирочная смесь", "Grout", "Fogmassa"),
+        "Seinät ja lattiat" to listOf("Стены и полы", "Walls and floors", "Väggar och golv"),
         "Menekki" to listOf("Расход", "Consumption", "Åtgång"),
         "Kuivakalvo" to listOf("Сухая плёнка", "Dry film", "Torrfilm")
     )
     fun text(value: String): String {
         if (language == "fi") return value
         val index = when (language) { "ru" -> 0; "en" -> 1; "sv" -> 2; else -> return value }
-        return translations[value]?.get(index) ?: value
+        return translations[value]?.get(index)
+            ?: translations.entries.firstOrNull { it.key.equals(value.trim(), ignoreCase = true) }?.value?.get(index)
+            ?: value
     }
 }
