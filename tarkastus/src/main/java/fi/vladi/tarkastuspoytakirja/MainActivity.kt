@@ -362,7 +362,7 @@ private fun HomeScreen(
             }
         }
         Spacer(Modifier.height(20.dp))
-        Text("Tarkastuspöytäkirja 1.0.0 • Tallennus tapahtuu tässä puhelimessa.", style = MaterialTheme.typography.bodySmall)
+        Text(stringResource(R.string.loc4_local_save_tarkastus), style = MaterialTheme.typography.bodySmall)
     }
 }
 
@@ -411,7 +411,7 @@ private fun EditorScreen(
         Text(stringResource(R.string.loc_fill), style = MaterialTheme.typography.bodySmall)
 
         SectionTitle(stringResource(R.string.loc_site_parties))
-        Field("Kansio / alikansio (esim. Asiakkaat/Helsinki/Kohde)", report.folderPath) {
+        Field(stringResource(R.string.loc4_folder_path), report.folderPath) {
             onChange(report.copy(folderPath = it.trim('/')))
         }
         ChoiceField(
@@ -467,11 +467,11 @@ private fun EditorScreen(
             Card(modifier = Modifier.fillMaxWidth()) {
                 Column(Modifier.padding(12.dp), verticalArrangement = Arrangement.spacedBy(3.dp)) {
                     Text(report.customerName, fontWeight = FontWeight.SemiBold)
-                    if (report.customerBusinessId.isNotBlank()) Text("Y-tunnus: " + report.customerBusinessId)
+                    if (report.customerBusinessId.isNotBlank()) Text(stringResource(R.string.loc4_business_id) + report.customerBusinessId)
                     if (report.customerAddress.isNotBlank()) Text(report.customerAddress)
                     val cityLine = listOf(report.customerPostalCode, report.customerCity).filter { it.isNotBlank() }.joinToString(" ")
                     if (cityLine.isNotBlank()) Text(cityLine)
-                    if (report.clientOrRepresentative.isNotBlank()) Text("Yhteyshenkilö: " + report.clientOrRepresentative)
+                    if (report.clientOrRepresentative.isNotBlank()) Text(stringResource(R.string.loc4_contact_person) + report.clientOrRepresentative)
                     if (report.clientPhone.isNotBlank()) Text(report.clientPhone)
                     if (report.clientEmail.isNotBlank()) Text(report.clientEmail)
                 }
@@ -479,7 +479,7 @@ private fun EditorScreen(
         }
         Field(stringResource(R.string.loc_site_detail), report.siteAddress) { onChange(report.copy(siteAddress = it)) }
         if (report.customerId.isBlank()) {
-            Field("Tilaaja / kohteen edustaja", report.clientOrRepresentative) { onChange(report.copy(clientOrRepresentative = it)) }
+            Field(stringResource(R.string.loc4_client_rep), report.clientOrRepresentative) { onChange(report.copy(clientOrRepresentative = it)) }
             Field(stringResource(R.string.loc_phone), report.clientPhone) { onChange(report.copy(clientPhone = it)) }
             Field(stringResource(R.string.loc_email), report.clientEmail) { onChange(report.copy(clientEmail = it)) }
         }
@@ -542,17 +542,17 @@ private fun EditorScreen(
                             }
                         }
                     }
-                    Field("Tila / sijainti", observation.location) { value ->
+                    Field(stringResource(R.string.loc4_location), observation.location) { value ->
                         onChange(report.copy(observations = report.observations.map {
                             if (it.id == observation.id) it.copy(location = value) else it
                         }))
                     }
-                    Field("Kuvaus / tilanne", observation.description, minLines = 2) { value ->
+                    Field(stringResource(R.string.loc4_description), observation.description, minLines = 2) { value ->
                         onChange(report.copy(observations = report.observations.map {
                             if (it.id == observation.id) it.copy(description = value) else it
                         }))
                     }
-                    Field("Toimenpiteet / lisätiedot", observation.recommendedAction, minLines = 2) { value ->
+                    Field(stringResource(R.string.loc4_actions), observation.recommendedAction, minLines = 2) { value ->
                         onChange(report.copy(observations = report.observations.map {
                             if (it.id == observation.id) it.copy(recommendedAction = value) else it
                         }))
@@ -708,7 +708,7 @@ private fun PhotoCard(
                     contentScale = ContentScale.Crop
                 )
             } else {
-                Text("Kuvaa ei voitu näyttää: ${File(photo.filePath).name}")
+                Text(stringResource(R.string.loc4_image_failed, File(photo.filePath).name))
             }
             Field(stringResource(R.string.loc_photo_comment), photo.caption, minLines = 2, onValueChange = onCaptionChange)
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
