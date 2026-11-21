@@ -528,7 +528,7 @@ private fun HomeScreen(
                         if (report.folderPath.isNotBlank()) Text(stringResource(R.string.loc3_folder) + report.folderPath, style = MaterialTheme.typography.bodySmall)
                         Text(stringResource(R.string.loc4_inspection_date_prefix, report.inspectionDate.ifBlank { "—" }))
                         Text(stringResource(R.string.loc4_result_prefix, report.inspectionResult.ifBlank { "Ei valittu" }))
-                        Text("${report.photos.size} valokuvaa", style = MaterialTheme.typography.bodySmall)
+                        Text(stringResource(R.string.loc4_photo_count, report.photos.size), style = MaterialTheme.typography.bodySmall)
                         TextButton(onClick = { onDelete(report) }) { Text(stringResource(R.string.ui_delete)) }
                     }
                 }
