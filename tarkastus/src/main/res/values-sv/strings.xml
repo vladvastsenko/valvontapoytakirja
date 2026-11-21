@@ -1,0 +1,24 @@
+<resources>
+    <string name="ui_new_report">Nytt protokoll</string>
+    <string name="ui_no_reports">Inga sparade protokoll ännu.</string>
+    <string name="ui_delete">Ta bort</string>
+    <string name="ui_back">← Tillbaka</string>
+    <string name="ui_create_pdf">Skapa PDF</string>
+    <string name="ui_save_template">Spara som mall</string>
+    <string name="ui_share_pdf">Skapa och dela PDF</string>
+    <string name="ui_select">Välj</string>
+    <string name="ui_cancel">Avbryt</string>
+    <string name="ui_remove_photo">Ta bort bild</string>
+    <string name="ui_back_reports">← Tillbaka till protokollval</string>
+    <string name="ui_camera_photo">Ta foto</string>
+    <string name="ui_photos">Bilder</string>
+    <string name="ui_add_item">+ Lägg till punkt</string>
+    <string name="ui_edit_photo">Redigera bild</string>
+    <string name="ui_undo">Ångra</string>
+    <string name="ui_clear">Rensa</string>
+    <string name="ui_save_marks">Spara markeringar</string>
+    <string name="ui_remove_field">Ta bort fält</string>
+    <string name="ui_add_field">+ Lägg till eget fält</string>
+    <string name="ui_back_plain">Tillbaka</string>
+    <string name="ui_draw_hint">Rita på bilden med fingret eller en penna. Markeringarna visas även i PDF-filen.</string>
+</resources>
