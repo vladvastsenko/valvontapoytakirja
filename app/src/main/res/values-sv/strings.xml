@@ -48,4 +48,20 @@
     <string name="ui_rejected">Underkänd</string>
     <string name="ui_add_material">+ Lägg till material</string>
     <string name="ui_floor_slope">Golvfall</string>
+    <string name="loc_templates">Protokollmallar</string>
+    <string name="loc_saved">Sparade protokoll</string>
+    <string name="loc_fill">Fyll i uppgifterna. Ändringarna sparas automatiskt på telefonen.</string>
+    <string name="loc_site_parties">1. ARBETSPLATS OCH PARTER</string>
+    <string name="loc_phone">Beställarens telefonnummer</string>
+    <string name="loc_email">Beställarens e-post</string>
+    <string name="loc_date">Besiktningsdatum</string>
+    <string name="loc_site_address">Objektets adress</string>
+    <string name="loc_additional">Ytterligare uppgifter</string>
+    <string name="loc_comment">Kommentar (valfri)</string>
+    <string name="loc_site_info">Objektuppgifter</string>
+    <string name="loc_manufacturer">Tillverkare</string>
+    <string name="loc_product_name">Produktnamn</string>
+    <string name="loc_materials">3. ANVÄNDA MATERIAL</string>
+    <string name="loc_photos_section">7. FOTOGRAFIER</string>
+    <string name="loc_result_section">8. BESIKTNINGSRESULTAT</string>
 </resources>
