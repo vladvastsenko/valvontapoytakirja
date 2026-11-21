@@ -111,4 +111,5 @@
     <string name="manufacturer_missing">Valmistajaa ei ole määritetty</string>
     <string name="manufacturer_family">Valmistaja: %1$s • sama järjestelmä</string>
     <string name="share_report">Jaa raportti</string>
+    <string name="ui_preview_pdf">Esikatsele PDF</string>
 </resources>
