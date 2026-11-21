@@ -101,11 +101,11 @@ fun SettingsScreen(
                 contentScale = ContentScale.Fit
             )
         } else {
-            Text(if (settings.logoPath.isBlank()) "Logoa ei ole valittu." else "Logotiedostoa ei löydy. Valitse logo uudelleen.")
+            Text(if (settings.logoPath.isBlank()) stringResource(R.string.settings_no_logo) else stringResource(R.string.settings_logo_missing))
         }
         Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
             OutlinedButton(onClick = onPickLogo, modifier = Modifier.weight(1f)) {
-                Text(if (settings.logoPath.isBlank()) "Valitse logo" else "Vaihda logo")
+                Text(if (settings.logoPath.isBlank()) stringResource(R.string.settings_choose_logo) else stringResource(R.string.settings_change_logo))
             }
             if (settings.logoPath.isNotBlank()) {
                 TextButton(onClick = onRemoveLogo) { Text(stringResource(R.string.settings_delete)) }
@@ -133,7 +133,7 @@ fun SettingsScreen(
                     Image(
                         bitmap = signatureBitmap!!.asImageBitmap(),
                         contentDescription = "Valittu allekirjoitus",
-                        modifier = Modifier.fillMaxWidth().height(120.dp).padding(8.dp),
+                        modifier = Modifier.fillMaxWidth().height(190.dp).padding(8.dp),
                         contentScale = ContentScale.Fit
                     )
                 }
@@ -149,7 +149,7 @@ fun SettingsScreen(
         )
         Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
             OutlinedButton(onClick = onPickSignature, modifier = Modifier.weight(1f)) {
-                Text(if (settings.signatureImagePath.isBlank()) "Lataa allekirjoitus tiedostosta" else "Vaihda allekirjoituskuva")
+                Text(if (settings.signatureImagePath.isBlank()) stringResource(R.string.settings_upload_signature) else stringResource(R.string.settings_change_signature))
             }
             if (settings.signatureImagePath.isNotBlank()) TextButton(onClick = onRemoveSignature) { Text(stringResource(R.string.settings_remove_image)) }
         }
