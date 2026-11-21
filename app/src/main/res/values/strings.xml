@@ -31,4 +31,21 @@
     <string name="logout_confirm">Haluatko kirjautua ulos?</string>
     <string name="cancel">Peruuta</string>
     <string name="confirm">Kirjaudu ulos</string>
+    <string name="ui_new_report">Uusi pöytäkirja</string>
+    <string name="ui_no_reports">Ei vielä tallennettuja pöytäkirjoja.</string>
+    <string name="ui_delete">Poista</string>
+    <string name="ui_back">← Takaisin</string>
+    <string name="ui_create_pdf">Luo PDF</string>
+    <string name="ui_save_template">Tallenna raportti malliksi</string>
+    <string name="ui_share_pdf">Luo ja jaa PDF-raportti</string>
+    <string name="ui_select">Valitse</string>
+    <string name="ui_cancel">Peruuta</string>
+    <string name="ui_remove_photo">Poista kuva</string>
+    <string name="ui_back_reports">← Takaisin asiakirjan valintaan</string>
+    <string name="ui_gallery">Galleria</string>
+    <string name="ui_camera">Avaa kamera</string>
+    <string name="ui_approved">Hyväksytty</string>
+    <string name="ui_rejected">Hylätty</string>
+    <string name="ui_add_material">+ Lisää materiaali</string>
+    <string name="ui_floor_slope">Lattian kaato</string>
 </resources>
