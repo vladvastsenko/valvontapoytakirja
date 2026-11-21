@@ -329,7 +329,7 @@ private fun HomeScreen(
         verticalArrangement = Arrangement.spacedBy(12.dp)
     ) {
         Text("Tarkastuspöytäkirja", style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.Bold)
-        Text("Yleiset tarkastusraportit")
+        Text(stringResource(R.string.loc3_general_intro))
         TextButton(onClick = onBackToDocumentSelection) { Text(stringResource(R.string.ui_back_reports)) }
         Button(onClick = onCreate, modifier = Modifier.fillMaxWidth()) {
             Text(stringResource(R.string.ui_new_report))
@@ -353,7 +353,7 @@ private fun HomeScreen(
                 ) {
                     Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
                         Text(report.siteAddress.ifBlank { "Uusi pöytäkirja" }, fontWeight = FontWeight.SemiBold)
-                        if (report.folderPath.isNotBlank()) Text("Kansio: " + report.folderPath, style = MaterialTheme.typography.bodySmall)
+                        if (report.folderPath.isNotBlank()) Text(stringResource(R.string.loc3_folder) + report.folderPath, style = MaterialTheme.typography.bodySmall)
                         Text("Tarkastuspäivä: ${report.inspectionDate.ifBlank { "—" }}")
                         Text("${report.observations.size} havaintoa", style = MaterialTheme.typography.bodySmall)
                         TextButton(onClick = { onDelete(report) }) { Text(stringResource(R.string.ui_delete)) }
@@ -737,7 +737,7 @@ private fun PhotoMarkupEditor(
         verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
         Row(verticalAlignment = Alignment.CenterVertically) {
-            Text("Muokkaa valokuvaa", style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.Bold)
+            Text(stringResource(R.string.loc3_photo_edit_title), style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.Bold)
             Spacer(Modifier.weight(1f))
             TextButton(onClick = onCancel) { Text(stringResource(R.string.ui_back_plain)) }
         }
@@ -813,7 +813,7 @@ private fun PhotoMarkupEditor(
                 }
             }
         } else {
-            Text("Kuvaa ei voitu avata.", modifier = Modifier.weight(1f))
+            Text(stringResource(R.string.loc3_photo_error), modifier = Modifier.weight(1f))
         }
         Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
             OutlinedButton(
