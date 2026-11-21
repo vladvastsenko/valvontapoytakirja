@@ -312,7 +312,7 @@ object ReportPdfGenerator {
 
         fun signature(strokes: List<SignatureStroke>, imagePath: String = "") {
             if (strokes.isEmpty() && imagePath.isBlank()) return
-            ensureSpace(100f)
+            ensureSpace(125f)
 
             page.canvas.drawText(labels.text("Allekirjoitus"), margin, y + 12f, boldPaint)
             val bitmap = Bitmap.createBitmap(1800, 540, Bitmap.Config.ARGB_8888)
@@ -326,16 +326,16 @@ object ReportPdfGenerator {
             }
 
             if (imagePath.isNotBlank()) {
-                val imported = BitmapFactory.decodeFile(imagePath)
+                val imported = SignatureImage.prepare(imagePath)
                 if (imported != null) {
-                    val target = RectF(margin, y + 20f, margin + 220f, y + 86f)
+                    val target = RectF(margin, y + 20f, margin + 320f, y + 115f)
                     val scale = minOf(target.width() / imported.width, target.height() / imported.height)
                     val width = imported.width * scale
                     val height = imported.height * scale
                     val destination = RectF(target.left, target.top, target.left + width, target.top + height)
                     page.canvas.drawBitmap(imported, null, destination, Paint(Paint.ANTI_ALIAS_FLAG or Paint.FILTER_BITMAP_FLAG))
                     imported.recycle()
-                    y += 92f
+                    y += 120f
                     return
                 }
             }
