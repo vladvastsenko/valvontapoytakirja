@@ -105,4 +105,10 @@
     <string name="settings_extra_fields">Дополнительные поля: %1$s</string>
     <string name="settings_delete_action">Удалить</string>
     <string name="settings_cancel_action">Отмена</string>
+    <string name="new_report_fallback">Новый протокол</string>
+    <string name="new_template_fallback">Новый шаблон</string>
+    <string name="choose_site_fallback">Выбрать объект</string>
+    <string name="manufacturer_missing">Производитель не указан</string>
+    <string name="manufacturer_family">Производитель: %1$s • одна система</string>
+    <string name="share_report">Поделиться отчётом</string>
 </resources>
