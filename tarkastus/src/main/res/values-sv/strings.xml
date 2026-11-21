@@ -48,4 +48,13 @@
     <string name="loc3_folder">Mapp: </string>
     <string name="loc3_photo_edit_title">Redigera fotografi</string>
     <string name="loc3_photo_error">Det gick inte att öppna bilden.</string>
+    <string name="loc4_folder_path">Mapp / undermapp (t.ex. Kunder/Helsingfors/Objekt)</string>
+    <string name="loc4_client_rep">Beställare / objektets representant</string>
+    <string name="loc4_location">Utrymme / plats</string>
+    <string name="loc4_description">Beskrivning / skick</string>
+    <string name="loc4_actions">Åtgärder / tilläggsuppgifter</string>
+    <string name="loc4_image_failed">Det gick inte att visa bilden: %1$s</string>
+    <string name="loc4_business_id">FO-nummer: </string>
+    <string name="loc4_contact_person">Kontaktperson: </string>
+    <string name="loc4_local_save_tarkastus">Tarkastuspöytäkirja 1.0.0 • Data sparas på den här telefonen.</string>
 </resources>
