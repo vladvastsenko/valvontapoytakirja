@@ -92,4 +92,19 @@
     <string name="loc3_floor_coating">Пол — расход гидроизоляции (кг или л)</string>
     <string name="loc3_wall_film">Стены — измеренная толщина сухой плёнки (мм)</string>
     <string name="loc3_floor_film">Пол — измеренная толщина сухой плёнки (мм)</string>
+    <string name="loc4_folder_path">Папка / подпапка (например, Клиенты/Хельсинки/Объект)</string>
+    <string name="loc4_client_rep">Заказчик / представитель объекта</string>
+    <string name="loc4_wall_base">Основание / конструкция стен</string>
+    <string name="loc4_floor_base">Основание / конструкция пола</string>
+    <string name="loc4_threshold">Порог / подъём слива (мм)</string>
+    <string name="loc4_slopes_info">Расположение уклонов / дополнительные сведения</string>
+    <string name="loc4_wall_consumption">Стены — расход по требованиям производителя (кг/м² или л/м²)</string>
+    <string name="loc4_floor_consumption">Пол — расход по требованиям производителя (кг/м² или л/м²)</string>
+    <string name="loc4_wall_minfilm">Стены — минимальная толщина сухой плёнки (мм)</string>
+    <string name="loc4_floor_minfilm">Пол — минимальная толщина сухой плёнки (мм)</string>
+    <string name="loc4_other_product">Другой / свой продукт</string>
+    <string name="loc4_family_hint">Выбирайте одного производителя для всей системы гидроизоляции: грунтовка, гидроизоляция, манжеты, ленты, герметик и плиточный клей.</string>
+    <string name="loc4_family_missing">У этого производителя нет продукта в данной категории. Выбирайте только совместимые продукты одной системы.</string>
+    <string name="loc4_image_failed">Не удалось показать фото: %1$s</string>
+    <string name="loc4_local_save_valvoja">Valvoja 0.4.7 • Данные сохраняются на этом телефоне.</string>
 </resources>
