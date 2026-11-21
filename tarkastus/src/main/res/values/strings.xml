@@ -48,4 +48,13 @@
     <string name="loc3_folder">Kansio: </string>
     <string name="loc3_photo_edit_title">Muokkaa valokuvaa</string>
     <string name="loc3_photo_error">Kuvaa ei voitu avata.</string>
+    <string name="loc4_folder_path">Kansio / alikansio (esim. Asiakkaat/Helsinki/Kohde)</string>
+    <string name="loc4_client_rep">Tilaaja / kohteen edustaja</string>
+    <string name="loc4_location">Tila / sijainti</string>
+    <string name="loc4_description">Kuvaus / tilanne</string>
+    <string name="loc4_actions">Toimenpiteet / lisätiedot</string>
+    <string name="loc4_image_failed">Kuvaa ei voitu näyttää: %1$s</string>
+    <string name="loc4_business_id">Y-tunnus: </string>
+    <string name="loc4_contact_person">Yhteyshenkilö: </string>
+    <string name="loc4_local_save_tarkastus">Tarkastuspöytäkirja 1.0.0 • Tallennus tapahtuu tässä puhelimessa.</string>
 </resources>
