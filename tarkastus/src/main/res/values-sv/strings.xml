@@ -41,4 +41,7 @@
     <string name="loc_field_content">Innehåll</string>
     <string name="loc_pdf_heading">Rubrik i PDF</string>
     <string name="loc_photo_comment">Bildkommentar (valfri)</string>
+    <string name="loc2_pdf_title_tarkastus">BESIKTNINGSPROTOKOLL</string>
+    <string name="loc2_no_customers">Lägg först till kunder i Inställningar.</string>
+    <string name="loc2_no_sites">Lägg till objekt för kunden i Inställningar.</string>
 </resources>
