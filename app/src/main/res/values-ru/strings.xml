@@ -64,4 +64,26 @@
     <string name="loc_materials">3. ИСПОЛЬЗОВАННЫЕ МАТЕРИАЛЫ</string>
     <string name="loc_photos_section">7. ФОТОГРАФИИ</string>
     <string name="loc_result_section">8. РЕЗУЛЬТАТ ПРОВЕРКИ</string>
+    <string name="loc2_site_parties">КЛИЕНТ И ОБЪЕКТ</string>
+    <string name="loc2_surfaces">2. ОСНОВАНИЯ И УСЛОВИЯ РАБОТ</string>
+    <string name="loc2_structures">4. КОНСТРУКЦИИ И РАЗМЕРЫ</string>
+    <string name="loc2_areas">5. ПЛОЩАДИ И РАСХОД</string>
+    <string name="loc2_film">6. ТОЛЩИНА СУХОЙ ПЛЁНКИ</string>
+    <string name="loc2_inspection_date_section">9. ДАТА ПРОВЕРКИ</string>
+    <string name="loc2_instructions">Рабочие инструкции предоставлены и прочитаны</string>
+    <string name="loc2_installer">Имя гидроизоляционщика</string>
+    <string name="loc2_certificate">Номер сертификата</string>
+    <string name="loc2_installer_phone">Телефон исполнителя</string>
+    <string name="loc2_installer_email">Email исполнителя</string>
+    <string name="loc2_start_date">Дата начала работ</string>
+    <string name="loc2_end_date">Дата окончания работ</string>
+    <string name="loc2_temperature">Температура помещения (°C)</string>
+    <string name="loc2_humidity">Относительная влажность (%)</string>
+    <string name="loc2_substrate_moisture">Влажность основания (%)</string>
+    <string name="loc2_wall_area">Площадь стен (м²)</string>
+    <string name="loc2_floor_area">Площадь пола (м²)</string>
+    <string name="loc2_heating">Тёплый пол</string>
+    <string name="loc2_additional_notes">Дополнительные замечания</string>
+    <string name="loc2_pdf_title_valvonta">ПРОТОКОЛ КОНТРОЛЯ</string>
+    <string name="loc2_pdf_photo_hint">Сделайте фото камерой или выберите несколько из галереи.</string>
 </resources>
