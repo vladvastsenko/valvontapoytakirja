@@ -112,4 +112,5 @@
     <string name="manufacturer_family">Производитель: %1$s • одна система</string>
     <string name="share_report">Поделиться отчётом</string>
     <string name="ui_preview_pdf">Предпросмотр PDF</string>
+    <string name="ui_preview_unavailable">На устройстве нет приложения для просмотра PDF</string>
 </resources>
