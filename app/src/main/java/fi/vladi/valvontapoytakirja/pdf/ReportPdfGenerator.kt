@@ -18,11 +18,12 @@ import java.io.FileOutputStream
 
 object ReportPdfGenerator {
     fun generate(context: Context, report: InspectionReport, settings: AppSettings): File {
-        val firstPass = render(report, settings, totalPages = null)
+        val selectedLanguage = report.pdfLanguage.ifBlank { context.getSharedPreferences("tarkastus_pdf_language", Context.MODE_PRIVATE).getString("default", "fi") ?: "fi" }
+        val firstPass = render(report, settings, totalPages = null, language = selectedLanguage)
         val totalPages = firstPass.second
         firstPass.first.close()
 
-        val finalPass = render(report, settings, totalPages)
+        val finalPass = render(report, settings, totalPages, language = selectedLanguage)
         val document = finalPass.first
         val exportDirectory = File(context.cacheDir, "exports").apply { mkdirs() }
         val safeName = report.siteAddress
@@ -41,10 +42,11 @@ object ReportPdfGenerator {
     private fun render(
         report: InspectionReport,
         settings: AppSettings,
-        totalPages: Int?
+        totalPages: Int?,
+        language: String
     ): Pair<PdfDocument, Int> {
         val document = PdfDocument()
-        val writer = PdfWriter(document, settings.logoPath, settings.headerText, settings.footerText, totalPages)
+        val writer = PdfWriter(document, settings.logoPath, settings.headerText, settings.footerText, totalPages, language)
 
             writer.title("VALVONTAPÖYTÄKIRJA")
             if (report.folderPath.isNotBlank()) {
@@ -152,8 +154,10 @@ object ReportPdfGenerator {
         private val logoPath: String,
         private val headerText: String,
         private val footerText: String,
-        private val totalPages: Int?
+        private val totalPages: Int?,
+        language: String
     ) {
+        private val labels = PdfLabels(language)
         val pageCount: Int get() = pageNumber
         private val pageWidth = 595
         private val pageHeight = 842
@@ -262,7 +266,7 @@ object ReportPdfGenerator {
 
         fun title(value: String) {
             ensureSpace(38f)
-            page.canvas.drawText(value, margin, y + 17f, titlePaint)
+            page.canvas.drawText(labels.text(value), margin, y + 17f, titlePaint)
             y += 32f
             page.canvas.drawLine(margin, y, pageWidth - margin, y, Paint().apply {
                 color = Color.rgb(170, 185, 195)
@@ -279,7 +283,7 @@ object ReportPdfGenerator {
         fun section(value: String) {
             ensureSpace(30f)
             y += 7f
-            page.canvas.drawText(value, margin, y + 12f, sectionPaint)
+            page.canvas.drawText(labels.text(value), margin, y + 12f, sectionPaint)
             y += 22f
         }
 
@@ -314,7 +318,7 @@ object ReportPdfGenerator {
             if (strokes.isEmpty() && imagePath.isBlank()) return
             ensureSpace(100f)
 
-            page.canvas.drawText("Allekirjoitus", margin, y + 12f, boldPaint)
+            page.canvas.drawText(labels.text("Allekirjoitus"), margin, y + 12f, boldPaint)
             val bitmap = Bitmap.createBitmap(1800, 540, Bitmap.Config.ARGB_8888)
             val signatureCanvas = Canvas(bitmap)
             val signaturePaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
