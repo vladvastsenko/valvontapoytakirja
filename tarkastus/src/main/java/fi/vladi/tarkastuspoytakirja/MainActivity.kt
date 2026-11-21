@@ -335,14 +335,14 @@ private fun HomeScreen(
             Text(stringResource(R.string.ui_new_report))
         }
         if (templates.isNotEmpty()) {
-            Text("Pöytäkirjamallit", style = MaterialTheme.typography.titleLarge)
+            Text(stringResource(R.string.loc_templates), style = MaterialTheme.typography.titleLarge)
             templates.forEach { template ->
                 OutlinedButton(onClick = { onCreateFromTemplate(template) }, modifier = Modifier.fillMaxWidth()) {
                     Text(template.templateName + " • " + template.siteAddress)
                 }
             }
         }
-        Text("Tallennetut pöytäkirjat", style = MaterialTheme.typography.titleLarge)
+        Text(stringResource(R.string.loc_saved), style = MaterialTheme.typography.titleLarge)
         if (reports.isEmpty()) {
             Text(stringResource(R.string.ui_no_reports))
         } else {
@@ -408,9 +408,9 @@ private fun EditorScreen(
             Button(onClick = onExport) { Text(stringResource(R.string.ui_create_pdf)) }
         }
         Text("TARKASTUSPÖYTÄKIRJA", style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.Bold)
-        Text("Täytä tiedot. Muutokset tallentuvat automaattisesti tähän puhelimeen.", style = MaterialTheme.typography.bodySmall)
+        Text(stringResource(R.string.loc_fill), style = MaterialTheme.typography.bodySmall)
 
-        SectionTitle("1. TYÖMAA JA OSAPUOLET")
+        SectionTitle(stringResource(R.string.loc_site_parties))
         Field("Kansio / alikansio (esim. Asiakkaat/Helsinki/Kohde)", report.folderPath) {
             onChange(report.copy(folderPath = it.trim('/')))
         }
@@ -477,32 +477,32 @@ private fun EditorScreen(
                 }
             }
         }
-        Field("Kohteen tarkenne", report.siteAddress) { onChange(report.copy(siteAddress = it)) }
+        Field(stringResource(R.string.loc_site_detail), report.siteAddress) { onChange(report.copy(siteAddress = it)) }
         if (report.customerId.isBlank()) {
             Field("Tilaaja / kohteen edustaja", report.clientOrRepresentative) { onChange(report.copy(clientOrRepresentative = it)) }
-            Field("Tilaajan puhelinnumero", report.clientPhone) { onChange(report.copy(clientPhone = it)) }
-            Field("Tilaajan sähköposti", report.clientEmail) { onChange(report.copy(clientEmail = it)) }
+            Field(stringResource(R.string.loc_phone), report.clientPhone) { onChange(report.copy(clientPhone = it)) }
+            Field(stringResource(R.string.loc_email), report.clientEmail) { onChange(report.copy(clientEmail = it)) }
         }
 
-        SectionTitle("2. TARKASTUKSEN TARKOITUS JA LAAJUUS")
-        Field("Tarkastuksen tarkoitus ja laajuus", report.purposeAndScope, minLines = 4) {
+        SectionTitle(stringResource(R.string.loc_purpose_section))
+        Field(stringResource(R.string.loc_purpose), report.purposeAndScope, minLines = 4) {
             onChange(report.copy(purposeAndScope = it))
         }
 
-        SectionTitle("3. YLEISET HUOMIOT")
-        Field("Yleiset huomiot", report.generalObservations, minLines = 4) {
+        SectionTitle(stringResource(R.string.loc_general_section))
+        Field(stringResource(R.string.loc_general), report.generalObservations, minLines = 4) {
             onChange(report.copy(generalObservations = it))
         }
 
-        SectionTitle("4. OMAT LISÄKENTÄT")
-        Field("Otsikko PDF-raportissa", report.customFieldsTitle) {
+        SectionTitle(stringResource(R.string.loc_custom_section))
+        Field(stringResource(R.string.loc_pdf_heading), report.customFieldsTitle) {
             onChange(report.copy(customFieldsTitle = it))
         }
         report.customFields.forEach { customField ->
             Card(modifier = Modifier.fillMaxWidth()) {
                 Column(Modifier.padding(12.dp), verticalArrangement = Arrangement.spacedBy(7.dp)) {
                     if (customField.sourceDefinitionId.isBlank()) {
-                        Field("Kentän otsikko", customField.label) { value ->
+                        Field(stringResource(R.string.loc_field_title), customField.label) { value ->
                             onChange(report.copy(customFields = report.customFields.map {
                                 if (it.id == customField.id) it.copy(label = value) else it
                             }))
@@ -510,7 +510,7 @@ private fun EditorScreen(
                     } else {
                         Text(customField.label, fontWeight = FontWeight.SemiBold)
                     }
-                    Field("Sisältö", customField.value, minLines = 3) { value ->
+                    Field(stringResource(R.string.loc_field_content), customField.value, minLines = 3) { value ->
                         onChange(report.copy(customFields = report.customFields.map {
                             if (it.id == customField.id) it.copy(value = value) else it
                         }))
@@ -526,7 +526,7 @@ private fun EditorScreen(
             modifier = Modifier.fillMaxWidth()
         ) { Text(stringResource(R.string.ui_add_field)) }
 
-        SectionTitle("5. TARKASTUSKOHTEET")
+        SectionTitle(stringResource(R.string.loc_observations_section))
         report.observations.forEachIndexed { index, observation ->
             Card(
                 modifier = Modifier.fillMaxWidth(),
@@ -593,12 +593,12 @@ private fun EditorScreen(
             modifier = Modifier.fillMaxWidth()
         ) { Text(stringResource(R.string.ui_add_item)) }
 
-        SectionTitle("6. YHTEENVETO")
-        Field("Johtopäätökset ja tarvittavat toimenpiteet", report.summary, minLines = 4) {
+        SectionTitle(stringResource(R.string.loc_summary_section))
+        Field(stringResource(R.string.loc_conclusions), report.summary, minLines = 4) {
             onChange(report.copy(summary = it))
         }
 
-        DateField("Tarkastuspäivä", report.inspectionDate) {
+        DateField(stringResource(R.string.loc_date), report.inspectionDate) {
             onChange(report.copy(inspectionDate = it))
         }
 
@@ -710,7 +710,7 @@ private fun PhotoCard(
             } else {
                 Text("Kuvaa ei voitu näyttää: ${File(photo.filePath).name}")
             }
-            Field("Kuvan kommentti (valinnainen)", photo.caption, minLines = 2, onValueChange = onCaptionChange)
+            Field(stringResource(R.string.loc_photo_comment), photo.caption, minLines = 2, onValueChange = onCaptionChange)
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 OutlinedButton(onClick = onEdit, modifier = Modifier.weight(1f)) { Text(stringResource(R.string.ui_edit_photo)) }
                 TextButton(onClick = onDelete) { Text(stringResource(R.string.ui_remove_photo)) }
