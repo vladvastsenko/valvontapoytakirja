@@ -21,4 +21,24 @@
     <string name="ui_add_field">+ Добавить своё поле</string>
     <string name="ui_back_plain">Назад</string>
     <string name="ui_draw_hint">Рисуйте пальцем или стилусом поверх фотографии. Пометки появятся и в PDF.</string>
+    <string name="loc_templates">Шаблоны отчётов</string>
+    <string name="loc_saved">Сохранённые отчёты</string>
+    <string name="loc_fill">Заполните поля. Изменения автоматически сохраняются на телефоне.</string>
+    <string name="loc_site_parties">1. ОБЪЕКТ И УЧАСТНИКИ</string>
+    <string name="loc_phone">Телефон заказчика</string>
+    <string name="loc_email">Email заказчика</string>
+    <string name="loc_date">Дата проверки</string>
+    <string name="loc_site_detail">Уточнение объекта</string>
+    <string name="loc_purpose_section">2. ЦЕЛЬ И ОБЪЁМ ОСМОТРА</string>
+    <string name="loc_purpose">Цель и объём осмотра</string>
+    <string name="loc_general_section">3. ОБЩИЕ ЗАМЕЧАНИЯ</string>
+    <string name="loc_general">Общие замечания</string>
+    <string name="loc_custom_section">4. ДОПОЛНИТЕЛЬНЫЕ ПОЛЯ</string>
+    <string name="loc_observations_section">5. ПУНКТЫ ОСМОТРА</string>
+    <string name="loc_summary_section">6. ЗАКЛЮЧЕНИЕ</string>
+    <string name="loc_conclusions">Выводы и необходимые меры</string>
+    <string name="loc_field_title">Название поля</string>
+    <string name="loc_field_content">Содержание</string>
+    <string name="loc_pdf_heading">Заголовок в PDF</string>
+    <string name="loc_photo_comment">Комментарий к фото (необязательно)</string>
 </resources>
