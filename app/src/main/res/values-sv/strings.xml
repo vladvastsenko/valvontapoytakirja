@@ -64,4 +64,26 @@
     <string name="loc_materials">3. ANVÄNDA MATERIAL</string>
     <string name="loc_photos_section">7. FOTOGRAFIER</string>
     <string name="loc_result_section">8. BESIKTNINGSRESULTAT</string>
+    <string name="loc2_site_parties">KUND OCH OBJEKT</string>
+    <string name="loc2_surfaces">2. UNDERLAG OCH ARBETSFÖRHÅLLANDEN</string>
+    <string name="loc2_structures">4. KONSTRUKTIONER OCH MÅTT</string>
+    <string name="loc2_areas">5. YTOR OCH FÖRBRUKNING</string>
+    <string name="loc2_film">6. TORRFILMSTJOCKLEK</string>
+    <string name="loc2_inspection_date_section">9. BESIKTNINGSDATUM</string>
+    <string name="loc2_instructions">Arbetsanvisningar lämnade och lästa</string>
+    <string name="loc2_installer">Tätskiktsmontörens namn</string>
+    <string name="loc2_certificate">Certifikatnummer</string>
+    <string name="loc2_installer_phone">Montörens telefon</string>
+    <string name="loc2_installer_email">Montörens e-post</string>
+    <string name="loc2_start_date">Arbetets startdatum</string>
+    <string name="loc2_end_date">Arbetets slutdatum</string>
+    <string name="loc2_temperature">Rumstemperatur (°C)</string>
+    <string name="loc2_humidity">Relativ luftfuktighet (%)</string>
+    <string name="loc2_substrate_moisture">Underlagets fuktighet (%)</string>
+    <string name="loc2_wall_area">Väggarea (m²)</string>
+    <string name="loc2_floor_area">Golvarea (m²)</string>
+    <string name="loc2_heating">Golvvärme</string>
+    <string name="loc2_additional_notes">Ytterligare anmärkningar</string>
+    <string name="loc2_pdf_title_valvonta">ÖVERVAKNINGSPROTOKOLL</string>
+    <string name="loc2_pdf_photo_hint">Ta ett foto eller välj flera bilder från galleriet.</string>
 </resources>
