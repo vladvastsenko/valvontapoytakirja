@@ -407,7 +407,7 @@ private fun EditorScreen(
             Spacer(Modifier.weight(1f))
             Button(onClick = onExport) { Text(stringResource(R.string.ui_create_pdf)) }
         }
-        Text("TARKASTUSPÖYTÄKIRJA", style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.Bold)
+        Text(stringResource(R.string.loc2_pdf_title_tarkastus), style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.Bold)
         Text(stringResource(R.string.loc_fill), style = MaterialTheme.typography.bodySmall)
 
         SectionTitle(stringResource(R.string.loc_site_parties))
@@ -438,7 +438,7 @@ private fun EditorScreen(
             }
         )
         if (customers.isEmpty()) {
-            Text("Lisää vakioasiakkaat ensin Asetukset-osiossa.")
+            Text(stringResource(R.string.loc2_no_customers))
         } else if (report.customerId.isNotBlank()) {
             val selectedCustomer = customers.firstOrNull { it.id == report.customerId }
             if (selectedCustomer != null) {
@@ -460,7 +460,7 @@ private fun EditorScreen(
                         ))
                     }
                 )
-                if (customerSites.isEmpty()) Text("Lisää tälle asiakkaalle kohteita Asetukset-osiossa.")
+                if (customerSites.isEmpty()) Text(stringResource(R.string.loc2_no_sites))
             }
         }
         if (report.customerName.isNotBlank()) {
