@@ -173,4 +173,15 @@
     <string name="cloud_date_missing">Datum saknas</string>
     <string name="pdf_language_default">Standardspråk för PDF</string>
     <string name="report_pdf_language">PDF-språk för denna rapport</string>
+    <string name="settings_upload_signature">Ladda upp underskrift från fil</string>
+    <string name="settings_change_signature">Byt underskriftsbild</string>
+    <string name="settings_no_logo">Ingen logotyp vald.</string>
+    <string name="settings_logo_missing">Logotypfilen hittades inte. Välj igen.</string>
+    <string name="settings_logo_saved">Logotyp sparad.</string>
+    <string name="settings_choose_logo">Välj logotyp</string>
+    <string name="settings_change_logo">Byt logotyp</string>
+    <string name="settings_sites_count">Objekt: %1$d</string>
+    <string name="settings_extra_fields">Extra fält: %1$s</string>
+    <string name="settings_delete_action">Ta bort</string>
+    <string name="settings_cancel_action">Avbryt</string>
 </resources>
