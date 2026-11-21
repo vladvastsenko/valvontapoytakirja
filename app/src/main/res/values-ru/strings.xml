@@ -48,4 +48,20 @@
     <string name="ui_rejected">Отклонено</string>
     <string name="ui_add_material">+ Добавить материал</string>
     <string name="ui_floor_slope">Уклон пола</string>
+    <string name="loc_templates">Шаблоны отчётов</string>
+    <string name="loc_saved">Сохранённые отчёты</string>
+    <string name="loc_fill">Заполните поля. Изменения автоматически сохраняются на телефоне.</string>
+    <string name="loc_site_parties">1. ОБЪЕКТ И УЧАСТНИКИ</string>
+    <string name="loc_phone">Телефон заказчика</string>
+    <string name="loc_email">Email заказчика</string>
+    <string name="loc_date">Дата проверки</string>
+    <string name="loc_site_address">Адрес объекта</string>
+    <string name="loc_additional">Дополнительные сведения</string>
+    <string name="loc_comment">Комментарий (необязательно)</string>
+    <string name="loc_site_info">Сведения об объекте</string>
+    <string name="loc_manufacturer">Производитель</string>
+    <string name="loc_product_name">Название продукта</string>
+    <string name="loc_materials">3. ИСПОЛЬЗОВАННЫЕ МАТЕРИАЛЫ</string>
+    <string name="loc_photos_section">7. ФОТОГРАФИИ</string>
+    <string name="loc_result_section">8. РЕЗУЛЬТАТ ПРОВЕРКИ</string>
 </resources>
