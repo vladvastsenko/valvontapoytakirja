@@ -57,4 +57,5 @@
     <string name="loc4_business_id">Business ID: </string>
     <string name="loc4_contact_person">Contact person: </string>
     <string name="loc4_local_save_tarkastus">Tarkastuspöytäkirja 1.0.0 • Data is saved on this phone.</string>
+    <string name="loc4_inspection_date_prefix">Inspection date: %1$s</string>
 </resources>
