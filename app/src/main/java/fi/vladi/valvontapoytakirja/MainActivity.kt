@@ -544,7 +544,7 @@ private fun HomeScreen(
                         Text(report.siteAddress.ifBlank { stringResource(R.string.new_report_fallback) }, fontWeight = FontWeight.SemiBold)
                         if (report.folderPath.isNotBlank()) Text(stringResource(R.string.loc3_folder) + report.folderPath, style = MaterialTheme.typography.bodySmall)
                         Text(stringResource(R.string.loc4_inspection_date_prefix, report.inspectionDate.ifBlank { "—" }))
-                        Text(stringResource(R.string.loc4_result_prefix, report.inspectionResult.ifBlank { "Ei valittu" }))
+                        Text(stringResource(R.string.loc4_result_prefix, report.inspectionResult.ifBlank { stringResource(R.string.ui_not_selected) }))
                         Text(stringResource(R.string.loc4_photo_count, report.photos.size), style = MaterialTheme.typography.bodySmall)
                         TextButton(onClick = { onDelete(report) }) { Text(stringResource(R.string.ui_delete)) }
                     }
@@ -609,7 +609,7 @@ private fun EditorScreen(
         SectionTitle(stringResource(R.string.loc2_site_parties))
         Box {
             OutlinedButton(onClick = { customerMenuExpanded = true }, modifier = Modifier.fillMaxWidth()) {
-                Text(selectedCustomer?.name ?: "Valitse vakioasiakas")
+                Text(selectedCustomer?.name ?: stringResource(R.string.ui_select_saved_customer))
             }
             DropdownMenu(expanded = customerMenuExpanded, onDismissRequest = { customerMenuExpanded = false }) {
                 customers.forEach { customer ->
@@ -891,7 +891,7 @@ private fun EditorScreen(
         SectionTitle(stringResource(R.string.loc2_areas))
         if (report.waterproofingSpecSource.isNotBlank()) {
             Text(
-                "Valmistajan tuotetietojen mukaan esitäytetyt arvot: ${report.waterproofingSpecSource}. Tarkista aina tuotteen ajantasainen työohje.",
+                stringResource(R.string.ui_prefilled_material_warning, report.waterproofingSpecSource),
                 style = MaterialTheme.typography.bodySmall
             )
         }
@@ -1011,7 +1011,7 @@ private fun DateField(
             horizontalAlignment = Alignment.Start
         ) {
             Text(label, style = MaterialTheme.typography.labelSmall)
-            Text(displayDate.ifBlank { "Valitse päivämäärä" })
+            Text(displayDate.ifBlank { stringResource(R.string.ui_choose_date) })
         }
     }
 
@@ -1063,6 +1063,17 @@ private fun Field(
 }
 
 @Composable
+private fun localizedMaterialValue(value: String): String {
+    val language = AppLanguage.selected(LocalContext.current)
+    return when (value) {
+        "Seinä", "Seinät" -> when (language) { "ru" -> "Стены"; "en" -> "Walls"; "sv" -> "Väggar"; else -> value }
+        "Lattia", "Lattiat" -> when (language) { "ru" -> "Пол"; "en" -> "Floor"; "sv" -> "Golv"; else -> value }
+        "Lisää:" -> stringResource(R.string.ui_add_category)
+        else -> value
+    }
+}
+
+@Composable
 private fun MaterialCard(
     material: MaterialEntry,
     familyManufacturer: String,
@@ -1085,7 +1096,7 @@ private fun MaterialCard(
     Card(modifier = Modifier.fillMaxWidth()) {
         Column(Modifier.padding(12.dp), verticalArrangement = Arrangement.spacedBy(7.dp)) {
             Row(verticalAlignment = Alignment.CenterVertically) {
-                Text(material.category, fontWeight = FontWeight.SemiBold, modifier = Modifier.weight(1f))
+                Text(localizedMaterialValue(material.category), fontWeight = FontWeight.SemiBold, modifier = Modifier.weight(1f))
                 TextButton(onClick = onRemove) { Text(stringResource(R.string.ui_delete)) }
             }
             if (lockedFamilyManufacturer && !isFamilyAnchor) {
@@ -1093,7 +1104,7 @@ private fun MaterialCard(
             } else if (manufacturers.isNotEmpty()) {
                 Box {
                     OutlinedButton(onClick = { manufacturerExpanded = true }, modifier = Modifier.fillMaxWidth()) {
-                        Text(effectiveManufacturer.ifBlank { "Valitse valmistaja" })
+                        Text(effectiveManufacturer.ifBlank { stringResource(R.string.ui_choose_manufacturer) })
                     }
                     DropdownMenu(expanded = manufacturerExpanded, onDismissRequest = { manufacturerExpanded = false }) {
                         manufacturers.forEach { manufacturer ->
@@ -1108,7 +1119,7 @@ private fun MaterialCard(
             if (productOptions.isNotEmpty()) {
                 Box {
                     OutlinedButton(onClick = { expanded = true }) {
-                        Text(selectedProductName.ifBlank { "Valitse tuote" })
+                        Text(selectedProductName.ifBlank { stringResource(R.string.ui_choose_product) })
                     }
                     DropdownMenu(
                         expanded = expanded,
@@ -1144,7 +1155,7 @@ private fun MaterialCard(
             if (material.category.equals("vedeneriste", ignoreCase = true) ||
                 material.category.equals("tasoite", ignoreCase = true)
             ) {
-                Text(material.surface.ifBlank { "Pinta määrittämättä" })
+                Text(material.surface.ifBlank { stringResource(R.string.ui_surface_unspecified) })
             }
             Field(stringResource(R.string.loc_additional), material.notes) { onChange(material.copy(notes = it)) }
         }
