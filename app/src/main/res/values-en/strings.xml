@@ -3,7 +3,7 @@
     <string name="choose_report">Choose the type of report to create.</string>
     <string name="settings_sync">Settings and synchronization</string>
     <string name="shared_settings">Shared settings</string>
-    <string name="cloud_sync">Cloud backup and synchronization</string>
+    <string name="cloud_sync_now">Cloud backup and synchronization</string>
     <string name="back">Back</string>
     <string name="language">Language</string>
     <string name="report_valvonta">Supervision report</string>
