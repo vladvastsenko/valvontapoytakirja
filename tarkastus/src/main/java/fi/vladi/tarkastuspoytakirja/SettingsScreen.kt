@@ -25,6 +25,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -59,47 +60,47 @@ fun SettingsScreen(
         verticalArrangement = Arrangement.spacedBy(10.dp)
     ) {
         Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-            TextButton(onClick = onBack) { Text("← Takaisin") }
-            Text("ASETUKSET", style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.Bold)
+            TextButton(onClick = onBack) { Text(stringResource(R.string.settings_back)) }
+            Text(stringResource(R.string.settings_settings), style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.Bold)
         }
 
-        SettingsSection("OMAT TIEDOT JA RAPORTIN ULKOASU")
-        SettingField("Tarkastajan nimi", settings.inspectorName) {
+        SettingsSection(stringResource(R.string.settings_personal))
+        SettingField(stringResource(R.string.settings_inspector), settings.inspectorName) {
             onSettingsChange(settings.copy(inspectorName = it))
         }
-        SettingField("Sertifikaattinumero", settings.inspectorCertificateNumber) {
+        SettingField(stringResource(R.string.settings_cert), settings.inspectorCertificateNumber) {
             onSettingsChange(settings.copy(inspectorCertificateNumber = it))
         }
-        SettingField("Puhelin", settings.inspectorPhone) {
+        SettingField(stringResource(R.string.settings_phone), settings.inspectorPhone) {
             onSettingsChange(settings.copy(inspectorPhone = it))
         }
-        SettingField("Sähköposti", settings.inspectorEmail) {
+        SettingField(stringResource(R.string.settings_email), settings.inspectorEmail) {
             onSettingsChange(settings.copy(inspectorEmail = it))
         }
-        Text("Logo")
+        Text(stringResource(R.string.settings_logo))
         Text(if (settings.logoPath.isBlank()) "Logoa ei ole valittu." else "Logo tallennettu.")
         Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
             OutlinedButton(onClick = onPickLogo, modifier = Modifier.weight(1f)) {
                 Text(if (settings.logoPath.isBlank()) "Valitse logo" else "Vaihda logo")
             }
             if (settings.logoPath.isNotBlank()) {
-                TextButton(onClick = onRemoveLogo) { Text("Poista") }
+                TextButton(onClick = onRemoveLogo) { Text(stringResource(R.string.settings_delete)) }
             }
         }
-        SettingField("Ylätunniste / otsikkoteksti", settings.headerText, minLines = 2) {
+        SettingField(stringResource(R.string.settings_header), settings.headerText, minLines = 2) {
             onSettingsChange(settings.copy(headerText = it))
         }
-        SettingField("Alatunniste / yhteystiedot", settings.footerText, minLines = 2) {
+        SettingField(stringResource(R.string.settings_footer), settings.footerText, minLines = 2) {
             onSettingsChange(settings.copy(footerText = it))
         }
-        Text("Allekirjoitus", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold)
+        Text(stringResource(R.string.settings_signature), style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold)
         SignaturePad(
             strokes = settings.signatureStrokes,
             onChange = { onSettingsChange(settings.copy(signatureStrokes = it)) }
         )
 
-        SettingsSection("VAKIOASIAKKAAT")
-        Text("Tallenna asiakkaat kerran. Uutta pöytäkirjaa tehdessä valitset asiakkaan ja kohteen listasta.")
+        SettingsSection(stringResource(R.string.settings_customers))
+        Text(stringResource(R.string.settings_customers_hint))
         customers.forEach { customer ->
             Card(
                 modifier = Modifier.fillMaxWidth().clickable {
@@ -117,7 +118,7 @@ fun SettingsScreen(
                         selectedCustomerId = customer.id
                         editingCustomer = customer
                         editingSite = null
-                    }) { Text("Muokkaa asiakasta ja kohteita") }
+                    }) { Text(stringResource(R.string.settings_edit_customers)) }
                 }
             }
         }
@@ -128,19 +129,19 @@ fun SettingsScreen(
                 editingSite = null
             },
             modifier = Modifier.fillMaxWidth()
-        ) { Text("+ Lisää vakioasiakas") }
+        ) { Text(stringResource(R.string.settings_add_customer)) }
 
         if (editingCustomer != null) {
             val draft = editingCustomer!!
             SettingsSection(if (draft.name.isBlank()) "UUSI ASIAKAS" else "ASIAKKAAN TIEDOT")
-            SettingField("Yrityksen / tilaajan nimi", draft.name) { editingCustomer = draft.copy(name = it) }
-            SettingField("Y-tunnus", draft.businessId) { editingCustomer = draft.copy(businessId = it) }
-            SettingField("Laskutusosoite", draft.address, minLines = 2) { editingCustomer = draft.copy(address = it) }
-            SettingField("Postinumero", draft.postalCode) { editingCustomer = draft.copy(postalCode = it) }
-            SettingField("Postitoimipaikka", draft.city) { editingCustomer = draft.copy(city = it) }
-            SettingField("Yhteyshenkilö", draft.contactPerson) { editingCustomer = draft.copy(contactPerson = it) }
-            SettingField("Puhelin", draft.phone) { editingCustomer = draft.copy(phone = it) }
-            SettingField("Sähköposti", draft.email) { editingCustomer = draft.copy(email = it) }
+            SettingField(stringResource(R.string.settings_company), draft.name) { editingCustomer = draft.copy(name = it) }
+            SettingField(stringResource(R.string.settings_business_id), draft.businessId) { editingCustomer = draft.copy(businessId = it) }
+            SettingField(stringResource(R.string.settings_billing), draft.address, minLines = 2) { editingCustomer = draft.copy(address = it) }
+            SettingField(stringResource(R.string.settings_postal_code), draft.postalCode) { editingCustomer = draft.copy(postalCode = it) }
+            SettingField(stringResource(R.string.settings_city), draft.city) { editingCustomer = draft.copy(city = it) }
+            SettingField(stringResource(R.string.settings_contact), draft.contactPerson) { editingCustomer = draft.copy(contactPerson = it) }
+            SettingField(stringResource(R.string.settings_phone), draft.phone) { editingCustomer = draft.copy(phone = it) }
+            SettingField(stringResource(R.string.settings_email), draft.email) { editingCustomer = draft.copy(email = it) }
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 Button(
                     onClick = {
@@ -150,7 +151,7 @@ fun SettingsScreen(
                     },
                     enabled = draft.name.isNotBlank(),
                     modifier = Modifier.weight(1f)
-                ) { Text("Tallenna asiakas") }
+                ) { Text(stringResource(R.string.settings_save_customer)) }
                 TextButton(onClick = {
                     if (customers.any { it.id == draft.id }) onDeleteCustomer(draft.id)
                     editingCustomer = null
@@ -170,7 +171,7 @@ fun SettingsScreen(
                         if (site.fieldDefinitions.isNotEmpty()) {
                             Text("Lisäkentät: " + site.fieldDefinitions.joinToString { it.label }, style = MaterialTheme.typography.bodySmall)
                         }
-                        TextButton(onClick = { editingSite = site }) { Text("Muokkaa kohdetta") }
+                        TextButton(onClick = { editingSite = site }) { Text(stringResource(R.string.settings_edit_site)) }
                     }
                 }
             }
@@ -179,26 +180,26 @@ fun SettingsScreen(
                     editingSite = CustomerSite(customerId = selectedCustomer.id)
                 },
                 modifier = Modifier.fillMaxWidth()
-            ) { Text("+ Lisää kohde") }
+            ) { Text(stringResource(R.string.settings_add_site)) }
         }
 
         if (editingSite != null) {
             val draft = editingSite!!
             SettingsSection(if (draft.name.isBlank()) "UUSI KOHDE" else "KOHTEEN TIEDOT")
-            SettingField("Kohteen nimi / tunniste", draft.name) { editingSite = draft.copy(name = it) }
-            SettingField("Kohteen tarkenne", draft.address, minLines = 2) { editingSite = draft.copy(address = it) }
-            Text("Kohteen omat lisäkentät", style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.SemiBold)
-            Text("Esimerkiksi huoneiston numero, rappu, kerros tai sopimusnumero. Nämä kentät tulevat näkyviin raporttiin.")
+            SettingField(stringResource(R.string.settings_site_name), draft.name) { editingSite = draft.copy(name = it) }
+            SettingField(stringResource(R.string.settings_site_detail), draft.address, minLines = 2) { editingSite = draft.copy(address = it) }
+            Text(stringResource(R.string.settings_site_fields), style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.SemiBold)
+            Text(stringResource(R.string.settings_site_fields_hint))
             draft.fieldDefinitions.forEach { definition ->
                 Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
-                    SettingField("Kentän nimi", definition.label, modifier = Modifier.weight(1f)) { value ->
+                    SettingField(stringResource(R.string.settings_field_name), definition.label, modifier = Modifier.weight(1f)) { value ->
                         editingSite = draft.copy(fieldDefinitions = draft.fieldDefinitions.map {
                             if (it.id == definition.id) it.copy(label = value) else it
                         })
                     }
                     TextButton(onClick = {
                         editingSite = draft.copy(fieldDefinitions = draft.fieldDefinitions.filterNot { it.id == definition.id })
-                    }) { Text("Poista") }
+                    }) { Text(stringResource(R.string.settings_delete)) }
                 }
             }
             OutlinedButton(
@@ -206,7 +207,7 @@ fun SettingsScreen(
                     editingSite = draft.copy(fieldDefinitions = draft.fieldDefinitions + SiteFieldDefinition(label = "Uusi kenttä"))
                 },
                 modifier = Modifier.fillMaxWidth()
-            ) { Text("+ Lisää kenttä") }
+            ) { Text(stringResource(R.string.settings_add_field)) }
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 Button(
                     onClick = {
@@ -215,7 +216,7 @@ fun SettingsScreen(
                     },
                     enabled = draft.name.isNotBlank(),
                     modifier = Modifier.weight(1f)
-                ) { Text("Tallenna kohde") }
+                ) { Text(stringResource(R.string.settings_save_site)) }
                 TextButton(onClick = {
                     if (sites.any { it.id == draft.id }) onDeleteSite(draft.id)
                     editingSite = null
