@@ -41,4 +41,7 @@
     <string name="loc_field_content">Content</string>
     <string name="loc_pdf_heading">Heading in PDF</string>
     <string name="loc_photo_comment">Photo comment (optional)</string>
+    <string name="loc2_pdf_title_tarkastus">INSPECTION REPORT</string>
+    <string name="loc2_no_customers">Add saved customers in Settings first.</string>
+    <string name="loc2_no_sites">Add sites for this customer in Settings.</string>
 </resources>
