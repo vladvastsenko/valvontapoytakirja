@@ -1087,12 +1087,29 @@ private fun Field(
 @Composable
 private fun localizedMaterialValue(value: String): String {
     val language = AppLanguage.selected(LocalContext.current)
-    return when (value) {
-        "Seinä", "Seinät" -> when (language) { "ru" -> "Стены"; "en" -> "Walls"; "sv" -> "Väggar"; else -> value }
-        "Lattia", "Lattiat" -> when (language) { "ru" -> "Пол"; "en" -> "Floor"; "sv" -> "Golv"; else -> value }
-        "Lisää:" -> stringResource(R.string.ui_add_category)
-        else -> value
-    }
+    if (language == "fi") return value
+    val labels = mapOf(
+        "tasoite" to listOf("Шпаклёвка / выравнивающая смесь", "Levelling compound", "Spackel / avjämningsmassa"),
+        "pohjuste (primer)" to listOf("Грунтовка (праймер)", "Primer", "Primer"),
+        "vedeneriste" to listOf("Гидроизоляция", "Waterproofing membrane", "Tätskikt"),
+        "kaivotyyppi" to listOf("Тип трапа", "Floor drain type", "Golvbrunnstyp"),
+        "kaivolaippa / lattiakaivovahvike" to listOf("Манжета / усиление трапа", "Drain flange / reinforcement", "Brunnsmanschett / förstärkning"),
+        "nurkkavahvike / vahvikenauha" to listOf("Угловое усиление / армирующая лента", "Corner reinforcement / reinforcing tape", "Hörnförstärkning / armeringsband"),
+        "läpivientivahvike" to listOf("Манжета для проходок", "Pipe penetration reinforcement", "Rörgenomföringsförstärkning"),
+        "läpivientien tiivistysmassa" to listOf("Герметик для проходок", "Penetration sealant", "Tätningsmassa för genomföringar"),
+        "kiinnityslaasti" to listOf("Плиточный клей", "Tile adhesive", "Fästmassa"),
+        "laatat" to listOf("Плитка", "Tiles", "Plattor"),
+        "seinäsaumaus" to listOf("Затирка швов стен", "Wall tile grouting", "Fogning av väggplattor"),
+        "lattiasaumaus" to listOf("Затирка швов пола", "Floor tile grouting", "Fogning av golvplattor"),
+        "elastinen saumausmassa" to listOf("Эластичный герметик", "Elastic joint sealant", "Elastisk fogmassa"),
+        "saumalaasti" to listOf("Затирочная смесь", "Grout", "Fogmassa"),
+        "seinä" to listOf("Стена", "Wall", "Vägg"),
+        "seinät" to listOf("Стены", "Walls", "Väggar"),
+        "lattia" to listOf("Пол", "Floor", "Golv"),
+        "lattiat" to listOf("Полы", "Floors", "Golv")
+    )
+    val index = when (language) { "ru" -> 0; "en" -> 1; "sv" -> 2; else -> return value }
+    return labels[value.trim().lowercase()]?.get(index) ?: value
 }
 
 @Composable
@@ -1177,7 +1194,7 @@ private fun MaterialCard(
             if (material.category.equals("vedeneriste", ignoreCase = true) ||
                 material.category.equals("tasoite", ignoreCase = true)
             ) {
-                Text(material.surface.ifBlank { stringResource(R.string.ui_surface_unspecified) })
+                Text(if (material.surface.isBlank()) stringResource(R.string.ui_surface_unspecified) else localizedMaterialValue(material.surface))
             }
             Field(stringResource(R.string.loc_additional), material.notes) { onChange(material.copy(notes = it)) }
         }
