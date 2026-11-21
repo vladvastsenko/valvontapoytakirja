@@ -190,4 +190,13 @@
     <string name="manufacturer_missing">Tillverkare saknas</string>
     <string name="manufacturer_family">Tillverkare: %1$s • samma system</string>
     <string name="share_report">Dela rapport</string>
+    <string name="cloud_read_error">Kunde inte läsa säkerhetskopior: %1$s</string>
+    <string name="cloud_sync_error">Synkronisering misslyckades: %1$s</string>
+    <string name="cloud_backup_saved">Säkerhetskopia sparad. %1$s</string>
+    <string name="cloud_backup_error">Säkerhetskopiering misslyckades: %1$s</string>
+    <string name="cloud_size_label">Storlek: %1$s</string>
+    <string name="cloud_sync_warning">Synkronisering sker i båda riktningarna. Om samma fil har ändrats på olika sätt på två enheter sparas den lokala versionen i Tarkastus_Sync/Conflicts på Google Drive och konflikten rapporteras. Stäng inte appen under synkroniseringen.</string>
+    <string name="cloud_restore_confirm_details">Återställa säkerhetskopian från %1$s (%2$s)? Innan återställningen skapas automatiskt en ny säkerhetskopia av aktuella data på Google Drive.</string>
+    <string name="cloud_restore_error">Återställning misslyckades: %1$s</string>
+    <string name="cloud_unknown_error">Okänt fel</string>
 </resources>
