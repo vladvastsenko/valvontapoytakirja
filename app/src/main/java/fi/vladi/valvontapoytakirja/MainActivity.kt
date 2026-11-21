@@ -1087,6 +1087,7 @@ private fun Field(
 @Composable
 private fun localizedMaterialValue(value: String): String {
     val language = AppLanguage.selected(LocalContext.current)
+    if (value.trim() == "Lisää:") return stringResource(R.string.ui_add_category)
     if (language == "fi") return value
     val labels = mapOf(
         "tasoite" to listOf("Шпаклёвка / выравнивающая смесь", "Levelling compound", "Spackel / avjämningsmassa"),
