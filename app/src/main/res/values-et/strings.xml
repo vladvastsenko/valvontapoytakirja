@@ -68,7 +68,7 @@
     <string name="loc2_surfaces">2. ALUSPINNAD JA TINGIMUSED</string>
     <string name="loc2_structures">4. KONSTRUKTSIOONID JA MÕÕTMED</string>
     <string name="loc2_areas">5. PINNAD JA KULU</string>
-    <string name="loc2_film">6. KUIVA KILE PAKSUS</string>
+    <string name="loc2_film">6. KUIVA KIHI PAKSUS</string>
     <string name="loc2_inspection_date_section">9. KONTROLLI KUUPÄEV</string>
     <string name="loc2_instructions">Tööjuhised antud ja läbi loetud</string>
     <string name="loc2_installer">Hüdroisolatsiooni paigaldaja</string>
@@ -90,8 +90,8 @@
     <string name="loc3_folder">Kaust: </string>
     <string name="loc3_wall_coating">Seinad – kasutatud hüdroisolatsioon (kg või l)</string>
     <string name="loc3_floor_coating">Põrand – kasutatud hüdroisolatsioon (kg või l)</string>
-    <string name="loc3_wall_film">Seinad – mõõdetud kuiva kile paksus (mm)</string>
-    <string name="loc3_floor_film">Põrand – mõõdetud kuiva kile paksus (mm)</string>
+    <string name="loc3_wall_film">Seinad – mõõdetud kuiva kihi paksus (mm)</string>
+    <string name="loc3_floor_film">Põrand – mõõdetud kuiva kihi paksus (mm)</string>
     <string name="loc4_folder_path">Kaust / alamkaust (nt Kliendid/Helsingi/Objekt)</string>
     <string name="loc4_client_rep">Tellija / objekti esindaja</string>
     <string name="loc4_wall_base">Seina aluspind / konstruktsioon</string>
@@ -100,8 +100,8 @@
     <string name="loc4_slopes_info">Kallete asukohad / lisateave</string>
     <string name="loc4_wall_consumption">Seinad – tootja nõutav kulu (kg/m² või l/m²)</string>
     <string name="loc4_floor_consumption">Põrand – tootja nõutav kulu (kg/m² või l/m²)</string>
-    <string name="loc4_wall_minfilm">Seinad – nõutav minimaalne kuiva kile paksus (mm)</string>
-    <string name="loc4_floor_minfilm">Põrand – nõutav minimaalne kuiva kile paksus (mm)</string>
+    <string name="loc4_wall_minfilm">Seinad – nõutav minimaalne kuiva kihi paksus (mm)</string>
+    <string name="loc4_floor_minfilm">Põrand – nõutav minimaalne kuiva kihi paksus (mm)</string>
     <string name="loc4_other_product">Muu / kohandatud toode</string>
     <string name="loc4_family_hint">Vali kogu hüdroisolatsioonisüsteemile üks tootja: krunt, hüdroisolatsioon, trapimansett, tugevduslindid, tihendid ja plaadiliim.</string>
     <string name="loc4_family_missing">Selle tootja toodet pole selles kategoorias. Vali sama süsteemi tooted.</string>
