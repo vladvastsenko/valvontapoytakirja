@@ -54,6 +54,7 @@ class ReportRepository(private val context: Context) {
 
     fun saveInspector(inspector: InspectorProfile) {
         require(inspector.name.isNotBlank()) { "Inspector name is required" }
+        require(inspector.id.matches(Regex("[a-zA-Z0-9-]{1,64}")))
         val file = File(inspectorsDirectory(), "${inspector.id}.json")
         file.writeText(json.encodeToString(InspectorProfile.serializer(), inspector))
         SharedDocumentsArchive.archiveFile(context, file, "Asetukset/Tarkastajat", file.name, "application/json")
