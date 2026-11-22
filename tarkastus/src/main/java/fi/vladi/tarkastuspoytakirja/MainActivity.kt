@@ -535,7 +535,7 @@ private fun EditorScreen(
         }
 
         SectionTitle(stringResource(R.string.loc_custom_section))
-        Field(stringResource(R.string.loc_pdf_heading), report.customFieldsTitle) {
+        Field(stringResource(R.string.loc_pdf_heading), if (report.customFieldsTitle == "OMAT LISÄKENTÄT") stringResource(R.string.audit_custom_fields_title) else report.customFieldsTitle) {
             onChange(report.copy(customFieldsTitle = it))
         }
         report.customFields.forEach { customField ->
@@ -662,7 +662,7 @@ private fun ChoiceField(
     onSelected: (String) -> Unit
 ) {
     var expanded by remember(label, selectedId) { mutableStateOf(false) }
-    val selectedLabel = options.firstOrNull { it.first == selectedId }?.second ?: "Valitse"
+    val selectedLabel = options.firstOrNull { it.first == selectedId }?.second ?: stringResource(R.string.audit_choose)
     Column {
         OutlinedButton(onClick = { expanded = true }, modifier = Modifier.fillMaxWidth(), enabled = options.isNotEmpty()) {
             Column(Modifier.fillMaxWidth()) {
@@ -945,7 +945,7 @@ private fun DateField(
     OutlinedButton(onClick = { showPicker = true }, modifier = Modifier.fillMaxWidth()) {
         Column(modifier = Modifier.fillMaxWidth(), horizontalAlignment = Alignment.Start) {
             Text(label, style = MaterialTheme.typography.labelSmall)
-            Text(displayDate.ifBlank { "Valitse päivämäärä" })
+            Text(displayDate.ifBlank { stringResource(R.string.audit_choose_date) })
         }
     }
 
