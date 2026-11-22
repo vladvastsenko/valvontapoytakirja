@@ -145,7 +145,7 @@
     <string name="settings_field_name">Lauko pavadinimas</string>
     <string name="settings_add_field">+ Pridėti lauką</string>
     <string name="settings_save_site">Išsaugoti objektą</string>
-    <string name="cloud_back">← Back</string>
+    <string name="cloud_back">← Atgal</string>
     <string name="cloud_title">Atsarginės kopijos debesyje ir sinchronizavimas</string>
     <string name="cloud_intro">Visuose įrenginiuose pasirinkite tą patį privatų Tarkastus aplanką Google Drive.</string>
     <string name="cloud_folder_missing">Saugojimo aplankas nepasirinktas.</string>
