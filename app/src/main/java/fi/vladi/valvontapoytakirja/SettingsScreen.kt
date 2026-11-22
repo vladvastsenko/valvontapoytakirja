@@ -171,6 +171,23 @@ fun SettingsScreen(
         OutlinedButton(onClick = { editingInspector = InspectorProfile() }, modifier = Modifier.fillMaxWidth()) {
             Text("Lisää tarkastaja / Add inspector")
         }
+        if (settings.inspectorName.isNotBlank() &&
+            inspectors.none { it.name.trim().equals(settings.inspectorName.trim(), ignoreCase = true) }
+        ) {
+            OutlinedButton(
+                onClick = {
+                    editingInspector = InspectorProfile(
+                        name = settings.inspectorName,
+                        certificateNumber = settings.inspectorCertificateNumber,
+                        phone = settings.inspectorPhone,
+                        email = settings.inspectorEmail,
+                        signatureStrokes = settings.signatureStrokes,
+                        signatureImagePath = settings.signatureImagePath
+                    )
+                },
+                modifier = Modifier.fillMaxWidth()
+            ) { Text("Lisää nykyinen tarkastaja luetteloon") }
+        }
         editingInspector?.let { draft ->
             SettingField(stringResource(R.string.settings_inspector), draft.name) { editingInspector = draft.copy(name = it) }
             SettingField(stringResource(R.string.settings_cert), draft.certificateNumber) { editingInspector = draft.copy(certificateNumber = it) }
