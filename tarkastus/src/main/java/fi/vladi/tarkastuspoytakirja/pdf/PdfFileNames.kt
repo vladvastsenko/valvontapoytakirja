@@ -11,6 +11,8 @@ internal object PdfFileNames {
                 "et" -> "Hüdroisolatsiooni_kontrollakt"
                 "lt" -> "Hidroizoliacijos_patikros_aktas"
                 "lv" -> "Hidroizolācijas_pārbaudes_akts"
+                "nb" -> "Våtromskontroll"
+                "da" -> "Vådrumskontrol"
                 else -> "Valvontapöytäkirja"
             }
             else -> when (language) {
@@ -20,13 +22,15 @@ internal object PdfFileNames {
                 "et" -> "Ülevaatusakt"
                 "lt" -> "Patikros_aktas"
                 "lv" -> "Pārbaudes_akts"
+                "nb" -> "Befaringsrapport"
+                "da" -> "Inspektionsrapport"
                 else -> "Tarkastuspöytäkirja"
             }
         }
         val detail = site.replace(Regex("[\\\\/:*?\"<>|\\p{Cntrl}]+"), "_")
             .trim().trim('_', '.', ' ')
             .replace(Regex("\\s+"), "_")
-            .take(100).ifBlank { when(language) { "ru" -> "объект"; "en" -> "site"; "sv" -> "objekt"; "et" -> "objekt"; "lt" -> "objektas"; "lv" -> "objekts"; else -> "kohde" } }
+            .take(100).ifBlank { when(language) { "ru" -> "объект"; "en" -> "site"; "sv" -> "objekt"; "et" -> "objekt"; "lt" -> "objektas"; "lv" -> "objekts"; "nb" -> "objekt"; "da" -> "objekt"; else -> "kohde" } }
         return "${prefix}_${detail}.pdf"
     }
 }
