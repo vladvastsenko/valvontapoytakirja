@@ -229,7 +229,7 @@ private fun ManagementScreen(
                 Text(when (AppLanguage.selected(context)) { "ru" -> "Русский"; "sv" -> "Svenska"; "en" -> "English"; "et" -> "Eesti"; "lt" -> "Lietuvių"; "lv" -> "Latviešu"; "nb" -> "Norsk"; "da" -> "Dansk"; else -> "Suomi" } + " ▾")
             }
             DropdownMenu(expanded = languageMenu, onDismissRequest = { languageMenu = false }) {
-                listOf("fi" to "Suomi", "sv" to "Svenska", "ru" to "Русский", "en" to "English", "et" to "Eesti", "lt" to "Lietuvių", "lv" to "Latviešu", "nb" to "Norsk", "da" to "Dansk").forEach { (code, label) ->
+                listOf("en" to "English", "fi" to "Suomi", "sv" to "Svenska", "nb" to "Norsk", "da" to "Dansk", "et" to "Eesti", "lv" to "Latviešu", "lt" to "Lietuvių", "ru" to "Русский").forEach { (code, label) ->
                     DropdownMenuItem(text = { Text(label) }, onClick = {
                         languageMenu = false
                         if (AppLanguage.selected(context) != code) {
@@ -599,7 +599,7 @@ private fun EditorScreen(
                 Text(when (reportLanguage) { "ru" -> "Русский"; "sv" -> "Svenska"; "en" -> "English"; "et" -> "Eesti"; "lt" -> "Lietuvių"; "lv" -> "Latviešu"; "nb" -> "Norsk"; "da" -> "Dansk"; else -> "Suomi" } + " ▾")
             }
             DropdownMenu(expanded = reportLanguageMenu, onDismissRequest = { reportLanguageMenu = false }) {
-                listOf("fi" to "Suomi", "sv" to "Svenska", "ru" to "Русский", "en" to "English", "et" to "Eesti", "lt" to "Lietuvių", "lv" to "Latviešu", "nb" to "Norsk", "da" to "Dansk").forEach { (code, label) ->
+                listOf("en" to "English", "fi" to "Suomi", "sv" to "Svenska", "nb" to "Norsk", "da" to "Dansk", "et" to "Eesti", "lv" to "Latviešu", "lt" to "Lietuvių", "ru" to "Русский").forEach { (code, label) ->
                     DropdownMenuItem(text = { Text(label) }, onClick = {
                         reportLanguageMenu = false
                         onChange(report.copy(pdfLanguage = code))
