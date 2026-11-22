@@ -74,6 +74,7 @@ import fi.vladi.tarkastuspoytakirja.model.CustomerProfile
 import fi.vladi.tarkastuspoytakirja.model.CustomerSite
 import fi.vladi.tarkastuspoytakirja.model.CustomReportField
 import fi.vladi.tarkastuspoytakirja.model.InspectionObservation
+import fi.vladi.tarkastuspoytakirja.model.InspectorProfile
 import fi.vladi.tarkastuspoytakirja.model.InspectionReport
 import fi.vladi.tarkastuspoytakirja.model.ReportPhoto
 import fi.vladi.tarkastuspoytakirja.pdf.ReportPdfGenerator
@@ -117,6 +118,7 @@ private fun TarkastusApp() {
     var templates by remember { mutableStateOf(repository.listTemplates()) }
     var appSettings by remember { mutableStateOf(repository.loadSettings()) }
     var customers by remember { mutableStateOf(repository.listCustomers()) }
+    var inspectors by remember { mutableStateOf(repository.listInspectors()) }
     var sites by remember { mutableStateOf(repository.listSites()) }
     var currentReport by remember { mutableStateOf<InspectionReport?>(null) }
     var pendingCameraFile by remember { mutableStateOf<File?>(null) }
@@ -147,12 +149,14 @@ private fun TarkastusApp() {
     }
 
     fun applySettingsSnapshot(report: InspectionReport): InspectionReport = report.copy(
-        inspectorName = appSettings.inspectorName,
-        inspectorCertificateNumber = appSettings.inspectorCertificateNumber,
-        inspectorPhone = appSettings.inspectorPhone,
-        inspectorEmail = appSettings.inspectorEmail,
-        signatureStrokes = appSettings.signatureStrokes,
-        signatureImagePath = appSettings.signatureImagePath,
+        inspectorName = inspectors.singleOrNull()?.name ?: appSettings.inspectorName,
+        inspectorCertificateNumber = inspectors.singleOrNull()?.certificateNumber ?: appSettings.inspectorCertificateNumber,
+        inspectorPhone = inspectors.singleOrNull()?.phone ?: appSettings.inspectorPhone,
+        inspectorEmail = inspectors.singleOrNull()?.email ?: appSettings.inspectorEmail,
+        signatureStrokes = inspectors.singleOrNull()?.signatureStrokes?.map { stroke ->
+            fi.vladi.tarkastuspoytakirja.model.SignatureStroke(stroke.points)
+        } ?: appSettings.signatureStrokes,
+        signatureImagePath = inspectors.singleOrNull()?.signatureImagePath ?: appSettings.signatureImagePath,
         logoPath = appSettings.logoPath,
         headerText = appSettings.headerText,
         footerText = appSettings.footerText,
@@ -237,6 +241,7 @@ private fun TarkastusApp() {
     } else {
         EditorScreen(
             report = active,
+            inspectors = inspectors,
             customers = customers,
             sites = sites,
             onChange = ::saveReport,
@@ -387,6 +392,7 @@ private fun HomeScreen(
 @Composable
 private fun EditorScreen(
     report: InspectionReport,
+    inspectors: List<InspectorProfile>,
     customers: List<CustomerProfile>,
     sites: List<CustomerSite>,
     onChange: (InspectionReport) -> Unit,
@@ -426,6 +432,30 @@ private fun EditorScreen(
         val pdfContext = LocalContext.current
         val reportLanguage = report.pdfLanguage.ifBlank {
             AppLanguage.selected(pdfContext)
+        }
+        if (inspectors.size > 1) {
+            var inspectorMenuExpanded by remember(report.id) { mutableStateOf(false) }
+            Text("Tarkastaja / Inspector", fontWeight = FontWeight.SemiBold)
+            Box {
+                OutlinedButton(onClick = { inspectorMenuExpanded = true }, modifier = Modifier.fillMaxWidth()) {
+                    Text(report.inspectorName.ifBlank { "Valitse tarkastaja / Select inspector" } + " ▾")
+                }
+                DropdownMenu(expanded = inspectorMenuExpanded, onDismissRequest = { inspectorMenuExpanded = false }) {
+                    inspectors.forEach { inspector ->
+                        DropdownMenuItem(text = { Text(inspector.name) }, onClick = {
+                            inspectorMenuExpanded = false
+                            onChange(report.copy(
+                                inspectorName = inspector.name,
+                                inspectorCertificateNumber = inspector.certificateNumber,
+                                inspectorPhone = inspector.phone,
+                                inspectorEmail = inspector.email,
+                                signatureStrokes = inspector.signatureStrokes,
+                                signatureImagePath = inspector.signatureImagePath
+                            ))
+                        })
+                    }
+                }
+            }
         }
         Text(stringResource(R.string.report_pdf_language), fontWeight = FontWeight.SemiBold)
         Box {
