@@ -113,4 +113,6 @@
     <string name="share_report">Share report</string>
     <string name="ui_preview_pdf">Preview PDF</string>
     <string name="ui_preview_unavailable">No PDF viewer is installed</string>
+    <string name="audit_saved_customer">Saved customer</string>
+    <string name="audit_site">Site</string>
 </resources>
