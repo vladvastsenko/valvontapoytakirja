@@ -60,7 +60,7 @@
     <string name="loc4_inspection_date_prefix">Besiktningsdatum: %1$s</string>
     <string name="loc4_observation_count">Anmärkningar: %1$d</string>
     <string name="loc4_customer_prefix">Kund: %1$s</string>
-    <string name="loc4_observation_number">ANTECKNING %1$d</string>
+    <string name="loc4_observation_number">BESKRIVNING %1$d</string>
     <string name="settings_back">← Tillbaka</string>
     <string name="settings_settings">INSTÄLLNINGAR</string>
     <string name="settings_personal">EGNA UPPGIFTER OCH RAPPORTUTSEENDE</string>
