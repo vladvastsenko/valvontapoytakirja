@@ -37,6 +37,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import fi.vladi.valvontapoytakirja.model.InspectorProfile
 import fi.vladi.valvontapoytakirja.model.AppSettings
 import fi.vladi.valvontapoytakirja.model.CustomerProfile
 import fi.vladi.valvontapoytakirja.model.CustomerSite
@@ -47,6 +48,9 @@ import java.util.UUID
 fun SettingsScreen(
     settings: AppSettings,
     customers: List<CustomerProfile>,
+    inspectors: List<InspectorProfile>,
+    onSaveInspector: (InspectorProfile) -> Unit,
+    onDeleteInspector: (String) -> Unit,
     sites: List<CustomerSite>,
     onSettingsChange: (AppSettings) -> Unit,
     onSaveCustomer: (CustomerProfile) -> Unit,
@@ -59,6 +63,7 @@ fun SettingsScreen(
     onRemoveSignature: () -> Unit,
     onBack: () -> Unit
 ) {
+    var editingInspector by remember { mutableStateOf<InspectorProfile?>(null) }
     var editingCustomer by remember { mutableStateOf<CustomerProfile?>(null) }
     var editingSite by remember { mutableStateOf<CustomerSite?>(null) }
     var selectedCustomerId by remember { mutableStateOf("") }
@@ -152,6 +157,34 @@ fun SettingsScreen(
                 Text(if (settings.signatureImagePath.isBlank()) stringResource(R.string.settings_upload_signature) else stringResource(R.string.settings_change_signature))
             }
             if (settings.signatureImagePath.isNotBlank()) TextButton(onClick = onRemoveSignature) { Text(stringResource(R.string.settings_remove_image)) }
+        }
+
+        SettingsSection("Tarkastajat / Inspectors")
+        inspectors.forEach { inspector ->
+            Card(modifier = Modifier.fillMaxWidth().clickable { editingInspector = inspector }) {
+                Row(Modifier.padding(12.dp), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    Text(inspector.name, modifier = Modifier.weight(1f))
+                    TextButton(onClick = { editingInspector = inspector }) { Text(stringResource(R.string.settings_edit_customers)) }
+                }
+            }
+        }
+        OutlinedButton(onClick = { editingInspector = InspectorProfile() }, modifier = Modifier.fillMaxWidth()) {
+            Text("Lisää tarkastaja / Add inspector")
+        }
+        editingInspector?.let { draft ->
+            SettingField(stringResource(R.string.settings_inspector), draft.name) { editingInspector = draft.copy(name = it) }
+            SettingField(stringResource(R.string.settings_cert), draft.certificateNumber) { editingInspector = draft.copy(certificateNumber = it) }
+            SettingField(stringResource(R.string.settings_phone), draft.phone) { editingInspector = draft.copy(phone = it) }
+            SettingField(stringResource(R.string.settings_email), draft.email) { editingInspector = draft.copy(email = it) }
+            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                Button(onClick = { onSaveInspector(draft); editingInspector = null }, enabled = draft.name.isNotBlank()) {
+                    Text(stringResource(R.string.settings_save_customer))
+                }
+                TextButton(onClick = {
+                    if (inspectors.any { it.id == draft.id }) onDeleteInspector(draft.id)
+                    editingInspector = null
+                }) { Text(stringResource(R.string.settings_delete_action)) }
+            }
         }
 
         SettingsSection(stringResource(R.string.settings_customers))
