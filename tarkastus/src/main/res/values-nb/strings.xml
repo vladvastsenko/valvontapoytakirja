@@ -50,8 +50,8 @@
     <string name="loc3_photo_error">Kunne ikke åpne bildet.</string>
     <string name="loc4_folder_path">Mappe / undermappe (f.eks. Kunder/Helsinki/Objekt)</string>
     <string name="loc4_client_rep">Kunde / representant for objektet</string>
-    <string name="loc4_location">Room / location</string>
-    <string name="loc4_description">Description / condition</string>
+    <string name="loc4_location">Rom / plassering</string>
+    <string name="loc4_description">Beskrivelse / tilstand</string>
     <string name="loc4_actions">Tiltak / tilleggsopplysninger</string>
     <string name="loc4_image_failed">Kunne ikke vise bildet: %1$s</string>
     <string name="loc4_business_id">Organisasjonsnummer: </string>
@@ -113,8 +113,8 @@
     <string name="share_report">Del rapport</string>
     <string name="ui_preview_pdf">Forhåndsvis PDF</string>
     <string name="ui_preview_unavailable">Ingen PDF-leser installert</string>
-    <string name="audit_saved_customer">Saved customer</string>
-    <string name="audit_site">Site</string>
+    <string name="audit_saved_customer">Lagret kunde</string>
+    <string name="audit_site">Objekt</string>
     <string name="audit_choose">Velg</string>
     <string name="audit_choose_date">Velg dato</string>
     <string name="audit_custom_fields_title">EGNE FELT</string>
