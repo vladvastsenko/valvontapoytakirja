@@ -121,21 +121,27 @@ object ReportPdfGenerator {
             writer.field("Tulos", PdfLabels(language).text(report.inspectionResult))
             writer.field("Lisähuomiot", report.additionalNotes)
     
-            val hasInspectorDetails = settings.inspectorName.isNotBlank() ||
-                settings.inspectorCertificateNumber.isNotBlank() ||
-                settings.inspectorPhone.isNotBlank() ||
-                settings.inspectorEmail.isNotBlank() ||
-                report.inspectionDate.isNotBlank() ||
-                settings.signatureStrokes.isNotEmpty() || settings.signatureImagePath.isNotBlank()
+            // New reports carry the chosen inspector's own snapshot. Legacy reports
+            // without a snapshot continue to use the original settings fallback.
+            val inspectorName = if (report.settingsSnapshotCreated) report.inspectorName else report.inspectorName.ifBlank { settings.inspectorName }
+            val inspectorCertificate = if (report.settingsSnapshotCreated) report.inspectorCertificateNumber else report.inspectorCertificateNumber.ifBlank { settings.inspectorCertificateNumber }
+            val inspectorPhone = if (report.settingsSnapshotCreated) report.inspectorPhone else report.inspectorPhone.ifBlank { settings.inspectorPhone }
+            val inspectorEmail = if (report.settingsSnapshotCreated) report.inspectorEmail else report.inspectorEmail.ifBlank { settings.inspectorEmail }
+            val inspectorStrokes = if (report.settingsSnapshotCreated) report.signatureStrokes else report.signatureStrokes.ifEmpty { settings.signatureStrokes }
+            val inspectorImage = if (report.settingsSnapshotCreated) report.signatureImagePath else report.signatureImagePath.ifBlank { settings.signatureImagePath }
+            val hasInspectorDetails = inspectorName.isNotBlank() ||
+                inspectorCertificate.isNotBlank() || inspectorPhone.isNotBlank() ||
+                inspectorEmail.isNotBlank() || report.inspectionDate.isNotBlank() ||
+                inspectorStrokes.isNotEmpty() || inspectorImage.isNotBlank()
             if (hasInspectorDetails) {
                 writer.spacer(28f)
                 writer.section("TARKASTAJA")
-                if (settings.inspectorName.isNotBlank()) writer.field("Nimi", settings.inspectorName)
-                if (settings.inspectorCertificateNumber.isNotBlank()) writer.field("Sertifikaattinumero", settings.inspectorCertificateNumber)
-                if (settings.inspectorPhone.isNotBlank()) writer.field("Puhelin", settings.inspectorPhone)
-                if (settings.inspectorEmail.isNotBlank()) writer.field("Sähköposti", settings.inspectorEmail)
+                if (inspectorName.isNotBlank()) writer.field("Nimi", inspectorName)
+                if (inspectorCertificate.isNotBlank()) writer.field("Sertifikaattinumero", inspectorCertificate)
+                if (inspectorPhone.isNotBlank()) writer.field("Puhelin", inspectorPhone)
+                if (inspectorEmail.isNotBlank()) writer.field("Sähköposti", inspectorEmail)
                 if (report.inspectionDate.isNotBlank()) writer.field("Tarkastuspäivä", report.inspectionDate)
-                writer.signature(settings.signatureStrokes, settings.signatureImagePath)
+                writer.signature(inspectorStrokes, inspectorImage)
             }
     
             if (report.photos.isNotEmpty()) {
