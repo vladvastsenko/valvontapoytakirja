@@ -226,13 +226,13 @@ object ReportPdfGenerator {
 
         fun field(label: String, value: String) {
             if (value.isBlank()) return
-            drawWrapped("${labels.text(label)}: $value", bodyPaint, 14f)
+            drawWrapped(value, bodyPaint, 14f)
         }
 
         private fun highlightedField(label: String, value: String) {
             if (value.isBlank()) return
             val emphasisPaint = Paint(sectionPaint).apply { textSize = 13f }
-            drawWrapped("${labels.text(label)}: $value", emphasisPaint, 16f)
+            drawWrapped(value, emphasisPaint, 16f)
         }
 
         fun observation(observation: InspectionObservation) {
