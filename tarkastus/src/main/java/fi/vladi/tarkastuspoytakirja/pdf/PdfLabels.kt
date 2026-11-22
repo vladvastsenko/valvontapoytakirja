@@ -74,6 +74,7 @@ internal class PdfLabels(private val language: String) {
         "seinät" to listOf("стены", "walls", "väggar"),
         "lattia" to listOf("пол", "floor", "golv"),
         "Seinät ja lattia" to listOf("Стены и пол", "Walls and floor", "Väggar och golv"),
+        "OMAT LISÄKENTÄT" to listOf("ДОПОЛНИТЕЛЬНЫЕ ПОЛЯ", "CUSTOM FIELDS", "EGNA EXTRAFÄLT"),
         "Menekki" to listOf("Расход", "Consumption", "Åtgång"),
         "Kuivakalvo" to listOf("Сухая плёнка", "Dry film", "Torrfilm")
     )
