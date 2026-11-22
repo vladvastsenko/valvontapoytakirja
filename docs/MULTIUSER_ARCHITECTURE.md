@@ -29,3 +29,9 @@ Status: implementation in progress on `auth-registration`. No APK build or devic
 
 ## Later documentation
 - User manual, Google Drive folder-sharing guide, privacy policy, terms of service.
+
+## User manual requirements (agreed)
+- One user may save multiple inspector profiles for different qualifications, certifications, licenses, or inspection purposes, and select the appropriate profile for each report.
+- Explain that empty fields should not be printed in exported PDFs; verify this in both report generators before documenting as guaranteed behavior.
+- Explain how to add custom fields with user-defined labels and use them for different inspection scenarios; verify which report types support this before documenting scope.
+- Profile selection appears only if there are at least two saved inspectors; with one, it is automatic.
