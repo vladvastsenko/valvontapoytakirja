@@ -182,7 +182,7 @@ fun SettingsScreen(
                         phone = settings.inspectorPhone,
                         email = settings.inspectorEmail,
                         signatureStrokes = settings.signatureStrokes,
-                        signatureImagePath = settings.signatureImagePath
+                        signatureImagePath = ""
                     )
                 },
                 modifier = Modifier.fillMaxWidth()
