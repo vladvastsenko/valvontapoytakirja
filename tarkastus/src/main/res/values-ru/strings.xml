@@ -115,4 +115,7 @@
     <string name="ui_preview_unavailable">На устройстве нет приложения для просмотра PDF</string>
     <string name="audit_saved_customer">Постоянный клиент</string>
     <string name="audit_site">Объект</string>
+    <string name="audit_choose">Выбрать</string>
+    <string name="audit_choose_date">Выберите дату</string>
+    <string name="audit_custom_fields_title">ДОПОЛНИТЕЛЬНЫЕ ПОЛЯ</string>
 </resources>
