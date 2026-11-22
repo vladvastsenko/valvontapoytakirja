@@ -9,6 +9,7 @@ import android.net.Uri
 import androidx.core.content.FileProvider
 import fi.vladi.tarkastuspoytakirja.model.InspectionReport
 import fi.vladi.tarkastuspoytakirja.model.AppSettings
+import fi.vladi.tarkastuspoytakirja.model.InspectorProfile
 import fi.vladi.tarkastuspoytakirja.model.CustomerProfile
 import fi.vladi.tarkastuspoytakirja.model.CustomerSite
 import fi.vladi.tarkastuspoytakirja.storage.SharedDocumentsArchive
@@ -39,6 +40,17 @@ class ReportRepository(private val context: Context) {
             SharedDocumentsArchive.archiveFile(context, signature, "Asetukset", signature.name)
         }
     }
+
+    private fun inspectorsDirectory(): File =
+        File(context.filesDir, "inspectors").apply { mkdirs() }
+
+    fun listInspectors(): List<InspectorProfile> =
+        inspectorsDirectory().listFiles { it.extension == "json" }
+            ?.mapNotNull { file ->
+                runCatching { json.decodeFromString(InspectorProfile.serializer(), file.readText()) }.getOrNull()
+            }
+            ?.sortedBy { it.name.lowercase() }
+            ?: emptyList()
 
     private fun customersDirectory(): File =
         File(context.filesDir, "customers").apply { mkdirs() }
