@@ -14,13 +14,15 @@ Status: implementation in progress on `auth-registration`. No APK build or devic
 - Serializable InspectorProfile with id, name, certificate number, phone, email and signature fields.
 - Inspector profile repository with individual JSON files under `filesDir/inspectors`; files are archived to `Asetukset/Tarkastajat`.
 - Inspector profile management in Valvontapöytäkirja settings.
-- Inspector dropdown in Valvontapöytäkirja report editor; selected inspector details are copied to report.
+- Inspector dropdown in both Valvontapöytäkirja and Tarkastuspöytäkirja editors, visible only when two or more saved profiles exist; one profile is auto-selected on new reports.
+- Inspector signature strokes can be drawn in profile settings; legacy inspector settings can be manually copied into a new profile.
+- Temporary sync files are excluded from Drive upload.
 
 ## Still needed before claiming multiuser completion
-- Add inspector selection to Tarkastuspöytäkirja using the same shared profile records.
-- Complete signature image/strokes handling and ensure per-inspector images are portable across devices.
+- Verify inspectors added on one device appear on another after sync and screen reopening.
+- Signature strokes are stored in portable JSON; imported signature image paths are still device-local and need a portable asset strategy.
 - Verify Google Drive's Android document picker can open a folder shared from a different Google account; implement a supported alternative if not.
-- Test bidirectional sync for profile additions/updates/deletions and avoid overwriting colleagues' data.
+- Test bidirectional sync for profile additions/updates/deletions and avoid overwriting colleagues' data. Existing sync still mirrors the whole app-private files directory, including app_settings.json; this must be reviewed before enabling real group collaboration.
 - Test simultaneous edits, data privacy, offline use, logout/account switching and recovery from backups.
 - Translate all newly added UI labels into all nine supported languages.
 - Run a compilation check and device test before shipping.
