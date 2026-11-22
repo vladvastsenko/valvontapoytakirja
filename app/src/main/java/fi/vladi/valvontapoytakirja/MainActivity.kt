@@ -1079,26 +1079,26 @@ private fun localizedMaterialValue(value: String): String {
     if (value.trim() == "Lisää:") return stringResource(R.string.ui_add_category)
     if (language == "fi") return value
     val labels = mapOf(
-        "tasoite" to listOf("Шпаклёвка / выравнивающая смесь", "Levelling compound", "Spackel / avjämningsmassa", "Tasandussegu", "Išlyginamasis mišinys", "Izlīdzinošais maisījums"),
-        "pohjuste (primer)" to listOf("Грунтовка (праймер, "Krunt", "Gruntas", "Grunts")", "Primer", "Primer"),
-        "vedeneriste" to listOf("Гидроизоляция", "Waterproofing membrane", "Tätskikt", "Hüdroisolatsioon", "Hidroizoliacija", "Hidroizolācija"),
-        "kaivotyyppi" to listOf("Тип трапа", "Floor drain type", "Golvbrunnstyp", "Trapi tüüp", "Trapo tipas", "Trapa veids"),
-        "kaivolaippa / lattiakaivovahvike" to listOf("Манжета / усиление трапа", "Drain flange / reinforcement", "Brunnsmanschett / förstärkning", "Trapi mansett / tugevdus", "Trapo manžetė / sutvirtinimas", "Trapa manšete / stiprinājums"),
-        "nurkkavahvike / vahvikenauha" to listOf("Угловое усиление / армирующая лента", "Corner reinforcement / reinforcing tape", "Hörnförstärkning / armeringsband", "Nurgatugevdus / tugevduslint", "Kampų sutvirtinimas / armavimo juosta", "Stūra stiprinājums / armēšanas lente"),
-        "läpivientivahvike" to listOf("Манжета для проходок", "Pipe penetration reinforcement", "Rörgenomföringsförstärkning", "Läbiviigu mansett", "Vamzdžių įvadų manžetė", "Cauruļu izvadu manšete"),
-        "läpivientien tiivistysmassa" to listOf("Герметик для проходок", "Penetration sealant", "Tätningsmassa för genomföringar", "Läbiviikude tihendusmass", "Įvadų sandarinimo masė", "Izvadu hermētiķis"),
-        "kiinnityslaasti" to listOf("Плиточный клей", "Tile adhesive", "Fästmassa", "Plaadiliim", "Plytelių klijai", "Flīžu līme"),
-        "laatat" to listOf("Плитка", "Tiles", "Plattor", "Plaadid", "Plytelės", "Flīzes"),
-        "seinäsaumaus" to listOf("Затирка швов стен", "Wall tile grouting", "Fogning av väggplattor", "Seinaplaatide vuukimine", "Sienų plytelių glaistymas", "Sienas flīžu šuvošana"),
-        "lattiasaumaus" to listOf("Затирка швов пола", "Floor tile grouting", "Fogning av golvplattor", "Põrandaplaatide vuukimine", "Grindų plytelių glaistymas", "Grīdas flīžu šuvošana"),
-        "elastinen saumausmassa" to listOf("Эластичный герметик", "Elastic joint sealant", "Elastisk fogmassa", "Elastne vuugimass", "Elastingas siūlių sandariklis", "Elastīgais šuvju hermētiķis"),
-        "saumalaasti" to listOf("Затирочная смесь", "Grout", "Fogmassa", "Vuugisegu", "Siūlių glaistas", "Šuvju java"),
-        "seinä" to listOf("Стена", "Wall", "Vägg", "Sein", "Siena", "Siena"),
-        "seinät" to listOf("Стены", "Walls", "Väggar", "Seinad", "Sienos", "Sienas"),
-        "lattia" to listOf("Пол", "Floor", "Golv", "Põrand", "Grindys", "Grīda"),
-        "lattiat" to listOf("Полы", "Floors", "Golv", "Põrandad", "Grindys", "Grīdas")
+        "tasoite" to listOf("Шпаклёвка / выравнивающая смесь", "Levelling compound", "Spackel / avjämningsmassa", "Tasandussegu", "Išlyginamasis mišinys", "Izlīdzinošais maisījums", "Sparkel / avrettingsmasse", "Spartel / afretningsmasse"),
+        "pohjuste (primer)" to listOf("Грунтовка (праймер, "Krunt", "Gruntas", "Grunts")", "Primer", "Primer", "Primer", "Primer"),
+        "vedeneriste" to listOf("Гидроизоляция", "Waterproofing membrane", "Tätskikt", "Hüdroisolatsioon", "Hidroizoliacija", "Hidroizolācija", "Membran", "Membran"),
+        "kaivotyyppi" to listOf("Тип трапа", "Floor drain type", "Golvbrunnstyp", "Trapi tüüp", "Trapo tipas", "Trapa veids", "Sluktype", "Afløbstype"),
+        "kaivolaippa / lattiakaivovahvike" to listOf("Манжета / усиление трапа", "Drain flange / reinforcement", "Brunnsmanschett / förstärkning", "Trapi mansett / tugevdus", "Trapo manžetė / sutvirtinimas", "Trapa manšete / stiprinājums", "Slukmansjett / forsterkning", "Afløbsmanchet / forstærkning"),
+        "nurkkavahvike / vahvikenauha" to listOf("Угловое усиление / армирующая лента", "Corner reinforcement / reinforcing tape", "Hörnförstärkning / armeringsband", "Nurgatugevdus / tugevduslint", "Kampų sutvirtinimas / armavimo juosta", "Stūra stiprinājums / armēšanas lente", "Hjørneforsterkning / armeringsbånd", "Hjørneforstærkning / armeringsbånd"),
+        "läpivientivahvike" to listOf("Манжета для проходок", "Pipe penetration reinforcement", "Rörgenomföringsförstärkning", "Läbiviigu mansett", "Vamzdžių įvadų manžetė", "Cauruļu izvadu manšete", "Rørmansjett", "Rørmanchet"),
+        "läpivientien tiivistysmassa" to listOf("Герметик для проходок", "Penetration sealant", "Tätningsmassa för genomföringar", "Läbiviikude tihendusmass", "Įvadų sandarinimo masė", "Izvadu hermētiķis", "Tetningsmasse for gjennomføringer", "Tætningsmasse til gennemføringer"),
+        "kiinnityslaasti" to listOf("Плиточный клей", "Tile adhesive", "Fästmassa", "Plaadiliim", "Plytelių klijai", "Flīžu līme", "Flislim", "Fliseklæb"),
+        "laatat" to listOf("Плитка", "Tiles", "Plattor", "Plaadid", "Plytelės", "Flīzes", "Fliser", "Fliser"),
+        "seinäsaumaus" to listOf("Затирка швов стен", "Wall tile grouting", "Fogning av väggplattor", "Seinaplaatide vuukimine", "Sienų plytelių glaistymas", "Sienas flīžu šuvošana", "Fuging av veggfliser", "Fugning af vægfliser"),
+        "lattiasaumaus" to listOf("Затирка швов пола", "Floor tile grouting", "Fogning av golvplattor", "Põrandaplaatide vuukimine", "Grindų plytelių glaistymas", "Grīdas flīžu šuvošana", "Fuging av gulvfliser", "Fugning af gulvfliser"),
+        "elastinen saumausmassa" to listOf("Эластичный герметик", "Elastic joint sealant", "Elastisk fogmassa", "Elastne vuugimass", "Elastingas siūlių sandariklis", "Elastīgais šuvju hermētiķis", "Elastisk fugemasse", "Elastisk fugemasse"),
+        "saumalaasti" to listOf("Затирочная смесь", "Grout", "Fogmassa", "Vuugisegu", "Siūlių glaistas", "Šuvju java", "Fugemasse", "Fugemørtel"),
+        "seinä" to listOf("Стена", "Wall", "Vägg", "Sein", "Siena", "Siena", "Vegg", "Væg"),
+        "seinät" to listOf("Стены", "Walls", "Väggar", "Seinad", "Sienos", "Sienas", "Vegger", "Vægge"),
+        "lattia" to listOf("Пол", "Floor", "Golv", "Põrand", "Grindys", "Grīda", "Gulv", "Gulv"),
+        "lattiat" to listOf("Полы", "Floors", "Golv", "Põrandad", "Grindys", "Grīdas", "Gulv", "Gulve")
     )
-    val index = when (language) { "ru" -> 0; "en" -> 1; "sv" -> 2; "et" -> 3; "lt" -> 4; "lv" -> 5; else -> return value }
+    val index = when (language) { "ru" -> 0; "en" -> 1; "sv" -> 2; "et" -> 3; "lt" -> 4; "lv" -> 5; "nb" -> 6; "da" -> 7; else -> return value }
     return labels[value.trim().lowercase()]?.getOrNull(index) ?: value
 }
 
