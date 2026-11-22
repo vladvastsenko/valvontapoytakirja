@@ -115,4 +115,7 @@
     <string name="ui_preview_unavailable">PDF-katselusovellusta ei löytynyt</string>
     <string name="audit_saved_customer">Vakioasiakas</string>
     <string name="audit_site">Kohde</string>
+    <string name="audit_choose">Valitse</string>
+    <string name="audit_choose_date">Valitse päivämäärä</string>
+    <string name="audit_custom_fields_title">OMAT LISÄKENTÄT</string>
 </resources>
