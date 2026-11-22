@@ -455,7 +455,7 @@ private fun EditorScreen(
             onChange(report.copy(folderPath = it.trim('/')))
         }
         ChoiceField(
-            label = "Vakioasiakas",
+            label = stringResource(R.string.audit_saved_customer),
             selectedId = report.customerId,
             options = customers.map { it.id to it.name },
             onSelected = { id ->
@@ -485,7 +485,7 @@ private fun EditorScreen(
                 Text(stringResource(R.string.loc4_customer_prefix, selectedCustomer.name), fontWeight = FontWeight.SemiBold)
                 val customerSites = sites.filter { it.customerId == selectedCustomer.id }
                 ChoiceField(
-                    label = "Kohde",
+                    label = stringResource(R.string.audit_site),
                     selectedId = report.siteId,
                     options = customerSites.map { it.id to (it.name + " — " + it.address) },
                     onSelected = { id ->
