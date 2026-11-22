@@ -145,7 +145,7 @@
     <string name="settings_field_name">Välja nimi</string>
     <string name="settings_add_field">+ Lisa väli</string>
     <string name="settings_save_site">Salvesta objekt</string>
-    <string name="cloud_back">← Back</string>
+    <string name="cloud_back">← Tagasi</string>
     <string name="cloud_title">Pilvevarundus ja sünkroonimine</string>
     <string name="cloud_intro">Vali kõigis seadmetes Google Drive\'is sama privaatne Tarkastuse kaust.</string>
     <string name="cloud_folder_missing">Salvestuskausta pole valitud.</string>
