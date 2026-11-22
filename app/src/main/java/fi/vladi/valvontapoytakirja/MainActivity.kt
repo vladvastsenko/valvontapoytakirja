@@ -305,8 +305,7 @@ private fun ValvontaApp(
             inspectorPhone = onlyInspector?.phone ?: appSettings.inspectorPhone.ifBlank { report.inspectorPhone },
             inspectorEmail = onlyInspector?.email ?: appSettings.inspectorEmail.ifBlank { report.inspectorEmail },
             signatureStrokes = onlyInspector?.signatureStrokes ?: appSettings.signatureStrokes.ifEmpty { report.signatureStrokes },
-            signatureImagePath = onlyInspector?.signatureImagePath?.takeIf { it.isNotBlank() }
-                ?: appSettings.signatureImagePath,
+            signatureImagePath = onlyInspector?.signatureImagePath ?: appSettings.signatureImagePath,
             logoPath = appSettings.logoPath,
             headerText = appSettings.headerText,
             footerText = appSettings.footerText,
