@@ -39,15 +39,15 @@ object ReportPdfGenerator {
         val footerText = if (report.settingsSnapshotCreated) report.footerText else report.footerText.ifBlank { settings.footerText }
         val writer = PdfWriter(document, logoPath, headerText, footerText, totalPages, language)
         writer.title("TARKASTUSPÖYTÄKIRJA")
-        if (report.customerName.isNotBlank()) writer.field("Tilaaja", report.customerName)
-        if (report.customerBusinessId.isNotBlank()) writer.field("Y-tunnus", report.customerBusinessId)
+        if (report.customerName.isNotBlank()) writer.labeledField("Tilaaja", report.customerName)
+        if (report.customerBusinessId.isNotBlank()) writer.labeledField("Y-tunnus", report.customerBusinessId)
         if (report.customerAddress.isNotBlank() || report.customerPostalCode.isNotBlank() || report.customerCity.isNotBlank()) {
-            writer.field("Tilaajan osoite", listOf(report.customerAddress, report.customerPostalCode, report.customerCity).filter { it.isNotBlank() }.joinToString(", "))
+            writer.labeledField("Tilaajan osoite", listOf(report.customerAddress, report.customerPostalCode, report.customerCity).filter { it.isNotBlank() }.joinToString(", "))
         }
         writer.labeledField("Kohde", listOf(report.siteName, report.siteAddress).filter { it.isNotBlank() }.joinToString(" – "))
-        writer.field("Yhteyshenkilö", report.clientOrRepresentative)
-        writer.field("Tilaajan puhelinnumero", report.clientPhone)
-        writer.field("Tilaajan sähköposti", report.clientEmail)
+        writer.labeledField("Yhteyshenkilö", report.clientOrRepresentative)
+        writer.labeledField("Tilaajan puhelinnumero", report.clientPhone)
+        writer.labeledField("Tilaajan sähköposti", report.clientEmail)
 
         if (report.purposeAndScope.isNotBlank()) {
             writer.section("TARKASTUKSEN TARKOITUS JA LAAJUUS")
