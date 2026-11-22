@@ -65,6 +65,7 @@ import fi.vladi.valvontapoytakirja.cloud.CloudBackupScreen
 import fi.vladi.tarkastuspoytakirja.storage.SharedDocumentsArchive
 import fi.vladi.valvontapoytakirja.data.MaterialCatalog
 import fi.vladi.valvontapoytakirja.data.ReportRepository
+import fi.vladi.valvontapoytakirja.model.InspectorProfile
 import fi.vladi.valvontapoytakirja.model.AppSettings
 import fi.vladi.valvontapoytakirja.model.CustomerProfile
 import fi.vladi.valvontapoytakirja.model.CustomerSite
@@ -277,6 +278,7 @@ private fun ValvontaApp(
     var templates by remember { mutableStateOf(repository.listTemplates()) }
     var appSettings by remember { mutableStateOf(repository.loadSettings()) }
     var customers by remember { mutableStateOf(repository.listCustomers()) }
+    var inspectors by remember { mutableStateOf(repository.listInspectors()) }
     var sites by remember { mutableStateOf(repository.listSites()) }
     var showSettings by remember { mutableStateOf(initialShowSettings) }
     var currentReport by remember { mutableStateOf<InspectionReport?>(null) }
@@ -372,6 +374,15 @@ private fun ValvontaApp(
         SettingsScreen(
             settings = appSettings,
             customers = customers,
+            inspectors = inspectors,
+            onSaveInspector = { inspector ->
+                repository.saveInspector(inspector)
+                inspectors = repository.listInspectors()
+            },
+            onDeleteInspector = { id ->
+                repository.deleteInspector(id)
+                inspectors = repository.listInspectors()
+            },
             sites = sites,
             onSettingsChange = ::saveAppSettings,
             onSaveCustomer = { customer ->
@@ -429,6 +440,7 @@ private fun ValvontaApp(
     } else {
         EditorScreen(
             report = active,
+            inspectors = inspectors,
             customers = customers,
             sites = sites,
             onChange = ::saveReport,
@@ -567,6 +579,7 @@ private fun HomeScreen(
 @Composable
 private fun EditorScreen(
     report: InspectionReport,
+    inspectors: List<InspectorProfile>,
     customers: List<CustomerProfile>,
     sites: List<CustomerSite>,
     onChange: (InspectionReport) -> Unit,
@@ -592,6 +605,27 @@ private fun EditorScreen(
         val pdfContext = LocalContext.current
         val reportLanguage = report.pdfLanguage.ifBlank {
             AppLanguage.selected(pdfContext)
+        }
+        var inspectorMenuExpanded by remember(report.id) { mutableStateOf(false) }
+        Text("Tarkastaja / Inspector", fontWeight = FontWeight.SemiBold)
+        Box {
+            OutlinedButton(onClick = { inspectorMenuExpanded = true }, modifier = Modifier.fillMaxWidth()) {
+                Text(report.inspectorName.ifBlank { "Valitse tarkastaja / Select inspector" } + " ▾")
+            }
+            DropdownMenu(expanded = inspectorMenuExpanded, onDismissRequest = { inspectorMenuExpanded = false }) {
+                inspectors.forEach { inspector ->
+                    DropdownMenuItem(text = { Text(inspector.name) }, onClick = {
+                        inspectorMenuExpanded = false
+                        onChange(report.copy(
+                            inspectorName = inspector.name,
+                            inspectorCertificateNumber = inspector.certificateNumber,
+                            inspectorPhone = inspector.phone,
+                            inspectorEmail = inspector.email,
+                            signatureStrokes = inspector.signatureStrokes
+                        ))
+                    })
+                }
+            }
         }
         Text(stringResource(R.string.report_pdf_language), fontWeight = FontWeight.SemiBold)
         Box {
