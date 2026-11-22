@@ -96,7 +96,7 @@
     <string name="loc4_client_rep">Tellija / objekti esindaja</string>
     <string name="loc4_wall_base">Seina aluspind / konstruktsioon</string>
     <string name="loc4_floor_base">Põranda aluspind / konstruktsioon</string>
-    <string name="loc4_threshold">Lävi / äravoolu kõrgus (mm)</string>
+    <string name="loc4_threshold">Lävepakk / äravoolu kõrgus (mm)</string>
     <string name="loc4_slopes_info">Kallete asukohad / lisateave</string>
     <string name="loc4_wall_consumption">Seinad – tootja nõutav kulu (kg/m² või l/m²)</string>
     <string name="loc4_floor_consumption">Põrand – tootja nõutav kulu (kg/m² või l/m²)</string>
