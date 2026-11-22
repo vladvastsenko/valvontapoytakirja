@@ -218,8 +218,10 @@ object ReportPdfGenerator {
         }
 
         fun section(value: String) {
-            ensureSpace(30f)
-            y += 7f
+            // Reserve the heading and the first content line together.
+            // Add vertical breathing room only within the current page.
+            ensureSpace(48f)
+            y += 18f
             page.canvas.drawText(labels.text(value), margin, y + 12f, sectionPaint)
             y += 22f
         }
