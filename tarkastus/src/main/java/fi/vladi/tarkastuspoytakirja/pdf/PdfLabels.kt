@@ -81,6 +81,6 @@ internal class PdfLabels(private val language: String) {
     fun text(value: String): String {
         if (language == "fi") return value
         val index = when (language) { "ru" -> 0; "en" -> 1; "sv" -> 2; "et" -> 3; "lt" -> 4; "lv" -> 5; else -> return value }
-        return translations[value]?.get(index) ?: value
+        return translations[value]?.getOrNull(index) ?: value
     }
 }
