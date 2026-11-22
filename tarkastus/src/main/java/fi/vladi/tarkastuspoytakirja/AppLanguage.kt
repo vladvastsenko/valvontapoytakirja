@@ -7,7 +7,7 @@ import java.util.Locale
 object AppLanguage {
     private const val PREFS = "tarkastus_cloud_language"
     private const val KEY = "ui_language"
-    val supported = setOf("fi", "sv", "ru", "en")
+    val supported = setOf("fi", "sv", "ru", "en", "et", "lt", "lv")
 
     fun selected(context: Context): String =
         context.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
