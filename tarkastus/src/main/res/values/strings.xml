@@ -113,4 +113,6 @@
     <string name="share_report">Jaa raportti</string>
     <string name="ui_preview_pdf">Esikatsele PDF</string>
     <string name="ui_preview_unavailable">PDF-katselusovellusta ei löytynyt</string>
+    <string name="audit_saved_customer">Vakioasiakas</string>
+    <string name="audit_site">Kohde</string>
 </resources>
