@@ -1080,7 +1080,7 @@ private fun localizedMaterialValue(value: String): String {
     if (language == "fi") return value
     val labels = mapOf(
         "tasoite" to listOf("Шпаклёвка / выравнивающая смесь", "Levelling compound", "Spackel / avjämningsmassa", "Tasandussegu", "Išlyginamasis mišinys", "Izlīdzinošais maisījums", "Sparkel / avrettingsmasse", "Spartel / afretningsmasse"),
-        "pohjuste (primer)" to listOf("Грунтовка (праймер, "Krunt", "Gruntas", "Grunts")", "Primer", "Primer", "Primer", "Primer"),
+        "pohjuste (primer)" to listOf("Грунтовка (праймер)", "Primer", "Primer", "Krunt", "Gruntas", "Grunts", "Primer", "Primer"),
         "vedeneriste" to listOf("Гидроизоляция", "Waterproofing membrane", "Tätskikt", "Hüdroisolatsioon", "Hidroizoliacija", "Hidroizolācija", "Membran", "Membran"),
         "kaivotyyppi" to listOf("Тип трапа", "Floor drain type", "Golvbrunnstyp", "Trapi tüüp", "Trapo tipas", "Trapa veids", "Sluktype", "Afløbstype"),
         "kaivolaippa / lattiakaivovahvike" to listOf("Манжета / усиление трапа", "Drain flange / reinforcement", "Brunnsmanschett / förstärkning", "Trapi mansett / tugevdus", "Trapo manžetė / sutvirtinimas", "Trapa manšete / stiprinājums", "Slukmansjett / forsterkning", "Afløbsmanchet / forstærkning"),
