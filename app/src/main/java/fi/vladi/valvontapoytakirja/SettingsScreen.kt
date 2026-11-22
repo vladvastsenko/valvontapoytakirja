@@ -176,6 +176,16 @@ fun SettingsScreen(
             SettingField(stringResource(R.string.settings_cert), draft.certificateNumber) { editingInspector = draft.copy(certificateNumber = it) }
             SettingField(stringResource(R.string.settings_phone), draft.phone) { editingInspector = draft.copy(phone = it) }
             SettingField(stringResource(R.string.settings_email), draft.email) { editingInspector = draft.copy(email = it) }
+            Text(stringResource(R.string.settings_signature), style = MaterialTheme.typography.titleMedium)
+            SignaturePad(
+                strokes = draft.signatureStrokes,
+                onChange = { editingInspector = draft.copy(signatureStrokes = it, signatureImagePath = "") }
+            )
+            if (draft.signatureStrokes.isEmpty() && settings.signatureStrokes.isNotEmpty()) {
+                OutlinedButton(onClick = {
+                    editingInspector = draft.copy(signatureStrokes = settings.signatureStrokes, signatureImagePath = "")
+                }) { Text("Kopioi allekirjoitus asetuksista") }
+            }
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 Button(onClick = { onSaveInspector(draft); editingInspector = null }, enabled = draft.name.isNotBlank()) {
                     Text(stringResource(R.string.settings_save_customer))
