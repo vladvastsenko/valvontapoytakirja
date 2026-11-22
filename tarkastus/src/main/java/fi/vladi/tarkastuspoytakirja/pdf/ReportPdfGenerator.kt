@@ -44,7 +44,7 @@ object ReportPdfGenerator {
         if (report.customerAddress.isNotBlank() || report.customerPostalCode.isNotBlank() || report.customerCity.isNotBlank()) {
             writer.field("Tilaajan osoite", listOf(report.customerAddress, report.customerPostalCode, report.customerCity).filter { it.isNotBlank() }.joinToString(", "))
         }
-        writer.field("Kohde", listOf(report.siteName, report.siteAddress).filter { it.isNotBlank() }.joinToString(" – "))
+        writer.labeledField("Kohde", listOf(report.siteName, report.siteAddress).filter { it.isNotBlank() }.joinToString(" – "))
         writer.field("Yhteyshenkilö", report.clientOrRepresentative)
         writer.field("Tilaajan puhelinnumero", report.clientPhone)
         writer.field("Tilaajan sähköposti", report.clientEmail)
@@ -83,11 +83,11 @@ object ReportPdfGenerator {
         if (inspectorName.isNotBlank() || inspectorCertificate.isNotBlank() || inspectorPhone.isNotBlank() || inspectorEmail.isNotBlank() || report.inspectionDate.isNotBlank() || signature.isNotEmpty() || signatureImagePath.isNotBlank()) {
             writer.spacer(18f)
             writer.section("TARKASTAJA")
-            writer.field("Nimi", inspectorName)
-            writer.field("Sertifikaattinumero", inspectorCertificate)
-            writer.field("Puhelin", inspectorPhone)
-            writer.field("Sähköposti", inspectorEmail)
-            writer.field("Tarkastuspäivä", report.inspectionDate)
+            writer.labeledField("Nimi", inspectorName)
+            writer.labeledField("Sertifikaattinumero", inspectorCertificate)
+            writer.labeledField("Puhelin", inspectorPhone)
+            writer.labeledField("Sähköposti", inspectorEmail)
+            writer.labeledField("Tarkastuspäivä", report.inspectionDate)
             writer.signature(signature, signatureImagePath)
         }
         writer.finish()
@@ -227,6 +227,11 @@ object ReportPdfGenerator {
         fun field(label: String, value: String) {
             if (value.isBlank()) return
             drawWrapped(value, bodyPaint, 14f)
+        }
+
+        fun labeledField(label: String, value: String) {
+            if (value.isBlank()) return
+            drawWrapped("${labels.text(label)}: $value", bodyPaint, 14f)
         }
 
         private fun highlightedField(label: String, value: String) {
