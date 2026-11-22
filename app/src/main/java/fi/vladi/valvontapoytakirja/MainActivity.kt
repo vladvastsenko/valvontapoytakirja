@@ -300,11 +300,11 @@ private fun ValvontaApp(
     fun applySettingsSnapshot(report: InspectionReport): InspectionReport {
         val onlyInspector = inspectors.singleOrNull()
         return report.copy(
-            inspectorName = onlyInspector?.name ?: report.inspectorName,
-            inspectorCertificateNumber = onlyInspector?.certificateNumber ?: report.inspectorCertificateNumber,
-            inspectorPhone = onlyInspector?.phone ?: report.inspectorPhone,
-            inspectorEmail = onlyInspector?.email ?: report.inspectorEmail,
-            signatureStrokes = onlyInspector?.signatureStrokes ?: report.signatureStrokes,
+            inspectorName = onlyInspector?.name ?: appSettings.inspectorName.ifBlank { report.inspectorName },
+            inspectorCertificateNumber = onlyInspector?.certificateNumber ?: appSettings.inspectorCertificateNumber.ifBlank { report.inspectorCertificateNumber },
+            inspectorPhone = onlyInspector?.phone ?: appSettings.inspectorPhone.ifBlank { report.inspectorPhone },
+            inspectorEmail = onlyInspector?.email ?: appSettings.inspectorEmail.ifBlank { report.inspectorEmail },
+            signatureStrokes = onlyInspector?.signatureStrokes ?: appSettings.signatureStrokes.ifEmpty { report.signatureStrokes },
             logoPath = appSettings.logoPath,
             headerText = appSettings.headerText,
             footerText = appSettings.footerText,
