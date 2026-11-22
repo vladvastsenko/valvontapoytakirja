@@ -113,4 +113,6 @@
     <string name="share_report">Dela rapport</string>
     <string name="ui_preview_pdf">Förhandsgranska PDF</string>
     <string name="ui_preview_unavailable">Ingen PDF-visare är installerad</string>
+    <string name="audit_saved_customer">Sparad kund</string>
+    <string name="audit_site">Objekt</string>
 </resources>
