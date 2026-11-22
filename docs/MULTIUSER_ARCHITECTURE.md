@@ -1,50 +1,29 @@
-# Tarkastus Cloud — company accounts and collaboration (design baseline)
+# Tarkastus Cloud — Google Drive collaboration plan
 
-Status: design, not deployed. Branch: auth-registration. Existing stable branches and existing local/Drive data must not be modified.
+Status: implementation in progress on `auth-registration`. No APK build or device test yet.
 
-## Decisions
-- One Firebase Auth user (uid) belongs to at most one company.
-- A company has one administrator and at most five total active members, including the administrator.
-- No personal exemptions, paywall, or reduced report functionality.
-- Both report types remain available to every member.
-- Company logo, customers, sites and published PDFs are shared. Inspector profile and signature remain per-user.
-- Subscription state is company-wide, future use only. AdMob and billing are deferred.
-- Existing device backup and SAF-based Google Drive sync are **not** company authorization mechanisms.
+## Confirmed product decisions
+- Firebase Authentication registration stays.
+- No Firestore, company management, internal admin roles, or company membership system.
+- Google Drive folder owner grants access to colleagues in Google Drive.
+- Shared customer/site records, inspector profiles and reports are intended to sync through the existing Google Drive workflow.
+- All report functions remain free. AdMob is deferred; optional ad removal is personal, with pricing decided after real ad revenue is measured.
+- Do not modify stable branches.
 
-## Firestore proposed data
-- `companies/{companyId}`: name, ownerUid, createdAt, memberLimit=5, subscriptionStatus='none'.
-- `memberships/{uid}`: companyId, role ('admin'|'member'), status ('active'), joinedAt. Document id = Firebase Auth uid; prevents a user having two memberships.
-- `companies/{companyId}/members/{uid}`: role, displayName, email, joinedAt.
-- `companies/{companyId}/invites/{inviteId}`: normalizedEmail, status, createdBy, createdAt, expiresAt; invite tokens must be stored as hashes if used.
-- `companies/{companyId}/customers/{id}`, `sites/{id}`, `reports/{id}`: future shared records with authorUid, createdAt, updatedAt and companyId.
-- `companies/{companyId}/pdfs/{id}`: metadata only; binary PDFs need Firebase Storage or a company-controlled storage provider.
+## Implemented in source
+- Serializable InspectorProfile with id, name, certificate number, phone, email and signature fields.
+- Inspector profile repository with individual JSON files under `filesDir/inspectors`; files are archived to `Asetukset/Tarkastajat`.
+- Inspector profile management in Valvontapöytäkirja settings.
+- Inspector dropdown in Valvontapöytäkirja report editor; selected inspector details are copied to report.
 
-## Critical authorization
-- Firebase Authentication alone does not protect Firestore or Google Drive content.
-- Never trust role, companyId, member count, or subscription status supplied by an Android client.
-- Company creation, invitations, joining, leaving and admin transfer must be atomic, server-validated operations (e.g. Cloud Functions + Firestore transactions).
-- Enforce the five-person cap in the join transaction; never only in the UI.
-- Firestore Security Rules: members can read only their own company; member writes only to permitted shared records; admin-only changes to company identity, invites and membership. Deny all unspecified paths.
-- Firebase Storage Rules (if adopted): authorize read/write against the authenticated user's membership and companyId; separate PDF write from read permissions.
-- Invite acceptance must verify the signed-in user's verified email matches the invitation, with expiry and one-time use.
-- Disable cross-company data access even when a user guesses document IDs. Do not store unprotected sensitive records in public URLs.
-- Do not synchronize private per-user settings/signatures into company-wide folders.
+## Still needed before claiming multiuser completion
+- Add inspector selection to Tarkastuspöytäkirja using the same shared profile records.
+- Complete signature image/strokes handling and ensure per-inspector images are portable across devices.
+- Verify Google Drive's Android document picker can open a folder shared from a different Google account; implement a supported alternative if not.
+- Test bidirectional sync for profile additions/updates/deletions and avoid overwriting colleagues' data.
+- Test simultaneous edits, data privacy, offline use, logout/account switching and recovery from backups.
+- Translate all newly added UI labels into all nine supported languages.
+- Run a compilation check and device test before shipping.
 
-## Migration strategy
-1. Keep existing local report repository, exports and Drive backups untouched.
-2. Add Firestore and backend rules/functions with tests before exposing a company UI.
-3. Add onboarding: create company / accept invitation / pending invitation.
-4. Add company management UI: members, invitations, company logo.
-5. Implement explicit shared customer/site sync with conflict and ownership policies.
-6. Publish PDF copies to company storage without deleting local copies; enable all members to view PDFs.
-7. Verify two devices, two different accounts, five-person limit, denied sixth member, invalid invites, logout/account switching, offline behavior and data retention.
-
-## Documentation for release
-- End-user instructions (both report types, photo/PDF workflow, backup, language selection).
-- Administrator instructions (company creation, invitation, permissions, shared branding).
-- Privacy policy (Firebase, storage, advertising, retention, deletion, support contact).
-- Terms of service (roles, acceptable use, responsibility for report content, availability, termination).
-- Later: AdMob and Google Play Billing terms; company-wide ad-free subscription with no feature restrictions.
-
-## Open implementation issue
-Firebase project must have Firestore enabled and appropriate security rules/functions deployed. GitHub source commits alone cannot deploy the Firebase backend or prove production security.
+## Later documentation
+- User manual, Google Drive folder-sharing guide, privacy policy, terms of service.
