@@ -69,6 +69,7 @@ import fi.vladi.valvontapoytakirja.model.AppSettings
 import fi.vladi.valvontapoytakirja.model.CustomerProfile
 import fi.vladi.valvontapoytakirja.model.CustomerSite
 import fi.vladi.valvontapoytakirja.model.InspectionReport
+import fi.vladi.valvontapoytakirja.pdf.ProductDisplay
 import fi.vladi.valvontapoytakirja.model.MaterialEntry
 import fi.vladi.valvontapoytakirja.model.ReportPhoto
 import fi.vladi.valvontapoytakirja.model.SiteFieldValue
@@ -1147,7 +1148,7 @@ private fun MaterialCard(
             if (productOptions.isNotEmpty()) {
                 Box {
                     OutlinedButton(onClick = { expanded = true }) {
-                        Text(selectedProductName.ifBlank { stringResource(R.string.ui_choose_product) })
+                        Text(if (selectedProductName.isBlank()) stringResource(R.string.ui_choose_product) else ProductDisplay.name(selectedProductName, AppLanguage.selected(LocalContext.current)))
                     }
                     DropdownMenu(
                         expanded = expanded,
@@ -1155,7 +1156,7 @@ private fun MaterialCard(
                     ) {
                         productOptions.forEach { product ->
                             DropdownMenuItem(
-                                text = { Text(product.name) },
+                                text = { Text(ProductDisplay.name(product.name, AppLanguage.selected(LocalContext.current))) },
                                 onClick = {
                                     onChange(material.copy(manufacturer = effectiveManufacturer.ifBlank { product.manufacturer }, productName = product.name))
                                     expanded = false
