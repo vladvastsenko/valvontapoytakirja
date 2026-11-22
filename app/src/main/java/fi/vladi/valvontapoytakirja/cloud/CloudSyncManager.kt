@@ -61,7 +61,10 @@ object CloudSyncManager {
         val localRoot = context.filesDir
         val localFiles = localRoot.walkTopDown().filter { it.isFile }.mapNotNull { file ->
             val path = file.relativeTo(localRoot).invariantSeparatorsPath
-            if (path.isBlank() || path.startsWith("../")) null else path to file
+            // Never publish interrupted downloads or temporary local files to colleagues.
+            if (path.isBlank() || path.startsWith("../") ||
+                path.endsWith(".sync_tmp") || path.endsWith(".tmp")
+            ) null else path to file
         }.toMap()
         val remoteFiles = linkedMapOf<String, DocumentFile>()
         collectRemoteFiles(remoteData, "", remoteFiles)
