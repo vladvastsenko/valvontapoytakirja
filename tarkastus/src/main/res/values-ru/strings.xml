@@ -113,4 +113,6 @@
     <string name="share_report">Поделиться отчётом</string>
     <string name="ui_preview_pdf">Предпросмотр PDF</string>
     <string name="ui_preview_unavailable">На устройстве нет приложения для просмотра PDF</string>
+    <string name="audit_saved_customer">Постоянный клиент</string>
+    <string name="audit_site">Объект</string>
 </resources>
