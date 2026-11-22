@@ -297,12 +297,20 @@ private fun ValvontaApp(
         }
     }
 
-    fun applySettingsSnapshot(report: InspectionReport): InspectionReport = report.copy(
-        logoPath = appSettings.logoPath,
-        headerText = appSettings.headerText,
-        footerText = appSettings.footerText,
-        settingsSnapshotCreated = true
-    )
+    fun applySettingsSnapshot(report: InspectionReport): InspectionReport {
+        val onlyInspector = inspectors.singleOrNull()
+        return report.copy(
+            inspectorName = onlyInspector?.name ?: report.inspectorName,
+            inspectorCertificateNumber = onlyInspector?.certificateNumber ?: report.inspectorCertificateNumber,
+            inspectorPhone = onlyInspector?.phone ?: report.inspectorPhone,
+            inspectorEmail = onlyInspector?.email ?: report.inspectorEmail,
+            signatureStrokes = onlyInspector?.signatureStrokes ?: report.signatureStrokes,
+            logoPath = appSettings.logoPath,
+            headerText = appSettings.headerText,
+            footerText = appSettings.footerText,
+            settingsSnapshotCreated = true
+        )
+    }
 
     fun saveReport(report: InspectionReport) {
         val isNewReport = currentReport == null
@@ -606,24 +614,26 @@ private fun EditorScreen(
         val reportLanguage = report.pdfLanguage.ifBlank {
             AppLanguage.selected(pdfContext)
         }
-        var inspectorMenuExpanded by remember(report.id) { mutableStateOf(false) }
-        Text("Tarkastaja / Inspector", fontWeight = FontWeight.SemiBold)
-        Box {
-            OutlinedButton(onClick = { inspectorMenuExpanded = true }, modifier = Modifier.fillMaxWidth()) {
-                Text(report.inspectorName.ifBlank { "Valitse tarkastaja / Select inspector" } + " ▾")
-            }
-            DropdownMenu(expanded = inspectorMenuExpanded, onDismissRequest = { inspectorMenuExpanded = false }) {
-                inspectors.forEach { inspector ->
-                    DropdownMenuItem(text = { Text(inspector.name) }, onClick = {
-                        inspectorMenuExpanded = false
-                        onChange(report.copy(
-                            inspectorName = inspector.name,
-                            inspectorCertificateNumber = inspector.certificateNumber,
-                            inspectorPhone = inspector.phone,
-                            inspectorEmail = inspector.email,
-                            signatureStrokes = inspector.signatureStrokes
-                        ))
-                    })
+        if (inspectors.size > 1) {
+            var inspectorMenuExpanded by remember(report.id) { mutableStateOf(false) }
+            Text("Tarkastaja / Inspector", fontWeight = FontWeight.SemiBold)
+            Box {
+                OutlinedButton(onClick = { inspectorMenuExpanded = true }, modifier = Modifier.fillMaxWidth()) {
+                    Text(report.inspectorName.ifBlank { "Valitse tarkastaja / Select inspector" } + " ▾")
+                }
+                DropdownMenu(expanded = inspectorMenuExpanded, onDismissRequest = { inspectorMenuExpanded = false }) {
+                    inspectors.forEach { inspector ->
+                        DropdownMenuItem(text = { Text(inspector.name) }, onClick = {
+                            inspectorMenuExpanded = false
+                            onChange(report.copy(
+                                inspectorName = inspector.name,
+                                inspectorCertificateNumber = inspector.certificateNumber,
+                                inspectorPhone = inspector.phone,
+                                inspectorEmail = inspector.email,
+                                signatureStrokes = inspector.signatureStrokes
+                            ))
+                        })
+                    }
                 }
             }
         }
