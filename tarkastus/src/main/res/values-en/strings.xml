@@ -115,4 +115,7 @@
     <string name="ui_preview_unavailable">No PDF viewer is installed</string>
     <string name="audit_saved_customer">Saved customer</string>
     <string name="audit_site">Site</string>
+    <string name="audit_choose">Select</string>
+    <string name="audit_choose_date">Select date</string>
+    <string name="audit_custom_fields_title">CUSTOM FIELDS</string>
 </resources>
