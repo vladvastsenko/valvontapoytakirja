@@ -115,4 +115,7 @@
     <string name="ui_preview_unavailable">Ingen PDF-visare är installerad</string>
     <string name="audit_saved_customer">Sparad kund</string>
     <string name="audit_site">Objekt</string>
+    <string name="audit_choose">Välj</string>
+    <string name="audit_choose_date">Välj datum</string>
+    <string name="audit_custom_fields_title">EGNA EXTRAFÄLT</string>
 </resources>
