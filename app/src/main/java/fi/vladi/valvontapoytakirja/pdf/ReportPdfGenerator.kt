@@ -77,7 +77,7 @@ object ReportPdfGenerator {
     
             writer.section("KÄYTETYT MATERIAALIT")
             report.materials.forEach { material ->
-                val product = listOf(material.manufacturer, material.productName)
+                val product = listOf(material.manufacturer, ProductDisplay.name(material.productName, language))
                     .filter { it.isNotBlank() }
                     .joinToString(" – ")
                 val localizer = PdfLabels(language)
