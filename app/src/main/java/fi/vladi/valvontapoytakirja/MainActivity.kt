@@ -305,6 +305,8 @@ private fun ValvontaApp(
             inspectorPhone = onlyInspector?.phone ?: appSettings.inspectorPhone.ifBlank { report.inspectorPhone },
             inspectorEmail = onlyInspector?.email ?: appSettings.inspectorEmail.ifBlank { report.inspectorEmail },
             signatureStrokes = onlyInspector?.signatureStrokes ?: appSettings.signatureStrokes.ifEmpty { report.signatureStrokes },
+            signatureImagePath = onlyInspector?.signatureImagePath?.takeIf { it.isNotBlank() }
+                ?: appSettings.signatureImagePath,
             logoPath = appSettings.logoPath,
             headerText = appSettings.headerText,
             footerText = appSettings.footerText,
@@ -630,7 +632,8 @@ private fun EditorScreen(
                                 inspectorCertificateNumber = inspector.certificateNumber,
                                 inspectorPhone = inspector.phone,
                                 inspectorEmail = inspector.email,
-                                signatureStrokes = inspector.signatureStrokes
+                                signatureStrokes = inspector.signatureStrokes,
+                                signatureImagePath = inspector.signatureImagePath
                             ))
                         })
                     }
