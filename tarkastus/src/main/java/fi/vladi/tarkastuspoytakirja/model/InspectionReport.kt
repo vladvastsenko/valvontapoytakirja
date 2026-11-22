@@ -87,6 +87,17 @@ data class AppSettings(
 )
 
 @Serializable
+data class InspectorProfile(
+    val id: String = UUID.randomUUID().toString(),
+    val name: String = "",
+    val certificateNumber: String = "",
+    val phone: String = "",
+    val email: String = "",
+    val signatureStrokes: List<SignatureStroke> = emptyList(),
+    val signatureImagePath: String = ""
+)
+
+@Serializable
 data class CustomerProfile(
     val id: String = UUID.randomUUID().toString(),
     val name: String = "",
