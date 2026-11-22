@@ -59,7 +59,7 @@ object ReportPdfGenerator {
         }
         val filledCustomFields = report.customFields.filter { it.label.isNotBlank() && it.value.isNotBlank() }
         if (filledCustomFields.isNotEmpty()) {
-            if (report.customFieldsTitle.isNotBlank()) writer.section(report.customFieldsTitle.trim())
+            if (report.customFieldsTitle.isNotBlank()) writer.section(if (report.customFieldsTitle.trim() == "OMAT LISÄKENTÄT") PdfLabels(language).text("OMAT LISÄKENTÄT") else report.customFieldsTitle.trim())
             filledCustomFields.forEach { field -> writer.field(field.label, field.value) }
         }
         val filledObservations = report.observations.filter {
