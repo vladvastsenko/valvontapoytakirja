@@ -9,6 +9,7 @@ import android.net.Uri
 import androidx.core.content.FileProvider
 import fi.vladi.valvontapoytakirja.model.InspectionReport
 import fi.vladi.valvontapoytakirja.model.AppSettings
+import fi.vladi.valvontapoytakirja.model.InspectorProfile
 import fi.vladi.valvontapoytakirja.model.CustomerProfile
 import fi.vladi.valvontapoytakirja.model.CustomerSite
 import fi.vladi.tarkastuspoytakirja.storage.SharedDocumentsArchive
@@ -38,6 +39,29 @@ class ReportRepository(private val context: Context) {
         File(settings.signatureImagePath).takeIf { it.isFile }?.let { signature ->
             SharedDocumentsArchive.archiveFile(context, signature, "Asetukset", signature.name)
         }
+    }
+
+    private fun inspectorsDirectory(): File =
+        File(context.filesDir, "inspectors").apply { mkdirs() }
+
+    fun listInspectors(): List<InspectorProfile> =
+        inspectorsDirectory().listFiles { it.extension == "json" }
+            ?.mapNotNull { file ->
+                runCatching { json.decodeFromString(InspectorProfile.serializer(), file.readText()) }.getOrNull()
+            }
+            ?.sortedBy { it.name.lowercase() }
+            ?: emptyList()
+
+    fun saveInspector(inspector: InspectorProfile) {
+        require(inspector.name.isNotBlank()) { "Inspector name is required" }
+        val file = File(inspectorsDirectory(), "${inspector.id}.json")
+        file.writeText(json.encodeToString(InspectorProfile.serializer(), inspector))
+        SharedDocumentsArchive.archiveFile(context, file, "Asetukset/Tarkastajat", file.name, "application/json")
+    }
+
+    fun deleteInspector(inspectorId: String) {
+        require(inspectorId.matches(Regex("[a-zA-Z0-9-]{1,64}")))
+        File(inspectorsDirectory(), "${inspectorId}.json").delete()
     }
 
     private fun customersDirectory(): File =
@@ -126,6 +150,7 @@ class ReportRepository(private val context: Context) {
 
         settingsFile().takeIf { it.isFile }?.let { archive(it, "Asetukset") }
         File(settingsFile().parentFile, "settings").listFiles()?.forEach { archive(it, "Asetukset") }
+        inspectorsDirectory().listFiles()?.forEach { archive(it, "Asetukset/Tarkastajat") }
         customersDirectory().listFiles()?.forEach { archive(it, "Asetukset/Asiakkaat") }
         sitesDirectory().listFiles()?.forEach { archive(it, "Asetukset/Kohteet") }
 
