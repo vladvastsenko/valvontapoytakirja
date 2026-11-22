@@ -145,7 +145,7 @@
     <string name="settings_field_name">Lauka nosaukums</string>
     <string name="settings_add_field">+ Pievienot lauku</string>
     <string name="settings_save_site">Saglabāt objektu</string>
-    <string name="cloud_back">← Back</string>
+    <string name="cloud_back">← Atpakaļ</string>
     <string name="cloud_title">Mākoņa dublēšana un sinhronizācija</string>
     <string name="cloud_intro">Visās ierīcēs izvēlieties vienu un to pašu privāto Tarkastus mapi Google Drive.</string>
     <string name="cloud_folder_missing">Glabāšanas mape nav izvēlēta.</string>
