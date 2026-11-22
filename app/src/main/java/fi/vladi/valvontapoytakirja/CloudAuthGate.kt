@@ -98,14 +98,20 @@ internal fun CloudAuthGate(content: @Composable (onSignOut: () -> Unit) -> Unit)
             Box {
                 OutlinedButton(onClick = { languageMenu = true }, modifier = Modifier.fillMaxWidth()) {
                     Text(when (AppLanguage.selected(context)) {
-                        "ru" -> "Русский"
-                        "sv" -> "Svenska"
                         "en" -> "English"
-                        else -> "Suomi"
+                        "fi" -> "Suomi"
+                        "sv" -> "Svenska"
+                        "nb" -> "Norsk"
+                        "da" -> "Dansk"
+                        "et" -> "Eesti"
+                        "lv" -> "Latviešu"
+                        "lt" -> "Lietuvių"
+                        "ru" -> "Русский"
+                        else -> "English"
                     } + " ▾")
                 }
                 DropdownMenu(expanded = languageMenu, onDismissRequest = { languageMenu = false }) {
-                    listOf("fi" to "Suomi", "sv" to "Svenska", "ru" to "Русский", "en" to "English").forEach { (code, label) ->
+                    listOf("en" to "English", "fi" to "Suomi", "sv" to "Svenska", "nb" to "Norsk", "da" to "Dansk", "et" to "Eesti", "lv" to "Latviešu", "lt" to "Lietuvių", "ru" to "Русский").forEach { (code, label) ->
                         DropdownMenuItem(text = { Text(label) }, onClick = {
                             languageMenu = false
                             if (AppLanguage.selected(context) != code) {
