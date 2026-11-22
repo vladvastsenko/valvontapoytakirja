@@ -60,7 +60,7 @@
     <string name="loc4_inspection_date_prefix">Tarkastuspäivä: %1$s</string>
     <string name="loc4_observation_count">%1$d havaintoa</string>
     <string name="loc4_customer_prefix">Asiakas: %1$s</string>
-    <string name="loc4_observation_number">KIRJAUS %1$d</string>
+    <string name="loc4_observation_number">KUVAUS %1$d</string>
     <string name="settings_back">← Takaisin</string>
     <string name="settings_settings">ASETUKSET</string>
     <string name="settings_personal">OMAT TIEDOT JA RAPORTIN ULKOASU</string>
