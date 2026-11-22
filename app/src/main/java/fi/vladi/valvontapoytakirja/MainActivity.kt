@@ -226,10 +226,10 @@ private fun ManagementScreen(
         Text(stringResource(R.string.language), fontWeight = FontWeight.Bold)
         Box {
             OutlinedButton(onClick = { languageMenu = true }, modifier = Modifier.fillMaxWidth()) {
-                Text(when (AppLanguage.selected(context)) { "ru" -> "Русский"; "sv" -> "Svenska"; "en" -> "English"; "et" -> "Eesti"; "lt" -> "Lietuvių"; "lv" -> "Latviešu"; else -> "Suomi" } + " ▾")
+                Text(when (AppLanguage.selected(context)) { "ru" -> "Русский"; "sv" -> "Svenska"; "en" -> "English"; "et" -> "Eesti"; "lt" -> "Lietuvių"; "lv" -> "Latviešu"; "nb" -> "Norsk"; "da" -> "Dansk"; else -> "Suomi" } + " ▾")
             }
             DropdownMenu(expanded = languageMenu, onDismissRequest = { languageMenu = false }) {
-                listOf("fi" to "Suomi", "sv" to "Svenska", "ru" to "Русский", "en" to "English", "et" to "Eesti", "lt" to "Lietuvių", "lv" to "Latviešu").forEach { (code, label) ->
+                listOf("fi" to "Suomi", "sv" to "Svenska", "ru" to "Русский", "en" to "English", "et" to "Eesti", "lt" to "Lietuvių", "lv" to "Latviešu", "nb" to "Norsk", "da" to "Dansk").forEach { (code, label) ->
                     DropdownMenuItem(text = { Text(label) }, onClick = {
                         languageMenu = false
                         if (AppLanguage.selected(context) != code) {
@@ -244,7 +244,7 @@ private fun ManagementScreen(
         }
         Text(stringResource(R.string.pdf_language_default), fontWeight = FontWeight.Bold)
         Text(when (AppLanguage.selected(context)) {
-            "ru" -> "Русский"; "sv" -> "Svenska"; "en" -> "English"; "et" -> "Eesti"; "lt" -> "Lietuvių"; "lv" -> "Latviešu"; else -> "Suomi"
+            "ru" -> "Русский"; "sv" -> "Svenska"; "en" -> "English"; "et" -> "Eesti"; "lt" -> "Lietuvių"; "lv" -> "Latviešu"; "nb" -> "Norsk"; "da" -> "Dansk"; else -> "Suomi"
         })
         Button(onClick = onSettings, modifier = Modifier.fillMaxWidth()) {
             Text(stringResource(R.string.shared_settings))
@@ -596,10 +596,10 @@ private fun EditorScreen(
         Text(stringResource(R.string.report_pdf_language), fontWeight = FontWeight.SemiBold)
         Box {
             OutlinedButton(onClick = { reportLanguageMenu = true }, modifier = Modifier.fillMaxWidth()) {
-                Text(when (reportLanguage) { "ru" -> "Русский"; "sv" -> "Svenska"; "en" -> "English"; "et" -> "Eesti"; "lt" -> "Lietuvių"; "lv" -> "Latviešu"; else -> "Suomi" } + " ▾")
+                Text(when (reportLanguage) { "ru" -> "Русский"; "sv" -> "Svenska"; "en" -> "English"; "et" -> "Eesti"; "lt" -> "Lietuvių"; "lv" -> "Latviešu"; "nb" -> "Norsk"; "da" -> "Dansk"; else -> "Suomi" } + " ▾")
             }
             DropdownMenu(expanded = reportLanguageMenu, onDismissRequest = { reportLanguageMenu = false }) {
-                listOf("fi" to "Suomi", "sv" to "Svenska", "ru" to "Русский", "en" to "English", "et" to "Eesti", "lt" to "Lietuvių", "lv" to "Latviešu").forEach { (code, label) ->
+                listOf("fi" to "Suomi", "sv" to "Svenska", "ru" to "Русский", "en" to "English", "et" to "Eesti", "lt" to "Lietuvių", "lv" to "Latviešu", "nb" to "Norsk", "da" to "Dansk").forEach { (code, label) ->
                     DropdownMenuItem(text = { Text(label) }, onClick = {
                         reportLanguageMenu = false
                         onChange(report.copy(pdfLanguage = code))
