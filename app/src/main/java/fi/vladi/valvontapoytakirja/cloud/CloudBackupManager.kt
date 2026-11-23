@@ -141,9 +141,10 @@ object CloudBackupManager {
     }
 
     fun restoreFromUri(context: Context, archiveUri: Uri): String {
-        val staging = File(context.cacheDir, "tarkastus_restore_staging").apply {
+        // Stage beside filesDir so the final rename stays on the same filesystem.
+        val staging = File(context.filesDir.parentFile, "tarkastus_restore_staging").apply {
             deleteRecursively()
-            mkdirs()
+            check(mkdirs()) { "Palautuksen väliaikaista kansiota ei voitu luoda." }
         }
         var manifestFound = false
         var entryCount = 0
@@ -205,10 +206,18 @@ object CloudBackupManager {
 
             // Keep the current local data until the complete archive has been extracted and validated.
             val current = context.filesDir
-            val previous = File(context.cacheDir, "tarkastus_restore_previous").apply { deleteRecursively() }
+            val previous = File(current.parentFile, "tarkastus_restore_previous")
+            // Never discard a previous recovery copy after an interrupted restore.
+            if (previous.exists()) {
+                if (!current.exists()) {
+                    check(previous.renameTo(current)) { "Keskeytyneen palautuksen tietoja ei voitu palauttaa." }
+                } else {
+                    error("Aiemman palautuksen turvakopio on olemassa. Tarkista tiedot ennen uutta palautusta.")
+                }
+            }
             check(current.renameTo(previous)) { "Nykyisiä tietoja ei voitu suojata palautuksen ajaksi." }
             if (!staging.renameTo(current)) {
-                previous.renameTo(current)
+                check(previous.renameTo(current)) { "Palautus epäonnistui. Alkuperäiset tiedot ovat turvakansiossa." }
                 error("Varmuuskopion käyttöönotto epäonnistui. Nykyiset tiedot palautettiin.")
             }
             previous.deleteRecursively()
