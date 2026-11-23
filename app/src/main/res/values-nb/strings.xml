@@ -268,4 +268,8 @@
     <string name="cloud_share_guide_steps">1. Åpne Google Drive med kontoen som eier den delte mappen.\n2. Finn Tarkastus Clouds delte mappe.\n3. Trykk på de tre prikkene → Del / Administrer tilgang.\n4. Skriv inn den ansattes e-post og velg Redigerer.\n5. Send invitasjonen. Den ansatte godtar og velger mappen i Tarkastus Cloud.\n\nIkke del mappen med personlige sikkerhetskopier.</string>
     <string name="cloud_share_open_drive">Åpne Google Drive</string>
     <string name="cloud_restore_success">Sikkerhetskopien er gjenopprettet.</string>
+    <string name="cloud_choose_private_backup_folder">Velg mappe for personlige sikkerhetskopier</string>
+    <string name="cloud_private_backup_hint">Velg en egen mappe som ikke deles med kolleger. Sikkerhetskopier lagres ikke i bedriftens delte mappe.</string>
+    <string name="cloud_private_backup_selected">Personlig sikkerhetskopimappe valgt.</string>
+    <string name="cloud_private_backup_invalid">Velg en egen skrivbar mappe, ikke bedriftens delte mappe.</string>
 </resources>
