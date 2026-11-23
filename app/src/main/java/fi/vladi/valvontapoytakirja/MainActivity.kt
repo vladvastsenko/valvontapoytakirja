@@ -333,11 +333,6 @@ private fun ManagementScreen(
         Text(when (AppLanguage.selected(context)) {
             "ru" -> "Русский"; "sv" -> "Svenska"; "en" -> "English"; "et" -> "Eesti"; "lt" -> "Lietuvių"; "lv" -> "Latviešu"; "nb" -> "Norsk"; "da" -> "Dansk"; else -> "Suomi"
         })
-        if (consent.privacyOptionsRequired) {
-            OutlinedButton(onClick = { consent.showPrivacyOptions() }, modifier = Modifier.fillMaxWidth()) {
-                Text(stringResource(R.string.ad_privacy_options))
-            }
-        }
         if (!guestMode) BiometricSettingsControl()
         Button(onClick = onSettings, modifier = Modifier.fillMaxWidth()) {
             Text(stringResource(R.string.shared_settings))
@@ -358,6 +353,11 @@ private fun ManagementScreen(
         Spacer(Modifier.height(8.dp))
         OutlinedButton(onClick = onUserGuide, modifier = Modifier.fillMaxWidth()) {
             Text(stringResource(R.string.user_guide_title))
+        }
+        if (consent.privacyOptionsRequired) {
+            OutlinedButton(onClick = { consent.showPrivacyOptions() }, modifier = Modifier.fillMaxWidth()) {
+                Text(stringResource(R.string.ad_privacy_options))
+            }
         }
     }
 }
