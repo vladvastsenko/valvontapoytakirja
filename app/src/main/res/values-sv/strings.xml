@@ -272,4 +272,8 @@
     <string name="cloud_private_backup_hint">Välj en egen mapp som inte delas med kollegor. Säkerhetskopior sparas inte i företagets delade mapp.</string>
     <string name="cloud_private_backup_selected">Personlig säkerhetskopieringsmapp vald.</string>
     <string name="cloud_private_backup_invalid">Välj en separat skrivbar mapp, inte företagets delade mapp.</string>
+    <string name="auth_verify_required">Verifiera din e-postadress innan du fortsätter.</string>
+    <string name="auth_verify_check">Kontrollera verifiering</string>
+    <string name="auth_verify_resend">Skicka verifieringsmejl igen</string>
+    <string name="auth_verify_sent">Verifieringsmejl skickat.</string>
 </resources>
