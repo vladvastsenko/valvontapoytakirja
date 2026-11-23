@@ -51,6 +51,7 @@ fun SettingsScreen(
     inspectors: List<InspectorProfile>,
     onSaveInspector: (InspectorProfile) -> Unit,
     onDeleteInspector: (String) -> Unit,
+    onPickInspectorSignature: (InspectorProfile) -> Unit,
     sites: List<CustomerSite>,
     onSettingsChange: (AppSettings) -> Unit,
     onSaveCustomer: (CustomerProfile) -> Unit,
@@ -195,6 +196,34 @@ fun SettingsScreen(
             SettingField(stringResource(R.string.settings_phone), draft.phone) { editingInspector = draft.copy(phone = it) }
             SettingField(stringResource(R.string.settings_email), draft.email) { editingInspector = draft.copy(email = it) }
             Text(stringResource(R.string.settings_signature), style = MaterialTheme.typography.titleMedium)
+            val inspectorSignatureBitmap by produceState<Bitmap?>(initialValue = null, key1 = draft.signatureImagePath) {
+                value = if (draft.signatureImagePath.isBlank()) null else withContext(Dispatchers.IO) {
+                    runCatching { BitmapFactory.decodeFile(draft.signatureImagePath) }.getOrNull()
+                }
+            }
+            if (draft.signatureImagePath.isNotBlank()) {
+                if (inspectorSignatureBitmap != null) {
+                    Image(
+                        bitmap = inspectorSignatureBitmap!!.asImageBitmap(),
+                        contentDescription = stringResource(R.string.settings_signature),
+                        modifier = Modifier.fillMaxWidth().height(150.dp),
+                        contentScale = ContentScale.Fit
+                    )
+                } else {
+                    Text(stringResource(R.string.settings_signature_missing))
+                }
+            }
+            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                OutlinedButton(onClick = { onPickInspectorSignature(draft) }, modifier = Modifier.weight(1f)) {
+                    Text(if (draft.signatureImagePath.isBlank()) stringResource(R.string.settings_upload_signature)
+                        else stringResource(R.string.settings_change_signature))
+                }
+                if (draft.signatureImagePath.isNotBlank()) {
+                    TextButton(onClick = { editingInspector = draft.copy(signatureImagePath = "") }) {
+                        Text(stringResource(R.string.settings_remove_image))
+                    }
+                }
+            }
             SignaturePad(
                 strokes = draft.signatureStrokes,
                 onChange = { editingInspector = draft.copy(signatureStrokes = it, signatureImagePath = "") }
