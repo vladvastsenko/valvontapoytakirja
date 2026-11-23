@@ -272,4 +272,8 @@
     <string name="cloud_private_backup_hint">Velg en egen mappe som ikke deles med kolleger. Sikkerhetskopier lagres ikke i bedriftens delte mappe.</string>
     <string name="cloud_private_backup_selected">Personlig sikkerhetskopimappe valgt.</string>
     <string name="cloud_private_backup_invalid">Velg en egen skrivbar mappe, ikke bedriftens delte mappe.</string>
+    <string name="auth_verify_required">Bekreft e-postadressen før du fortsetter.</string>
+    <string name="auth_verify_check">Sjekk bekreftelse</string>
+    <string name="auth_verify_resend">Send bekreftelses-e-post på nytt</string>
+    <string name="auth_verify_sent">Bekreftelses-e-post sendt.</string>
 </resources>
