@@ -239,7 +239,9 @@ object CloudSyncManager {
         directory.listFiles().forEach { child ->
             val name = child.name ?: return@forEach
             val path = if (prefix.isEmpty()) name else "$prefix/$name"
-            if (child.isDirectory) collectRemoteFiles(child, path, result)
+            if (child.isDirectory && !(prefix.isEmpty() && name == "Versions")) {
+                collectRemoteFiles(child, path, result)
+            }
             else if (child.isFile && !name.endsWith(".sync_tmp") &&
                 !name.endsWith(".sync_backup")) result[path] = child
         }
@@ -265,7 +267,44 @@ object CloudSyncManager {
         return current
     }
 
+    /**
+     * Immutable, content-addressed report history. The snapshot is created before
+     * any mutable Drive file is replaced. Separate devices can add snapshots
+     * without touching each other's snapshot files.
+     */
+    private fun preserveReportVersion(context: Context, root: DocumentFile, path: String, source: File) {
+        if (!(path.startsWith("reports/") || path.startsWith("tarkastus_reports/")) ||
+            !path.endsWith(".json")) return
+        val digest = sha256(source)
+        val versions = root.findFile("Versions") ?: root.createDirectory("Versions")
+            ?: error("Raporttiversioiden kansiota ei voitu luoda")
+        val folder = ensureRemoteParent(versions, path)
+        val name = path.substringAfterLast('/').removeSuffix(".json") + "_$digest.json"
+        val existing = folder.findFile(name)
+        if (existing != null) {
+            check(existing.isFile && sha256(context, existing) == digest) {
+                "Raporttiversion tarkistussumma ei täsmää: $path"
+            }
+            return
+        }
+        val snapshot = folder.createFile("application/json", name)
+            ?: error("Raporttiversiota ei voitu tallentaa: $path")
+        try {
+            context.contentResolver.openOutputStream(snapshot.uri, "w")?.use { output ->
+                source.inputStream().buffered().use { it.copyTo(output) }
+            } ?: error("Raporttiversion kirjoitus epäonnistui: $path")
+            check(sha256(context, snapshot) == digest) {
+                "Raporttiversion tarkistus epäonnistui: $path"
+            }
+        } catch (error: Throwable) {
+            snapshot.delete()
+            throw error
+        }
+    }
+
     private fun upload(context: Context, root: DocumentFile, path: String, source: File) {
+        // Persist this exact report version before modifying the shared head.
+        preserveReportVersion(context, root, path, source)
         val parent = ensureRemoteParent(root, path)
         val name = path.substringAfterLast('/')
         // Never delete the old Drive document before the replacement is ready.
