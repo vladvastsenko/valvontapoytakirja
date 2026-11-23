@@ -55,6 +55,7 @@ fun CloudBackupScreen(onBack: () -> Unit) {
     var restoreCompleted by remember { mutableStateOf(false) }
     var showRestoreConfirmation by remember { mutableStateOf(false) }
     var showSyncConfirmation by remember { mutableStateOf(false) }
+    var showShareGuide by remember { mutableStateOf(false) }
     val scope = rememberCoroutineScope()
 
     LaunchedEffect(folderUri) {
@@ -109,17 +110,7 @@ fun CloudBackupScreen(onBack: () -> Unit) {
         Text(stringResource(R.string.cloud_team_access_title), style = MaterialTheme.typography.titleMedium)
         Text(stringResource(R.string.cloud_team_access_hint), style = MaterialTheme.typography.bodySmall)
         OutlinedButton(
-            onClick = {
-                // SAF tree URIs are not public Drive URLs. Open Drive itself so the
-                // folder owner can select the folder and use Google's Share dialog.
-                val driveIntent = Intent(Intent.ACTION_VIEW, Uri.parse("https://drive.google.com/drive/my-drive"))
-                val appIntent = Intent(driveIntent).setPackage("com.google.android.apps.docs")
-                try {
-                    context.startActivity(appIntent)
-                } catch (_: ActivityNotFoundException) {
-                    context.startActivity(driveIntent)
-                }
-            },
+            onClick = { showShareGuide = true },
             modifier = Modifier.fillMaxWidth(),
             enabled = !busy
         ) { Text(stringResource(R.string.cloud_invite_teammate)) }
@@ -183,6 +174,28 @@ fun CloudBackupScreen(onBack: () -> Unit) {
         Text(stringResource(R.string.cloud_sync_warning),
             style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
         Spacer(Modifier.height(8.dp))
+    }
+
+    if (showShareGuide) {
+        AlertDialog(
+            onDismissRequest = { showShareGuide = false },
+            title = { Text(stringResource(R.string.cloud_share_guide_title)) },
+            text = { Column(Modifier.verticalScroll(rememberScrollState())) {
+                Text(stringResource(R.string.cloud_share_guide_steps))
+            } },
+            confirmButton = {
+                TextButton(onClick = {
+                    showShareGuide = false
+                    val driveIntent = Intent(Intent.ACTION_VIEW, Uri.parse("https://drive.google.com/drive/my-drive"))
+                    val appIntent = Intent(driveIntent).setPackage("com.google.android.apps.docs")
+                    try { context.startActivity(appIntent) }
+                    catch (_: ActivityNotFoundException) { context.startActivity(driveIntent) }
+                }) { Text(stringResource(R.string.cloud_share_open_drive)) }
+            },
+            dismissButton = { TextButton(onClick = { showShareGuide = false }) {
+                Text(stringResource(R.string.cloud_cancel))
+            } }
+        )
     }
 
     if (showSyncConfirmation) {
