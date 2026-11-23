@@ -279,4 +279,12 @@
     <string name="user_guide_title">Lietotāja rokasgrāmata</string>
     <string name="inspector_edit">Rediģēt inspektoru</string>
     <string name="inspector_save">Saglabāt inspektoru</string>
+    <string name="subscription_title">Jūsu abonements</string>
+    <string name="subscription_active">Abonements bez reklāmām ir aktīvs</string>
+    <string name="subscription_free">Bezmaksas versija ar reklāmām</string>
+    <string name="subscription_description">Noņemiet reklāmas ar personīgu mēneša abonementu.</string>
+    <string name="subscription_buy">Abonēt bez reklāmām</string>
+    <string name="subscription_restore">Atjaunot pirkumus</string>
+    <string name="subscription_manage">Pārvaldīt abonementu</string>
+    <string name="subscription_unavailable">Abonements vēl nav pieejams Google Play.</string>
 </resources>
