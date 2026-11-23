@@ -109,9 +109,47 @@ class MainActivity : androidx.fragment.app.FragmentActivity() {
         setContent {
             MaterialTheme {
                 Surface(modifier = Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background) {
-                    CloudAuthGate { signOut -> UnifiedLauncher(onSignOut = signOut) }
+                    var languageChosen by remember { mutableStateOf(AppLanguage.hasSelection(this@MainActivity)) }
+                    if (!languageChosen) {
+                        FirstLaunchLanguageScreen { language ->
+                            AppLanguage.save(this@MainActivity, language)
+                            languageChosen = true
+                            recreate()
+                        }
+                    } else {
+                        CloudAuthGate { signOut -> UnifiedLauncher(onSignOut = signOut) }
+                    }
                 }
             }
+        }
+    }
+}
+
+@Composable
+private fun FirstLaunchLanguageScreen(onContinue: (String) -> Unit) {
+    val languages = listOf(
+        "en" to "English", "fi" to "Suomi", "sv" to "Svenska",
+        "nb" to "Norsk", "da" to "Dansk", "et" to "Eesti",
+        "lv" to "Latviešu", "lt" to "Lietuvių", "ru" to "Русский"
+    )
+    var selected by remember { mutableStateOf("en") }
+    Column(
+        modifier = Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(24.dp),
+        verticalArrangement = Arrangement.spacedBy(10.dp)
+    ) {
+        Text("Tarkastus Cloud", style = MaterialTheme.typography.headlineMedium)
+        Text("Choose your language", style = MaterialTheme.typography.titleLarge)
+        Text("English is selected by default. You can change the language later in Settings.")
+        languages.forEach { (code, label) ->
+            OutlinedButton(
+                onClick = { selected = code },
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Text(if (selected == code) "✓  $label" else label)
+            }
+        }
+        Button(onClick = { onContinue(selected) }, modifier = Modifier.fillMaxWidth()) {
+            Text("Continue")
         }
     }
 }
