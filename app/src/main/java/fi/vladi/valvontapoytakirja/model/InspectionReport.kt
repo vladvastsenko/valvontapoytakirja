@@ -65,6 +65,7 @@ data class InspectionReport(
     val inspectionDate: String = LocalDate.now().toString(),
     val additionalNotes: String = "",
     val signatureStrokes: List<SignatureStroke> = emptyList(),
+    val signatureImagePath: String = "",
 
     // PDF:n ulkoasu
     val logoPath: String = "",
