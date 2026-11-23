@@ -33,7 +33,7 @@ internal fun UserGuideScreen(onBack: () -> Unit) {
     }
 }
 
-// Offline translations are bundled in the APK.
+// Offline translations are bundled in the APK; review build.
 internal object UserGuideTexts {
     val content: Map<String, String> = mapOf(
         "ru" to """Назначение|Tarkastus Cloud предназначен для создания, хранения и обмена строительными отчётами: протоколом контроля гидроизоляции и протоколом осмотра. Документы PDF могут содержать сведения об объекте, материалах, исполнителях, результатах проверки и фотографии.
