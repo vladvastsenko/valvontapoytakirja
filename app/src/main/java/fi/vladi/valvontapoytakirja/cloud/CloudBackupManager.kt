@@ -164,7 +164,10 @@ object CloudBackupManager {
                     }
 
                     if (name == MANIFEST) {
-                        val text = zip.readBytes().toString(Charsets.UTF_8).trim()
+                        val manifestBytes = ByteArray(128)
+                        val count = zip.read(manifestBytes)
+                        require(count in 1..127 && zip.read() == -1) { "Varmuuskopion tunnistetiedot ovat virheelliset." }
+                        val text = String(manifestBytes, 0, count, Charsets.UTF_8).trim()
                         require(text == MANIFEST_CONTENT) { "Tiedosto ei ole Tarkastus-varmuuskopio." }
                         manifestFound = true
                     } else if (name.startsWith("files/") && name.length > 6) {
