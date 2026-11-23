@@ -213,4 +213,25 @@
     <string name="cloud_sync_complete">Synkronisering fullført. Filer: lastet opp %1$d, lastet ned %2$d, slettet %3$d, konflikter %4$d. PDF-er: på enheten %5$d, på Drive %6$d; lastet opp %7$d, lastet ned %8$d, slettet %9$d, konflikter %10$d.</string>
     <string name="ui_preview_pdf">Forhåndsvis PDF</string>
     <string name="ui_preview_unavailable">Ingen PDF-leser installert</string>
+    <string name="guest_continue">Fortsett uten registrering</string>
+    <string name="guest_explanation">Opprett og lagre rapporter lokalt. Skysynkronisering krever innlogging.</string>
+    <string name="guest_local_notice">Gjestemodus: rapporter lagres bare på denne enheten. Skysynkronisering krever innlogging.</string>
+    <string name="guest_sign_in">Logg inn / Registrer deg</string>
+    <string name="guest_cloud_required">Skysynkronisering krever innlogging.</string>
+    <string name="bio_title">Biometrisk lås</string>
+    <string name="bio_description">Beskytt appen med fingeravtrykk eller annen støttet biometri.</string>
+    <string name="bio_enabled">Aktivert</string>
+    <string name="bio_disabled">Deaktivert</string>
+    <string name="bio_unavailable">Biometrisk autentisering er ikke tilgjengelig på denne enheten.</string>
+    <string name="bio_not_confirmed">Autentiseringen ble ikke bekreftet.</string>
+    <string name="bio_verify">Bekreft identiteten din</string>
+    <string name="bio_cancel">Avbryt</string>
+    <string name="bio_cancelled">Autentisering avbrutt. Prøv igjen.</string>
+    <string name="bio_sign_in_again">Biometri er utilgjengelig. Logg inn igjen.</string>
+    <string name="bio_offer_title">Biometrisk innlogging</string>
+    <string name="bio_offer_message">Vil du beskytte Tarkastus Cloud med biometri? Du kan endre dette i innstillingene.</string>
+    <string name="bio_enable">Aktiver</string>
+    <string name="bio_not_now">Ikke nå</string>
+    <string name="bio_unlock">Lås opp med biometri</string>
+    <string name="bio_sign_out">Logg ut</string>
 </resources>
