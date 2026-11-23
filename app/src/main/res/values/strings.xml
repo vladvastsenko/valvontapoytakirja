@@ -245,4 +245,7 @@
     <string name="site_details_title">KOHTEEN TIEDOT</string>
     <string name="site_new_field">Uusi kenttä</string>
     <string name="report_inspector_title">Tarkastaja</string>
+    <string name="cloud_sync_confirm_title">Synkronoidaanko jaettuun kansioon?</string>
+    <string name="cloud_sync_confirm_message">Synkronointi voi lähettää kaikki tämän laitteen paikalliset raportit ja PDF-tiedostot valittuun kansioon, myös ilman rekisteröitymistä luodut raportit. Kansion käyttäjät voivat nähdä ne. Jatketaanko?</string>
+    <string name="cloud_restore_safety_copy">%1$s\nSuojakopio ennen palautusta: %2$s</string>
 </resources>
