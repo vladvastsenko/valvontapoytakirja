@@ -32,7 +32,6 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -55,15 +54,6 @@ internal fun CloudAuthGate(content: @Composable (onSignOut: () -> Unit) -> Unit)
     val context = LocalContext.current
     val auth = remember { FirebaseAuth.getInstance() }
     var signedIn by remember { mutableStateOf(auth.currentUser != null) }
-    var verified by remember { mutableStateOf(auth.currentUser?.let { !it.providerData.any { p -> p.providerId == "password" } || it.isEmailVerified } == true) }
-    var verificationBusy by remember { mutableStateOf(false) }
-    LaunchedEffect(signedIn) {
-        if (signedIn) auth.currentUser?.reload()?.addOnCompleteListener {
-            verified = auth.currentUser?.let { user ->
-                !user.providerData.any { p -> p.providerId == "password" } || user.isEmailVerified
-            } == true
-        }
-    }
     val guestPrefs = remember { context.getSharedPreferences("tarkastus_guest_mode", android.content.Context.MODE_PRIVATE) }
     var guest by remember { mutableStateOf(auth.currentUser == null && guestPrefs.getBoolean("enabled", false)) }
     var busy by remember { mutableStateOf(false) }
@@ -94,7 +84,6 @@ internal fun CloudAuthGate(content: @Composable (onSignOut: () -> Unit) -> Unit)
                     if (task.isSuccessful) {
                         guest = false
                         guestPrefs.edit().putBoolean("enabled", false).apply()
-                        verified = true
                         signedIn = true
                         error = null
                     } else {
@@ -109,37 +98,11 @@ internal fun CloudAuthGate(content: @Composable (onSignOut: () -> Unit) -> Unit)
     }
     if (guest && !signedIn) {
         content({ guest = false; guestPrefs.edit().putBoolean("enabled", false).apply() })
-    } else if (signedIn && !verified) {
-        Column(Modifier.fillMaxSize().padding(24.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
-            Text(stringResource(R.string.auth_verify_required))
-            Button(onClick = {
-                verificationBusy = true
-                auth.currentUser?.reload()?.addOnCompleteListener {
-                    verificationBusy = false
-                    verified = auth.currentUser?.isEmailVerified == true
-                    if (!verified) error = context.getString(R.string.auth_verify_required)
-                }
-            }, enabled = !verificationBusy) { Text(stringResource(R.string.auth_verify_check)) }
-            OutlinedButton(onClick = {
-                verificationBusy = true
-                auth.currentUser?.sendEmailVerification()?.addOnCompleteListener { task ->
-                    verificationBusy = false
-                    message = if (task.isSuccessful) context.getString(R.string.auth_verify_sent) else null
-                    if (!task.isSuccessful) error = localizedAuthError(context, task.exception, R.string.auth_failed)
-                }
-            }, enabled = !verificationBusy) { Text(stringResource(R.string.auth_verify_resend)) }
-            message?.let { Text(it) }
-            error?.let { Text(it, color = MaterialTheme.colorScheme.error) }
-            OutlinedButton(onClick = { auth.signOut(); signedIn = false; verified = false; error = null; message = null }) {
-                Text(stringResource(R.string.sign_out))
-            }
-        }
     } else if (signedIn) {
         BiometricSessionGate { content({
             auth.signOut()
             GoogleSignIn.getClient(context, options).signOut()
             signedIn = false
-            verified = false
             password = ""
             error = null
             message = null
@@ -229,7 +192,6 @@ internal fun CloudAuthGate(content: @Composable (onSignOut: () -> Unit) -> Unit)
                         if (result.isSuccessful) {
                             guest = false
                             guestPrefs.edit().putBoolean("enabled", false).apply()
-                            verified = auth.currentUser?.isEmailVerified == true
                             signedIn = true
                             if (register) auth.currentUser?.sendEmailVerification()
                         } else error = localizedAuthError(context, result.exception, R.string.auth_failed)
