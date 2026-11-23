@@ -42,6 +42,8 @@ internal fun CloudAuthGate(content: @Composable (onSignOut: () -> Unit) -> Unit)
     val context = LocalContext.current
     val auth = remember { FirebaseAuth.getInstance() }
     var signedIn by remember { mutableStateOf(auth.currentUser != null) }
+    val guestPrefs = remember { context.getSharedPreferences("tarkastus_guest_mode", android.content.Context.MODE_PRIVATE) }
+    var guest by remember { mutableStateOf(auth.currentUser == null && guestPrefs.getBoolean("enabled", false)) }
     var busy by remember { mutableStateOf(false) }
     var error by remember { mutableStateOf<String?>(null) }
     var email by remember { mutableStateOf("") }
@@ -67,6 +69,8 @@ internal fun CloudAuthGate(content: @Composable (onSignOut: () -> Unit) -> Unit)
                 auth.signInWithCredential(credential).addOnCompleteListener { task ->
                     busy = false
                     if (task.isSuccessful) {
+                        guest = false
+                        guestPrefs.edit().putBoolean("enabled", false).apply()
                         signedIn = true
                         error = null
                     } else {
@@ -79,7 +83,9 @@ internal fun CloudAuthGate(content: @Composable (onSignOut: () -> Unit) -> Unit)
             }
         }
     }
-    if (signedIn) {
+    if (guest && !signedIn) {
+        content({ guest = false; guestPrefs.edit().putBoolean("enabled", false).apply() })
+    } else if (signedIn) {
         BiometricSessionGate { content({
             auth.signOut()
             GoogleSignIn.getClient(context, options).signOut()
@@ -122,6 +128,13 @@ internal fun CloudAuthGate(content: @Composable (onSignOut: () -> Unit) -> Unit)
                     }
                 }
             }
+            OutlinedButton(onClick = {
+                guestPrefs.edit().putBoolean("enabled", true).apply()
+                guest = true
+            }, enabled = !busy, modifier = Modifier.fillMaxWidth()) {
+                Text("Jatka ilman rekisteröitymistä")
+            }
+            Text("Voit luoda ja tallentaa raportteja paikallisesti. Pilvisynkronointi vaatii kirjautumisen.")
             Text(stringResource(R.string.auth_title))
             OutlinedTextField(value = email, onValueChange = { email = it }, label = { Text(stringResource(R.string.email)) }, singleLine = true, modifier = Modifier.fillMaxWidth())
             OutlinedTextField(value = password, onValueChange = { password = it }, label = { Text(stringResource(R.string.password)) }, singleLine = true, visualTransformation = PasswordVisualTransformation(), modifier = Modifier.fillMaxWidth())
@@ -139,6 +152,8 @@ internal fun CloudAuthGate(content: @Composable (onSignOut: () -> Unit) -> Unit)
                     task.addOnCompleteListener { result ->
                         busy = false
                         if (result.isSuccessful) {
+                            guest = false
+                            guestPrefs.edit().putBoolean("enabled", false).apply()
                             signedIn = true
                             if (register) auth.currentUser?.sendEmailVerification()
                         } else error = result.exception?.localizedMessage ?: context.getString(R.string.auth_failed)
