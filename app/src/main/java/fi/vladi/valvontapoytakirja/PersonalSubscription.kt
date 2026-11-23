@@ -21,6 +21,7 @@ import com.android.billingclient.api.*
 internal const val SUBSCRIPTION_PRODUCT_ID = "remove_ads_monthly"
 
 // Client-side status is for testing; production needs server-side purchase verification.
+// Subscription base plan price is configured in Play Console, not hardcoded here.
 internal class PersonalSubscription(private val activity: Activity) {
     var active by mutableStateOf(false)
         private set
