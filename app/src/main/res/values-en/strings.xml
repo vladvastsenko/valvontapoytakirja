@@ -245,4 +245,7 @@
     <string name="site_details_title">SITE DETAILS</string>
     <string name="site_new_field">New field</string>
     <string name="report_inspector_title">Inspector</string>
+    <string name="cloud_sync_confirm_title">Sync to shared folder?</string>
+    <string name="cloud_sync_confirm_message">Sync may upload all local reports and PDFs from this device to the selected folder, including reports created without registration. People with folder access may see them. Continue?</string>
+    <string name="cloud_restore_safety_copy">%1$s\nSafety backup before restore: %2$s</string>
 </resources>
