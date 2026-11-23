@@ -279,4 +279,12 @@
     <string name="user_guide_title">Käyttöohje</string>
     <string name="inspector_edit">Muokkaa tarkastajaa</string>
     <string name="inspector_save">Tallenna tarkastaja</string>
+    <string name="subscription_title">Tilauksesi</string>
+    <string name="subscription_active">Mainokseton tilaus on aktiivinen</string>
+    <string name="subscription_free">Ilmaisversio, jossa on mainoksia</string>
+    <string name="subscription_description">Poista mainokset henkilökohtaisella kuukausitilauksella.</string>
+    <string name="subscription_buy">Tilaa ilman mainoksia</string>
+    <string name="subscription_restore">Palauta ostot</string>
+    <string name="subscription_manage">Hallitse tilausta</string>
+    <string name="subscription_unavailable">Tilausta ei ole vielä saatavilla Google Playssa.</string>
 </resources>
