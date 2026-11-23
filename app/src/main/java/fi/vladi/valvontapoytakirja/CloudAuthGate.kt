@@ -43,6 +43,8 @@ import androidx.compose.ui.unit.dp
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import com.google.android.gms.common.api.ApiException
+import com.google.firebase.auth.FirebaseAuthException
+import com.google.firebase.FirebaseNetworkException
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.GoogleAuthProvider
 import fi.vladi.tarkastuspoytakirja.AppLanguage
@@ -85,12 +87,12 @@ internal fun CloudAuthGate(content: @Composable (onSignOut: () -> Unit) -> Unit)
                         signedIn = true
                         error = null
                     } else {
-                        error = task.exception?.localizedMessage ?: context.getString(R.string.google_failed)
+                        error = localizedAuthError(context, task.exception, R.string.google_failed)
                     }
                 }
             } catch (exception: Exception) {
                 busy = false
-                error = exception.localizedMessage
+                error = localizedAuthError(context, exception, R.string.google_failed)
             }
         }
     }
@@ -192,7 +194,7 @@ internal fun CloudAuthGate(content: @Composable (onSignOut: () -> Unit) -> Unit)
                             guestPrefs.edit().putBoolean("enabled", false).apply()
                             signedIn = true
                             if (register) auth.currentUser?.sendEmailVerification()
-                        } else error = result.exception?.localizedMessage ?: context.getString(R.string.auth_failed)
+                        } else error = localizedAuthError(context, result.exception, R.string.auth_failed)
                     }
                 }
             }, enabled = !busy, modifier = Modifier.fillMaxWidth()) { Text(if (register) stringResource(R.string.create_account) else stringResource(R.string.email_sign_in)) }
@@ -209,7 +211,7 @@ internal fun CloudAuthGate(content: @Composable (onSignOut: () -> Unit) -> Unit)
                     auth.sendPasswordResetEmail(email.trim()).addOnCompleteListener { result ->
                         busy = false
                         if (result.isSuccessful) message = context.getString(R.string.reset_sent)
-                        else error = result.exception?.localizedMessage ?: context.getString(R.string.reset_failed)
+                        else error = localizedAuthError(context, result.exception, R.string.reset_failed)
                     }
                 }
             }, enabled = !busy, modifier = Modifier.fillMaxWidth()) {
@@ -219,4 +221,22 @@ internal fun CloudAuthGate(content: @Composable (onSignOut: () -> Unit) -> Unit)
             error?.let { Text(it, color = MaterialTheme.colorScheme.error) }
         }
     }
+}
+
+private fun localizedAuthError(context: android.content.Context, error: Exception?, fallback: Int): String {
+    val resource = when {
+        error is FirebaseNetworkException -> R.string.auth_error_network
+        error is FirebaseAuthException -> when (error.errorCode) {
+            "ERROR_INVALID_EMAIL" -> R.string.auth_error_invalid_email
+            "ERROR_WRONG_PASSWORD", "ERROR_INVALID_CREDENTIAL", "ERROR_USER_NOT_FOUND",
+            "ERROR_USER_DISABLED", "ERROR_INVALID_LOGIN_CREDENTIALS" -> R.string.auth_error_invalid_credentials
+            "ERROR_EMAIL_ALREADY_IN_USE" -> R.string.auth_error_email_in_use
+            "ERROR_WEAK_PASSWORD" -> R.string.auth_error_weak_password
+            "ERROR_TOO_MANY_REQUESTS" -> R.string.auth_error_too_many
+            "ERROR_NETWORK_REQUEST_FAILED" -> R.string.auth_error_network
+            else -> fallback
+        }
+        else -> fallback
+    }
+    return context.getString(resource)
 }
