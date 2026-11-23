@@ -122,4 +122,8 @@
     <string name="inspector_heading_localized">Kontrollija</string>
     <string name="select_inspector_localized">Vali kontrollija</string>
     <string name="new_custom_field_label">Uus väli</string>
+    <string name="new_customer_heading">UUS KLIENT</string>
+    <string name="customer_details_heading">KLIENDI ANDMED</string>
+    <string name="new_site_heading">UUS OBJEKT</string>
+    <string name="site_details_heading">OBJEKTI ANDMED</string>
 </resources>
