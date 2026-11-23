@@ -234,4 +234,15 @@
     <string name="bio_not_now">Ei nyt</string>
     <string name="bio_unlock">Avaa biometrialla</string>
     <string name="bio_sign_out">Kirjaudu ulos</string>
+    <string name="inspector_profiles">Tarkastajaprofiilit</string>
+    <string name="inspector_add">Lisää tarkastaja</string>
+    <string name="inspector_add_current">Lisää nykyinen tarkastaja luetteloon</string>
+    <string name="inspector_copy_signature">Kopioi allekirjoitus asetuksista</string>
+    <string name="customer_new_title">UUSI ASIAKAS</string>
+    <string name="customer_details_title">ASIAKKAAN TIEDOT</string>
+    <string name="customer_sites_title">KOHTEET: %1$s</string>
+    <string name="site_new_title">UUSI KOHDE</string>
+    <string name="site_details_title">KOHTEEN TIEDOT</string>
+    <string name="site_new_field">Uusi kenttä</string>
+    <string name="report_inspector_title">Tarkastaja</string>
 </resources>
