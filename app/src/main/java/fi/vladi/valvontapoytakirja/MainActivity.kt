@@ -44,6 +44,8 @@ import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.getValue
@@ -58,6 +60,10 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.viewinterop.AndroidView
+import com.google.android.gms.ads.AdRequest
+import com.google.android.gms.ads.AdSize
+import com.google.android.gms.ads.AdView
 import androidx.core.content.FileProvider
 import fi.vladi.tarkastuspoytakirja.AppLanguage
 import fi.vladi.tarkastuspoytakirja.MainActivity as TarkastusMainActivity
@@ -239,7 +245,26 @@ private fun UnifiedStartScreen(
         Button(onClick = onTarkastus, modifier = Modifier.fillMaxWidth()) {
             Text(stringResource(R.string.report_tarkastus))
         }
+        Spacer(modifier = Modifier.weight(1f))
+        TestAdMobBanner()
     }
+}
+
+@Composable
+private fun TestAdMobBanner() {
+    val context = LocalContext.current
+    val adView = remember(context) {
+        AdView(context).apply {
+            setAdSize(AdSize.BANNER)
+            // Official Google test banner ID. Never request live ads in testing builds.
+            adUnitId = "ca-app-pub-3940256099942544/6300978111"
+            loadAd(AdRequest.Builder().build())
+        }
+    }
+    DisposableEffect(adView) {
+        onDispose { adView.destroy() }
+    }
+    AndroidView(factory = { adView }, modifier = Modifier.fillMaxWidth())
 }
 
 @Composable
