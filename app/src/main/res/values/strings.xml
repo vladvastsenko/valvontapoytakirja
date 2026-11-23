@@ -267,4 +267,5 @@
     <string name="cloud_share_guide_title">Ohje: kansion jakaminen</string>
     <string name="cloud_share_guide_steps">1. Avaa Google Drive yhteisen kansion omistajan tilillä.\n2. Etsi Tarkastus Cloudin yhteinen kansio.\n3. Valitse kolme pistettä → Jaa / Hallinnoi käyttöoikeuksia.\n4. Lisää työntekijän sähköpostiosoite ja valitse Muokkaaja.\n5. Lähetä kutsu. Työntekijä hyväksyy sen ja valitsee jaetun kansion Tarkastus Cloudissa.\n\nÄlä jaa henkilökohtaisten varmuuskopioiden kansiota.</string>
     <string name="cloud_share_open_drive">Avaa Google Drive</string>
+    <string name="cloud_restore_success">Varmuuskopio palautettiin onnistuneesti.</string>
 </resources>
