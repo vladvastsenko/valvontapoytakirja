@@ -276,4 +276,5 @@
     <string name="auth_verify_check">Sjekk bekreftelse</string>
     <string name="auth_verify_resend">Send bekreftelses-e-post på nytt</string>
     <string name="auth_verify_sent">Bekreftelses-e-post sendt.</string>
+    <string name="user_guide_title">Brukerveiledning</string>
 </resources>
