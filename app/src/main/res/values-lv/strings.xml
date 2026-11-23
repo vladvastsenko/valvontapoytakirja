@@ -272,4 +272,8 @@
     <string name="cloud_private_backup_hint">Izvēlies savu mapi, kas nav kopīgota ar kolēģiem. Rezerves kopijas netiek glabātas uzņēmuma koplietotajā mapē.</string>
     <string name="cloud_private_backup_selected">Personīgā rezerves kopiju mape izvēlēta.</string>
     <string name="cloud_private_backup_invalid">Izvēlies atsevišķu rakstāmu mapi, nevis uzņēmuma koplietoto mapi.</string>
+    <string name="auth_verify_required">Pirms turpināšanas apstipriniet savu e-pasta adresi.</string>
+    <string name="auth_verify_check">Pārbaudīt apstiprinājumu</string>
+    <string name="auth_verify_resend">Nosūtīt apstiprinājuma e-pastu vēlreiz</string>
+    <string name="auth_verify_sent">Apstiprinājuma e-pasts nosūtīts.</string>
 </resources>
