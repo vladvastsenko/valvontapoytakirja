@@ -253,4 +253,10 @@
     <string name="inspector_select">Pasirinkite inspektorių</string>
     <string name="password_show">Rodyti slaptažodį</string>
     <string name="password_hide">Slėpti slaptažodį</string>
+    <string name="auth_error_invalid_email">Patikrinkite el. pašto adresą.</string>
+    <string name="auth_error_invalid_credentials">Neteisingas el. pašto adresas arba slaptažodis.</string>
+    <string name="auth_error_email_in_use">Šis el. pašto adresas jau naudojamas.</string>
+    <string name="auth_error_weak_password">Slaptažodis per silpnas.</string>
+    <string name="auth_error_too_many">Per daug bandymų. Bandykite vėliau.</string>
+    <string name="auth_error_network">Tinklo klaida. Patikrinkite interneto ryšį.</string>
 </resources>
