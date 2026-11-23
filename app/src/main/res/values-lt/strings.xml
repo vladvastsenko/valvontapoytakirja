@@ -277,4 +277,6 @@
     <string name="auth_verify_resend">Siųsti patvirtinimo laišką dar kartą</string>
     <string name="auth_verify_sent">Patvirtinimo laiškas išsiųstas.</string>
     <string name="user_guide_title">Naudotojo vadovas</string>
+    <string name="inspector_edit">Redaguoti inspektorių</string>
+    <string name="inspector_save">Išsaugoti inspektorių</string>
 </resources>
