@@ -1,0 +1,48 @@
+package fi.vladi.valvontapoytakirja
+
+import android.app.Activity
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
+import com.google.android.ump.ConsentInformation
+import com.google.android.ump.ConsentRequestParameters
+import com.google.android.ump.UserMessagingPlatform
+
+/**
+ * Refresh consent on each launch. Never load an ad unless UMP says ads may be requested.
+ * Configure a GDPR message and privacy options in AdMob Privacy & messaging.
+ */
+internal class AdConsentManager(private val activity: Activity) {
+    private val info = UserMessagingPlatform.getConsentInformation(activity)
+    var canRequestAds by mutableStateOf(false)
+        private set
+    var privacyOptionsRequired by mutableStateOf(false)
+        private set
+
+    fun request() {
+        // A previously valid UMP decision can be reused while the refresh completes.
+        update()
+        val params = ConsentRequestParameters.Builder().build()
+        info.requestConsentInfoUpdate(activity, params, {
+            update()
+            UserMessagingPlatform.loadAndShowConsentFormIfRequired(activity) {
+                update()
+            }
+        }, {
+            // If consent cannot be refreshed, UMP determines whether an existing
+            // consent state permits requests. Do not assume consent on failure.
+            update()
+        })
+    }
+
+    private fun update() {
+        canRequestAds = info.canRequestAds()
+        privacyOptionsRequired =
+            info.privacyOptionsRequirementStatus ==
+                ConsentInformation.PrivacyOptionsRequirementStatus.REQUIRED
+    }
+
+    fun showPrivacyOptions() {
+        UserMessagingPlatform.showPrivacyOptionsForm(activity) { update() }
+    }
+}
