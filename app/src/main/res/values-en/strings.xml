@@ -272,4 +272,8 @@
     <string name="cloud_private_backup_hint">Choose your own folder that is not shared with colleagues. Backups are not stored in the company shared folder.</string>
     <string name="cloud_private_backup_selected">Personal backup folder selected.</string>
     <string name="cloud_private_backup_invalid">Choose a separate writable folder, not the company shared folder.</string>
+    <string name="auth_verify_required">Verify your email address before continuing.</string>
+    <string name="auth_verify_check">Check verification</string>
+    <string name="auth_verify_resend">Resend verification email</string>
+    <string name="auth_verify_sent">Verification email sent.</string>
 </resources>
