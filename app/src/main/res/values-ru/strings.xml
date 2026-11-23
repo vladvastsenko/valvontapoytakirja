@@ -259,4 +259,5 @@
     <string name="auth_error_weak_password">Слишком слабый пароль.</string>
     <string name="auth_error_too_many">Слишком много попыток. Повторите позже.</string>
     <string name="auth_error_network">Ошибка сети. Проверьте подключение к интернету.</string>
+    <string name="cloud_folder_access_denied">Доступ к папке не предоставлен. Выберите общую папку снова и разрешите чтение и запись.</string>
 </resources>
