@@ -272,4 +272,8 @@
     <string name="cloud_private_backup_hint">Vali oma kaust, mida pole kolleegidega jagatud. Varukoopiaid ei salvestata ettevõtte ühiskausta.</string>
     <string name="cloud_private_backup_selected">Isiklik varukoopiate kaust valitud.</string>
     <string name="cloud_private_backup_invalid">Vali eraldi kirjutatav kaust, mitte ettevõtte ühiskaust.</string>
+    <string name="auth_verify_required">Enne jätkamist kinnita oma e-posti aadress.</string>
+    <string name="auth_verify_check">Kontrolli kinnitust</string>
+    <string name="auth_verify_resend">Saada kinnituskiri uuesti</string>
+    <string name="auth_verify_sent">Kinnituskiri saadetud.</string>
 </resources>
