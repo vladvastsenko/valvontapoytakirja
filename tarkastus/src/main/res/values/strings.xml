@@ -122,4 +122,8 @@
     <string name="inspector_heading_localized">Tarkastaja</string>
     <string name="select_inspector_localized">Valitse tarkastaja</string>
     <string name="new_custom_field_label">Uusi kenttä</string>
+    <string name="new_customer_heading">UUSI ASIAKAS</string>
+    <string name="customer_details_heading">ASIAKKAAN TIEDOT</string>
+    <string name="new_site_heading">UUSI KOHDE</string>
+    <string name="site_details_heading">KOHTEEN TIEDOT</string>
 </resources>
