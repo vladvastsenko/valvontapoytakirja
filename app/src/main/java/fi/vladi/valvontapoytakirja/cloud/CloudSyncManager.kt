@@ -64,6 +64,7 @@ object CloudSyncManager {
                 "PDF:t löytyi laitteelta $pdfFoundLocal, Drivesta $pdfFoundDrive; lähetetty $pdfUploaded, ladattu $pdfDownloaded, poistettu $pdfDeleted, ristiriitoja $pdfConflicts."
     }
 
+    @Synchronized
     fun sync(context: Context, treeUri: Uri): Result {
         val selectedRoot = DocumentFile.fromTreeUri(context, treeUri)
             ?: error("Valittua Google Drive -kansiota ei voi avata.")
