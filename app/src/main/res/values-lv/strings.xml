@@ -276,4 +276,5 @@
     <string name="auth_verify_check">Pārbaudīt apstiprinājumu</string>
     <string name="auth_verify_resend">Nosūtīt apstiprinājuma e-pastu vēlreiz</string>
     <string name="auth_verify_sent">Apstiprinājuma e-pasts nosūtīts.</string>
+    <string name="user_guide_title">Lietotāja rokasgrāmata</string>
 </resources>
