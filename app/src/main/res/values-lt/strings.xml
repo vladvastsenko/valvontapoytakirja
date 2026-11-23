@@ -272,4 +272,8 @@
     <string name="cloud_private_backup_hint">Pasirinkite savo aplanką, kuris nėra bendrinamas su kolegomis. Kopijos nesaugomos įmonės bendrame aplanke.</string>
     <string name="cloud_private_backup_selected">Asmeninių atsarginių kopijų aplankas pasirinktas.</string>
     <string name="cloud_private_backup_invalid">Pasirinkite atskirą įrašomą aplanką, ne įmonės bendrą aplanką.</string>
+    <string name="auth_verify_required">Prieš tęsdami patvirtinkite el. pašto adresą.</string>
+    <string name="auth_verify_check">Patikrinti patvirtinimą</string>
+    <string name="auth_verify_resend">Siųsti patvirtinimo laišką dar kartą</string>
+    <string name="auth_verify_sent">Patvirtinimo laiškas išsiųstas.</string>
 </resources>
