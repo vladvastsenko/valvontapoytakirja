@@ -133,7 +133,7 @@ fun SettingsScreen(
 
         if (editingCustomer != null) {
             val draft = editingCustomer!!
-            SettingsSection(if (draft.name.isBlank()) "UUSI ASIAKAS" else "ASIAKKAAN TIEDOT")
+            SettingsSection(if (draft.name.isBlank()) stringResource(R.string.new_customer_heading) else stringResource(R.string.customer_details_heading))
             SettingField(stringResource(R.string.settings_company), draft.name) { editingCustomer = draft.copy(name = it) }
             SettingField(stringResource(R.string.settings_business_id), draft.businessId) { editingCustomer = draft.copy(businessId = it) }
             SettingField(stringResource(R.string.settings_billing), draft.address, minLines = 2) { editingCustomer = draft.copy(address = it) }
@@ -183,9 +183,10 @@ fun SettingsScreen(
             ) { Text(stringResource(R.string.settings_add_site)) }
         }
 
+        val newFieldLabel = stringResource(R.string.new_custom_field_label)
         if (editingSite != null) {
             val draft = editingSite!!
-            SettingsSection(if (draft.name.isBlank()) "UUSI KOHDE" else "KOHTEEN TIEDOT")
+            SettingsSection(if (draft.name.isBlank()) stringResource(R.string.new_site_heading) else stringResource(R.string.site_details_heading))
             SettingField(stringResource(R.string.settings_site_name), draft.name) { editingSite = draft.copy(name = it) }
             SettingField(stringResource(R.string.settings_site_detail), draft.address, minLines = 2) { editingSite = draft.copy(address = it) }
             Text(stringResource(R.string.settings_site_fields), style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.SemiBold)
@@ -204,7 +205,7 @@ fun SettingsScreen(
             }
             OutlinedButton(
                 onClick = {
-                    editingSite = draft.copy(fieldDefinitions = draft.fieldDefinitions + SiteFieldDefinition(label = "Uusi kenttä"))
+                    editingSite = draft.copy(fieldDefinitions = draft.fieldDefinitions + SiteFieldDefinition(label = newFieldLabel))
                 },
                 modifier = Modifier.fillMaxWidth()
             ) { Text(stringResource(R.string.settings_add_field)) }
