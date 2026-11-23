@@ -48,8 +48,8 @@ private fun foldersOverlap(first: String?, second: String?): Boolean {
         val authorityA = Uri.parse(first).authority
         val authorityB = Uri.parse(second).authority
         if (authorityA != authorityB) false
-        else a == b || a.startsWith("$" + "{b}/") || b.startsWith("$" + "{a}/") ||
-            a.startsWith("$" + "{b}:") || b.startsWith("$" + "{a}:")
+        else a == b || a.startsWith("${b}/") || b.startsWith("${a}/") ||
+            a.startsWith("${b}:") || b.startsWith("${a}:")
     }.getOrDefault(first == second)
 }
 
