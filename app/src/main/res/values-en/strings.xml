@@ -277,4 +277,6 @@
     <string name="auth_verify_resend">Resend verification email</string>
     <string name="auth_verify_sent">Verification email sent.</string>
     <string name="user_guide_title">User guide</string>
+    <string name="inspector_edit">Edit inspector</string>
+    <string name="inspector_save">Save inspector</string>
 </resources>
