@@ -18,8 +18,8 @@ android {
         applicationId = "fi.vladi.tarkastuscloud"
         minSdk = 26
         targetSdk = 35
-        versionCode = 33
-        versionName = "0.6.11-test"
+        versionCode = 34
+        versionName = "0.6.12-test"
     }
 
     if (!cloudKeystorePath.isNullOrBlank() &&
