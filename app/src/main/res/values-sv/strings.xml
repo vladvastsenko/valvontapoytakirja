@@ -259,4 +259,5 @@
     <string name="auth_error_weak_password">Lösenordet är för svagt.</string>
     <string name="auth_error_too_many">För många försök. Försök igen senare.</string>
     <string name="auth_error_network">Nätverksfel. Kontrollera internetanslutningen.</string>
+    <string name="cloud_folder_access_denied">Åtkomst till mappen nekades. Välj den delade mappen igen och tillåt läs- och skrivåtkomst.</string>
 </resources>
