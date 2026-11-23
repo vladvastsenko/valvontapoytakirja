@@ -80,14 +80,14 @@ internal fun CloudAuthGate(content: @Composable (onSignOut: () -> Unit) -> Unit)
         }
     }
     if (signedIn) {
-        content({
+        BiometricSessionGate { content({
             auth.signOut()
             GoogleSignIn.getClient(context, options).signOut()
             signedIn = false
             password = ""
             error = null
             message = null
-        })
+        }) }
     } else {
         Column(
             modifier = Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(24.dp),
