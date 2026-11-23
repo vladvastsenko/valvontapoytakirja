@@ -44,3 +44,9 @@ Status: implementation in progress on `auth-registration`. No APK build or devic
 - Old `Tarkastus_Sync/data` may contain previously synchronized private information. Sync now refuses to continue if it is nonempty. The folder owner must inspect/back up and remove this legacy folder manually; do not automatically delete it.
 - Simultaneous changes to the same file are preserved as conflicts where possible, but there is no server-side atomic compare-and-swap for SAF/DocumentFile. Concurrent multi-device editing still requires real-device tests.
 - No APK build or Android/Drive end-to-end tests were run for this change.
+
+## Additional PDF safety changes
+- Exported PDF synchronization no longer deletes the other copy when a file disappears on one device or Drive.
+- Migration of legacy `Tarkastus_Sync/PDF` copies files but does not delete the original folder.
+- **Privacy boundary:** Shared report JSON and PDFs intentionally include the inspector identity and signature captured in that report. Private profile/settings files are excluded, but reports are accessible to everyone with Drive-folder access. Limit folder sharing accordingly.
+- Pending: SAF provider tests, two-device concurrent write tests, crash recovery, explicit deletion UX and review of filename collisions.
