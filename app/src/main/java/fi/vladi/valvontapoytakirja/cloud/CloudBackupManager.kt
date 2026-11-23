@@ -141,6 +141,18 @@ object CloudBackupManager {
     }
 
     fun restoreFromUri(context: Context, archiveUri: Uri): String {
+        // Recover the original directory before preparing a new restore.
+        val original = context.filesDir
+        val previousRecovery = File(original.parentFile, "tarkastus_restore_previous")
+        if (previousRecovery.exists()) {
+            if (!original.exists()) {
+                check(previousRecovery.renameTo(original)) {
+                    "Keskeytyneen palautuksen alkuperäisiä tietoja ei voitu palauttaa."
+                }
+            } else {
+                error("Aiemman palautuksen turvakopio on olemassa. Tarkista tiedot ennen uutta palautusta.")
+            }
+        }
         // Stage beside filesDir so the final rename stays on the same filesystem.
         val staging = File(context.filesDir.parentFile, "tarkastus_restore_staging").apply {
             deleteRecursively()
