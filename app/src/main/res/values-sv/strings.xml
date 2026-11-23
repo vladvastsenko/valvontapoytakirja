@@ -251,4 +251,6 @@
     <string name="signature_draw_hint">Rita din underskrift med fingret i fältet ovan.</string>
     <string name="signature_clear">Rensa underskrift</string>
     <string name="inspector_select">Välj inspektör</string>
+    <string name="password_show">Visa lösenord</string>
+    <string name="password_hide">Dölj lösenord</string>
 </resources>
