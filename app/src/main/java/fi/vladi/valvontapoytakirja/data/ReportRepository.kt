@@ -58,6 +58,9 @@ class ReportRepository(private val context: Context) {
         val file = File(inspectorsDirectory(), "${inspector.id}.json")
         file.writeText(json.encodeToString(InspectorProfile.serializer(), inspector))
         SharedDocumentsArchive.archiveFile(context, file, "Asetukset/Tarkastajat", file.name, "application/json")
+        File(inspector.signatureImagePath).takeIf { it.isFile }?.let { signature ->
+            SharedDocumentsArchive.archiveFile(context, signature, "Asetukset/Tarkastajat/Allekirjoitukset", signature.name)
+        }
     }
 
     fun deleteInspector(inspectorId: String) {
@@ -108,6 +111,20 @@ class ReportRepository(private val context: Context) {
     fun deleteSite(siteId: String) {
         File(sitesDirectory(), "${siteId}.json").delete()
     }
+
+    fun importInspectorSignature(inspectorId: String, uri: Uri): File? = runCatching {
+        require(inspectorId.matches(Regex("[a-zA-Z0-9-]{1,64}")))
+        val directory = File(inspectorsDirectory(), "signatures").apply { mkdirs() }
+        val extension = when (context.contentResolver.getType(uri)) {
+            "image/png" -> "png"
+            "image/webp" -> "webp"
+            else -> "jpg"
+        }
+        val destination = File(directory, "signature_${inspectorId}_${Instant.now().toEpochMilli()}.$extension")
+        val input = context.contentResolver.openInputStream(uri) ?: error("Unable to open inspector signature")
+        input.use { source -> destination.outputStream().use { output -> source.copyTo(output) } }
+        destination
+    }.getOrNull()
 
     fun importSettingsSignature(uri: Uri): File? = runCatching {
         val directory = File(context.filesDir, "settings").apply { mkdirs() }
