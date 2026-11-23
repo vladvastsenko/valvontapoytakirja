@@ -264,4 +264,7 @@
     <string name="cloud_team_access_hint">Mappeeieren inviterer kolleger via Google Disk. Hver kollega velger den delte mappen nedenfor.</string>
     <string name="cloud_invite_teammate">Inviter via Google Disk</string>
     <string name="cloud_invite_hint">Finn mappen i Disk og velg Del. Appen kan ikke åpne den valgte mappen direkte i Disk.</string>
+    <string name="cloud_share_guide_title">Slik deler du mappen</string>
+    <string name="cloud_share_guide_steps">1. Åpne Google Drive med kontoen som eier den delte mappen.\n2. Finn Tarkastus Clouds delte mappe.\n3. Trykk på de tre prikkene → Del / Administrer tilgang.\n4. Skriv inn den ansattes e-post og velg Redigerer.\n5. Send invitasjonen. Den ansatte godtar og velger mappen i Tarkastus Cloud.\n\nIkke del mappen med personlige sikkerhetskopier.</string>
+    <string name="cloud_share_open_drive">Åpne Google Drive</string>
 </resources>
