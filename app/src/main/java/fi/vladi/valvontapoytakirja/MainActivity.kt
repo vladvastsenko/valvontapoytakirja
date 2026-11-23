@@ -305,12 +305,12 @@ private fun ManagementScreen(
         OutlinedButton(onClick = { if (guestMode) onSignOut() else confirmSignOut = true }, modifier = Modifier.fillMaxWidth()) {
             Text(if (guestMode) stringResource(R.string.guest_sign_in) else stringResource(R.string.sign_out))
         }
+        OutlinedButton(onClick = onBack, modifier = Modifier.fillMaxWidth()) {
+            Text("← " + stringResource(R.string.back))
+        }
         Spacer(Modifier.height(8.dp))
         OutlinedButton(onClick = onUserGuide, modifier = Modifier.fillMaxWidth()) {
             Text(stringResource(R.string.user_guide_title))
-        }
-        OutlinedButton(onClick = onBack, modifier = Modifier.fillMaxWidth()) {
-            Text("← " + stringResource(R.string.back))
         }
     }
 }
