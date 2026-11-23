@@ -347,7 +347,7 @@ private fun ManagementScreen(
             Text("EEA test requires UMP test-device hash from Android Logcat.", style = MaterialTheme.typography.bodySmall)
             OutlinedTextField(
                 value = consent.testDeviceHash,
-                onValueChange = { consent.setTestDeviceHash(it) },
+                onValueChange = { consent.saveTestDeviceHash(it) },
                 label = { Text("UMP test device hash") },
                 modifier = Modifier.fillMaxWidth(),
                 singleLine = true
