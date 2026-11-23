@@ -69,3 +69,12 @@ Status: implementation in progress on `auth-registration`. No APK build or devic
 - If replacing a remote report, its previous bytes are also saved in Versions before deletion. Each version is checked against its SHA-256 digest.
 - Versions is excluded from the normal shared-data file scanner and is not auto-deleted. This preserves history independently of the mutable current report.
 - **Limitations:** no revision browsing/restoration UI yet; concurrent createFile races and SAF non-atomic writes can still cause conflicts or provider-specific duplicate filenames. JSON revisions do not by themselves preserve all referenced photos; PDF sync is a separate dataset. Real-device verification is required.
+
+## Optional biometric app lock (2026-11-23)
+- AndroidX BiometricPrompt with BIOMETRIC_STRONG; device-only preference scoped to Firebase UID.
+- After first authenticated Firebase session, offer opt-in once; users can enable/disable via Settings → Biometrinen lukitus.
+- On subsequent cold starts with a persisted Firebase session and lock enabled, the app content remains hidden until successful biometric confirmation. Failed/cancelled prompts allow retry; sign-out is available.
+- No biometric templates or fingerprint images are stored by the app. This is an app-unlock gate, **not** a Firebase login credential or cryptographic binding of Firebase refresh tokens.
+- No fallback to PIN is currently enabled. If biometrics become unavailable, the user can sign out; recovery/reset behavior and account switching need device tests.
+- **Security limitations:** current implementation does not re-lock on background/resume, and other Android activities launched outside the main gate need separate protection review. Biometric UI text is currently Finnish and needs translation across supported UI languages.
+- No APK build, emulator run or device test was performed. Test on HONOR Magic V3: first opt-in, dismiss, failed attempt, restart, sign-out, settings switch, changed fingerprints, and account switching.
