@@ -166,7 +166,7 @@ fun SettingsScreen(
             Card(modifier = Modifier.fillMaxWidth().clickable { editingInspector = inspector }) {
                 Row(Modifier.padding(12.dp), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                     Text(inspector.name, modifier = Modifier.weight(1f))
-                    TextButton(onClick = { editingInspector = inspector }) { Text(stringResource(R.string.settings_edit_customers)) }
+                    TextButton(onClick = { editingInspector = inspector }) { Text(stringResource(R.string.inspector_edit)) }
                 }
             }
         }
@@ -237,7 +237,7 @@ fun SettingsScreen(
             }
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 Button(onClick = { onSaveInspector(draft); editingInspector = null }, enabled = draft.name.isNotBlank()) {
-                    Text(stringResource(R.string.settings_save_customer))
+                    Text(stringResource(R.string.inspector_save))
                 }
                 TextButton(onClick = {
                     if (inspectors.any { it.id == draft.id }) onDeleteInspector(draft.id)
