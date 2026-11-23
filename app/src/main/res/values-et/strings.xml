@@ -251,4 +251,6 @@
     <string name="signature_draw_hint">Joonista allkiri sõrmega ülalolevasse lahtrisse.</string>
     <string name="signature_clear">Kustuta allkiri</string>
     <string name="inspector_select">Vali inspektor</string>
+    <string name="password_show">Näita parooli</string>
+    <string name="password_hide">Peida parool</string>
 </resources>
