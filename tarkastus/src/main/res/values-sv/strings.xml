@@ -118,4 +118,8 @@
     <string name="audit_choose">Välj</string>
     <string name="audit_choose_date">Välj datum</string>
     <string name="audit_custom_fields_title">EGNA EXTRAFÄLT</string>
+    <string name="report_title_localized">Besiktningsprotokoll</string>
+    <string name="inspector_heading_localized">Inspektör</string>
+    <string name="select_inspector_localized">Välj inspektör</string>
+    <string name="new_custom_field_label">Nytt fält</string>
 </resources>
