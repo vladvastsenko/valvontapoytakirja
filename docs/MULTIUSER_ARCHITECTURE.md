@@ -35,3 +35,12 @@ Status: implementation in progress on `auth-registration`. No APK build or devic
 - Explain that empty fields should not be printed in exported PDFs; verify this in both report generators before documenting as guaranteed behavior.
 - Explain how to add custom fields with user-defined labels and use them for different inspection scenarios; verify which report types support this before documenting scope.
 - Profile selection appears only if there are at least two saved inspectors; with one, it is automatic.
+
+## Shared Drive sync safety (2026-11-23)
+- Shared data now uses `Tarkastus_Sync/shared_v2` and a new `baseline_shared_v2`; only `customers/*.json`, `customer_sites/*.json`, `reports/*.json`, `tarkastus_reports/*.json`, and their report photo assets are eligible. Exported PDFs retain their separate sync mechanism.
+- Personal `app_settings.json`, `settings/`, `inspectors/`, templates, authentication/preferences, and other app-private files are **not** uploaded to the shared folder.
+- Personal inspector profiles are **local to the device** at this stage; syncing them privately between a user's own devices still requires a separate authenticated personal backup/restore design. Do not promise personal multi-device sync yet.
+- Shared deletions are disabled in the file sync. A missing file on either side is restored from the existing copy. A future explicit, permissioned delete/tombstone design is needed.
+- Old `Tarkastus_Sync/data` may contain previously synchronized private information. Sync now refuses to continue if it is nonempty. The folder owner must inspect/back up and remove this legacy folder manually; do not automatically delete it.
+- Simultaneous changes to the same file are preserved as conflicts where possible, but there is no server-side atomic compare-and-swap for SAF/DocumentFile. Concurrent multi-device editing still requires real-device tests.
+- No APK build or Android/Drive end-to-end tests were run for this change.
