@@ -11,6 +11,7 @@ import com.google.android.ump.UserMessagingPlatform
 /**
  * Refresh consent on each launch. Never load an ad unless UMP says ads may be requested.
  * Configure a GDPR message and privacy options in AdMob Privacy & messaging.
+ * Keep production ad unit disabled until consent and store disclosures are reviewed.
  */
 internal class AdConsentManager(private val activity: Activity) {
     private val info = UserMessagingPlatform.getConsentInformation(activity)
