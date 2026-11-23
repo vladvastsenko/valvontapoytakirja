@@ -234,4 +234,15 @@
     <string name="bio_not_now">Not now</string>
     <string name="bio_unlock">Unlock with biometrics</string>
     <string name="bio_sign_out">Sign out</string>
+    <string name="inspector_profiles">Inspector profiles</string>
+    <string name="inspector_add">Add inspector</string>
+    <string name="inspector_add_current">Add current inspector to list</string>
+    <string name="inspector_copy_signature">Copy signature from settings</string>
+    <string name="customer_new_title">NEW CUSTOMER</string>
+    <string name="customer_details_title">CUSTOMER DETAILS</string>
+    <string name="customer_sites_title">SITES: %1$s</string>
+    <string name="site_new_title">NEW SITE</string>
+    <string name="site_details_title">SITE DETAILS</string>
+    <string name="site_new_field">New field</string>
+    <string name="report_inspector_title">Inspector</string>
 </resources>
