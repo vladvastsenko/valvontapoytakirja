@@ -277,4 +277,6 @@
     <string name="auth_verify_resend">Skicka verifieringsmejl igen</string>
     <string name="auth_verify_sent">Verifieringsmejl skickat.</string>
     <string name="user_guide_title">Användarhandbok</string>
+    <string name="inspector_edit">Redigera inspektör</string>
+    <string name="inspector_save">Spara inspektör</string>
 </resources>
