@@ -245,4 +245,7 @@
     <string name="site_details_title">ДАННЫЕ ОБЪЕКТА</string>
     <string name="site_new_field">Новое поле</string>
     <string name="report_inspector_title">Инспектор</string>
+    <string name="cloud_sync_confirm_title">Синхронизировать с общей папкой?</string>
+    <string name="cloud_sync_confirm_message">Синхронизация может загрузить все локальные отчёты и PDF с устройства в выбранную папку, включая созданные без регистрации. Пользователи с доступом к папке смогут их видеть. Продолжить?</string>
+    <string name="cloud_restore_safety_copy">%1$s\nРезервная копия перед восстановлением: %2$s</string>
 </resources>
