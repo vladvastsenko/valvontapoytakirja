@@ -376,6 +376,19 @@ private fun ValvontaApp(
         }
     }
 
+    var pendingInspectorSignature by remember { mutableStateOf<Pair<String, (String) -> Unit>?>(null) }
+    val inspectorSignatureLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.PickVisualMedia()
+    ) { uri ->
+        val pending = pendingInspectorSignature
+        pendingInspectorSignature = null
+        if (uri != null && pending != null) {
+            repository.importInspectorSignature(pending.first, uri)?.let { image ->
+                pending.second(image.absolutePath)
+            }
+        }
+    }
+
     val settingsSignatureLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.PickVisualMedia()
     ) { uri ->
@@ -393,6 +406,10 @@ private fun ValvontaApp(
             onSaveInspector = { inspector ->
                 repository.saveInspector(inspector)
                 inspectors = repository.listInspectors()
+            },
+            onPickInspectorSignature = { inspector, onImported ->
+                pendingInspectorSignature = inspector.id to onImported
+                inspectorSignatureLauncher.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly))
             },
             onDeleteInspector = { id ->
                 repository.deleteInspector(id)
