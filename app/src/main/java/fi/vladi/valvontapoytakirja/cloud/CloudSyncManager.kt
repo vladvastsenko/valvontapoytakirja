@@ -35,9 +35,13 @@ object CloudSyncManager {
         return when (parts.first()) {
             "customers", "customer_sites" -> parts.size == 2 &&
                 parts.last().endsWith(".json")
-            "reports", "audit_reports", "tarkastus_reports" ->
+            "reports", "tarkastus_reports" ->
                 (parts.size == 2 && parts.last().endsWith(".json")) ||
-                (parts.size > 2 && parts.last().substringAfterLast('.', "").lowercase() in
+                (parts.size == 4 && parts[2] == "photos" &&
+                    parts.last().substringAfterLast('.', "").lowercase() in
+                    setOf("jpg", "jpeg", "png", "webp")) ||
+                (parts.size == 3 &&
+                    parts.last().substringAfterLast('.', "").lowercase() in
                     setOf("jpg", "jpeg", "png", "webp"))
             else -> false
         }
