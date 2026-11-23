@@ -174,11 +174,12 @@ internal fun CloudAuthGate(content: @Composable (onSignOut: () -> Unit) -> Unit)
                     }
                 }
             }, enabled = !busy, modifier = Modifier.fillMaxWidth()) { Text(if (register) stringResource(R.string.create_account) else stringResource(R.string.email_sign_in)) }
-            Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.SpaceBetween) {
-                TextButton(onClick = { register = !register; error = null }, enabled = !busy) {
-                    Text(if (register) stringResource(R.string.already_registered) else stringResource(R.string.new_user))
-                }
-                TextButton(onClick = {
+            // Separate rows prevent long translations from clipping the password-reset action.
+            TextButton(onClick = { register = !register; error = null }, enabled = !busy,
+                modifier = Modifier.fillMaxWidth()) {
+                Text(if (register) stringResource(R.string.already_registered) else stringResource(R.string.new_user))
+            }
+            TextButton(onClick = {
                 if (email.trim().isBlank()) error = context.getString(R.string.email_required)
                 else {
                     busy = true
@@ -189,7 +190,8 @@ internal fun CloudAuthGate(content: @Composable (onSignOut: () -> Unit) -> Unit)
                         else error = result.exception?.localizedMessage ?: context.getString(R.string.reset_failed)
                     }
                 }
-                }, enabled = !busy) { Text(stringResource(R.string.forgot_password)) }
+            }, enabled = !busy, modifier = Modifier.fillMaxWidth()) {
+                Text(stringResource(R.string.forgot_password))
             }
             if (busy) CircularProgressIndicator()
             error?.let { Text(it, color = MaterialTheme.colorScheme.error) }
