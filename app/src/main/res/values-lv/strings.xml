@@ -268,4 +268,8 @@
     <string name="cloud_share_guide_steps">1. Atver Google Drive ar koplietotās mapes īpašnieka kontu.\n2. Atrodi Tarkastus Cloud koplietoto mapi.\n3. Pieskaries trim punktiem → Kopīgot / Pārvaldīt piekļuvi.\n4. Ievadi darbinieka e-pastu un izvēlies Redaktors.\n5. Nosūti uzaicinājumu. Darbinieks to pieņem un izvēlas mapi Tarkastus Cloud.\n\nNekopīgo personīgo rezerves kopiju mapi.</string>
     <string name="cloud_share_open_drive">Atvērt Google Drive</string>
     <string name="cloud_restore_success">Rezerves kopija veiksmīgi atjaunota.</string>
+    <string name="cloud_choose_private_backup_folder">Izvēlēties personīgo rezerves kopiju mapi</string>
+    <string name="cloud_private_backup_hint">Izvēlies savu mapi, kas nav kopīgota ar kolēģiem. Rezerves kopijas netiek glabātas uzņēmuma koplietotajā mapē.</string>
+    <string name="cloud_private_backup_selected">Personīgā rezerves kopiju mape izvēlēta.</string>
+    <string name="cloud_private_backup_invalid">Izvēlies atsevišķu rakstāmu mapi, nevis uzņēmuma koplietoto mapi.</string>
 </resources>
