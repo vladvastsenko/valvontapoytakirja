@@ -259,4 +259,5 @@
     <string name="auth_error_weak_password">Passordet er for svakt.</string>
     <string name="auth_error_too_many">For mange forsøk. Prøv igjen senere.</string>
     <string name="auth_error_network">Nettverksfeil. Kontroller internettforbindelsen.</string>
+    <string name="cloud_folder_access_denied">Tilgang til mappen ble ikke gitt. Velg den delte mappen på nytt og tillat lese- og skrivetilgang.</string>
 </resources>
