@@ -287,4 +287,5 @@
     <string name="subscription_restore">Taasta ostud</string>
     <string name="subscription_manage">Halda tellimust</string>
     <string name="subscription_unavailable">Tellimus pole veel Google Plays saadaval.</string>
+    <string name="ad_privacy_options">Reklaamide privaatsusseaded</string>
 </resources>
