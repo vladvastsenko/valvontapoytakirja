@@ -118,4 +118,8 @@
     <string name="audit_choose">Vælg</string>
     <string name="audit_choose_date">Vælg dato</string>
     <string name="audit_custom_fields_title">EGNE FELTER</string>
+    <string name="report_title_localized">Inspektionsrapport</string>
+    <string name="inspector_heading_localized">Inspektør</string>
+    <string name="select_inspector_localized">Vælg inspektør</string>
+    <string name="new_custom_field_label">Nyt felt</string>
 </resources>
