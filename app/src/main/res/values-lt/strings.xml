@@ -276,4 +276,5 @@
     <string name="auth_verify_check">Patikrinti patvirtinimą</string>
     <string name="auth_verify_resend">Siųsti patvirtinimo laišką dar kartą</string>
     <string name="auth_verify_sent">Patvirtinimo laiškas išsiųstas.</string>
+    <string name="user_guide_title">Naudotojo vadovas</string>
 </resources>
