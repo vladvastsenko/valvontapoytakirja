@@ -107,8 +107,11 @@ internal object PdfArchiveSyncManager {
             } else if (localHash == baseHash) {
                 // Local PDF has not changed: accept the remote update or deletion.
                 if (remote == null) {
-                    local?.let { context.contentResolver.delete(it.uri, null, null) }
-                    deleted++
+                    // Never erase a local PDF just because it disappeared from Drive.
+                    if (local != null) {
+                        upload(context, remoteRoot, driveRelativePath(path), local.uri)
+                        uploaded++
+                    }
                 } else {
                     download(context, remote, path)
                     downloaded++
@@ -116,8 +119,11 @@ internal object PdfArchiveSyncManager {
             } else if (remoteHash == baseHash) {
                 // Drive copy has not changed: publish the local update or deletion.
                 if (local == null) {
-                    remote?.delete()
-                    deleted++
+                    // Restore a missing local PDF instead of deleting the shared copy.
+                    if (remote != null) {
+                        download(context, remote, path)
+                        downloaded++
+                    }
                 } else {
                     upload(context, remoteRoot, driveRelativePath(path), local.uri)
                     uploaded++
@@ -190,7 +196,7 @@ internal object PdfArchiveSyncManager {
 
         val legacyPayload = legacyRoot.findFile("Raportit")?.findFile("PDF") ?: legacyRoot
         copyTree(legacyPayload, targetRoot, "")
-        deleteTree(legacyRoot)
+        // Preserve the original folder: migration must never destroy source PDFs.
     }
 
     private fun deleteTree(directory: DocumentFile) {
