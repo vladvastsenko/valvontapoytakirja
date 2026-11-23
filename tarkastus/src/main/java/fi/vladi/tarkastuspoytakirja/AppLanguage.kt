@@ -11,7 +11,10 @@ object AppLanguage {
 
     fun selected(context: Context): String =
         context.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
-            .getString(KEY, "fi")?.takeIf { it in supported } ?: "fi"
+            .getString(KEY, "en")?.takeIf { it in supported } ?: "en"
+
+    fun hasSelection(context: Context): Boolean =
+        context.getSharedPreferences(PREFS, Context.MODE_PRIVATE).contains(KEY)
 
     fun save(context: Context, language: String) {
         require(language in supported)
