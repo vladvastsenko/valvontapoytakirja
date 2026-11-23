@@ -272,4 +272,8 @@
     <string name="cloud_private_backup_hint">Выберите собственную папку без доступа коллег. Резервные копии не сохраняются в общей папке компании.</string>
     <string name="cloud_private_backup_selected">Папка личных копий выбрана.</string>
     <string name="cloud_private_backup_invalid">Выберите отдельную папку с правом записи, не общую папку компании.</string>
+    <string name="auth_verify_required">Подтвердите адрес электронной почты, прежде чем продолжить.</string>
+    <string name="auth_verify_check">Проверить подтверждение</string>
+    <string name="auth_verify_resend">Отправить письмо повторно</string>
+    <string name="auth_verify_sent">Письмо с подтверждением отправлено.</string>
 </resources>
