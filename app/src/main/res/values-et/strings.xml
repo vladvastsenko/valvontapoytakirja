@@ -260,4 +260,8 @@
     <string name="auth_error_too_many">Liiga palju katseid. Proovige hiljem uuesti.</string>
     <string name="auth_error_network">Võrguviga. Kontrollige internetiühendust.</string>
     <string name="cloud_folder_access_denied">Kaustale juurdepääsu ei antud. Valige jagatud kaust uuesti ning lubage lugemine ja kirjutamine.</string>
+    <string name="cloud_team_access_title">Jagatud kausta juurdepääs</string>
+    <string name="cloud_team_access_hint">Kausta omanik kutsub kolleegid Google Drive\'is. Iga töötaja valib allpool jagatud kausta.</string>
+    <string name="cloud_invite_teammate">Kutsu kolleeg Google Drive\'is</string>
+    <string name="cloud_invite_hint">Leia kaust Drive\'ist ja vali Jaga. Rakendus ei saa valitud kausta Drive\'is otse avada.</string>
 </resources>
