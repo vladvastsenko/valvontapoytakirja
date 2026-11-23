@@ -260,4 +260,8 @@
     <string name="auth_error_too_many">Liian monta yritystä. Yritä myöhemmin uudelleen.</string>
     <string name="auth_error_network">Verkkoyhteys epäonnistui. Tarkista internetyhteys.</string>
     <string name="cloud_folder_access_denied">Kansion käyttöoikeutta ei saatu. Valitse jaettu kansio uudelleen ja myönnä luku- ja kirjoitusoikeus.</string>
+    <string name="cloud_team_access_title">Jaetun kansion käyttö</string>
+    <string name="cloud_team_access_hint">Kansion omistaja kutsuu työntekijät Google Drivessa. Työntekijä valitsee jaetun kansion alla.</string>
+    <string name="cloud_invite_teammate">Kutsu työntekijä Google Drivessa</string>
+    <string name="cloud_invite_hint">Valitse kansio Drivessa ja käytä Jaa-toimintoa. Sovellus ei voi avata valittua kansiota suoraan Drivessa.</string>
 </resources>
