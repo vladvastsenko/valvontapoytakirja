@@ -45,7 +45,6 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.getValue
@@ -166,6 +165,8 @@ private fun UnifiedLauncher(onSignOut: () -> Unit) {
     LaunchedEffect(Unit) {
         withContext(Dispatchers.IO) { SharedDocumentsArchive.ensureFolder(context) }
     }
+    val consent = remember(context) { AdConsentManager(context as android.app.Activity) }
+    LaunchedEffect(consent) { consent.request() }
     var showValvoja by remember { mutableStateOf(false) }
     var openSettings by remember { mutableStateOf(false) }
     var showManagement by remember { mutableStateOf(false) }
@@ -175,12 +176,12 @@ private fun UnifiedLauncher(onSignOut: () -> Unit) {
     if (showUserGuide) {
         Column(modifier = Modifier.fillMaxSize()) {
             Box(modifier = Modifier.weight(1f)) { UserGuideScreen(onBack = { showUserGuide = false }) }
-            TestAdMobBanner()
+            if (consent.canRequestAds) TestAdMobBanner()
         }
     } else if (showCloudBackup) {
         Column(modifier = Modifier.fillMaxSize()) {
             Box(modifier = Modifier.weight(1f)) { CloudBackupScreen(onBack = { showCloudBackup = false }) }
-            TestAdMobBanner()
+            if (consent.canRequestAds) TestAdMobBanner()
         }
     } else if (showValvoja) {
         ValvontaApp(
@@ -205,10 +206,11 @@ private fun UnifiedLauncher(onSignOut: () -> Unit) {
             onCloudBackup = { showCloudBackup = true },
             onUserGuide = { showUserGuide = true },
             onBack = { showManagement = false },
-            onSignOut = onSignOut
+            onSignOut = onSignOut,
+            consent = consent
                 )
             }
-            TestAdMobBanner()
+            if (consent.canRequestAds) TestAdMobBanner()
         }
     } else {
         UnifiedStartScreen(
@@ -220,7 +222,7 @@ private fun UnifiedLauncher(onSignOut: () -> Unit) {
                 context.startActivity(Intent(context, TarkastusMainActivity::class.java))
             },
             onManagement = { showManagement = true },
-            showAds = true
+            showAds = consent.canRequestAds
         )
     }
 }
@@ -287,7 +289,8 @@ private fun ManagementScreen(
     onCloudBackup: () -> Unit,
     onUserGuide: () -> Unit,
     onBack: () -> Unit,
-    onSignOut: () -> Unit
+    onSignOut: () -> Unit,
+    consent: AdConsentManager
 ) {
     val context = LocalContext.current
     val guestMode = com.google.firebase.auth.FirebaseAuth.getInstance().currentUser == null
@@ -330,6 +333,11 @@ private fun ManagementScreen(
         Text(when (AppLanguage.selected(context)) {
             "ru" -> "Русский"; "sv" -> "Svenska"; "en" -> "English"; "et" -> "Eesti"; "lt" -> "Lietuvių"; "lv" -> "Latviešu"; "nb" -> "Norsk"; "da" -> "Dansk"; else -> "Suomi"
         })
+        if (consent.privacyOptionsRequired) {
+            OutlinedButton(onClick = { consent.showPrivacyOptions() }, modifier = Modifier.fillMaxWidth()) {
+                Text(stringResource(R.string.ad_privacy_options))
+            }
+        }
         if (!guestMode) BiometricSettingsControl()
         Button(onClick = onSettings, modifier = Modifier.fillMaxWidth()) {
             Text(stringResource(R.string.shared_settings))
