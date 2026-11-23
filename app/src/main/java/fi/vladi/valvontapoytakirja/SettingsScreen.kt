@@ -51,7 +51,7 @@ fun SettingsScreen(
     inspectors: List<InspectorProfile>,
     onSaveInspector: (InspectorProfile) -> Unit,
     onDeleteInspector: (String) -> Unit,
-    onPickInspectorSignature: (InspectorProfile) -> Unit,
+    onPickInspectorSignature: (InspectorProfile, (String) -> Unit) -> Unit,
     sites: List<CustomerSite>,
     onSettingsChange: (AppSettings) -> Unit,
     onSaveCustomer: (CustomerProfile) -> Unit,
@@ -214,7 +214,9 @@ fun SettingsScreen(
                 }
             }
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                OutlinedButton(onClick = { onPickInspectorSignature(draft) }, modifier = Modifier.weight(1f)) {
+                OutlinedButton(onClick = { onPickInspectorSignature(draft) { path ->
+                    editingInspector = editingInspector?.takeIf { it.id == draft.id }?.copy(signatureImagePath = path, signatureStrokes = emptyList())
+                } }, modifier = Modifier.weight(1f)) {
                     Text(if (draft.signatureImagePath.isBlank()) stringResource(R.string.settings_upload_signature)
                         else stringResource(R.string.settings_change_signature))
                 }
