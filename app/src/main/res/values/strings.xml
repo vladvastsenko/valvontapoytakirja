@@ -276,4 +276,5 @@
     <string name="auth_verify_check">Tarkista vahvistus</string>
     <string name="auth_verify_resend">Lähetä vahvistusviesti uudelleen</string>
     <string name="auth_verify_sent">Vahvistusviesti lähetetty.</string>
+    <string name="user_guide_title">Käyttöohje</string>
 </resources>
