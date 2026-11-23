@@ -53,6 +53,7 @@ fun CloudBackupScreen(onBack: () -> Unit) {
     var status by remember { mutableStateOf(context.getString(R.string.cloud_no_backups)) }
     var restoreCompleted by remember { mutableStateOf(false) }
     var showRestoreConfirmation by remember { mutableStateOf(false) }
+    var showSyncConfirmation by remember { mutableStateOf(false) }
     val scope = rememberCoroutineScope()
 
     LaunchedEffect(folderUri) {
@@ -93,18 +94,9 @@ fun CloudBackupScreen(onBack: () -> Unit) {
             Text(stringResource(R.string.cloud_choose_folder))
         }
         Button(
-            onClick = {
-                val uri = selectedTree
-                if (uri == null) status = context.getString(R.string.cloud_folder_first) else {
-                    busy = true
-                    restoreCompleted = false
-                    scope.launch {
-                        status = try { withContext(Dispatchers.IO) { CloudSyncManager.sync(context, uri) }.let { result -> context.getString(R.string.cloud_sync_complete, result.uploaded, result.downloaded, result.deleted, result.conflicts, result.pdfFoundLocal, result.pdfFoundDrive, result.pdfUploaded, result.pdfDownloaded, result.pdfDeleted, result.pdfConflicts) } }
-                        catch (error: Throwable) { context.getString(R.string.cloud_sync_error, error.message ?: context.getString(R.string.cloud_unknown_error)) }
-                        finally { busy = false }
-                    }
-                }
-            }, modifier = Modifier.fillMaxWidth(), enabled = !busy && selectedTree != null
+            onClick = { showSyncConfirmation = true },
+            modifier = Modifier.fillMaxWidth(),
+            enabled = !busy && selectedTree != null
         ) { Text(stringResource(R.string.cloud_sync_now)) }
         Text(stringResource(R.string.cloud_sync_hint),
             style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
@@ -159,6 +151,32 @@ fun CloudBackupScreen(onBack: () -> Unit) {
         Spacer(Modifier.height(8.dp))
     }
 
+    if (showSyncConfirmation) {
+        AlertDialog(
+            onDismissRequest = { if (!busy) showSyncConfirmation = false },
+            title = { Text(stringResource(R.string.cloud_sync_confirm_title)) },
+            text = { Text(stringResource(R.string.cloud_sync_confirm_message)) },
+            confirmButton = {
+                TextButton(enabled = !busy, onClick = {
+                    showSyncConfirmation = false
+                    val uri = selectedTree ?: return@TextButton
+                    busy = true
+                    restoreCompleted = false
+                    scope.launch {
+                        status = try {
+                            withContext(Dispatchers.IO) { CloudSyncManager.sync(context, uri) }.let { result ->
+                                context.getString(R.string.cloud_sync_complete, result.uploaded, result.downloaded, result.deleted, result.conflicts, result.pdfFoundLocal, result.pdfFoundDrive, result.pdfUploaded, result.pdfDownloaded, result.pdfDeleted, result.pdfConflicts)
+                            }
+                        } catch (error: Throwable) {
+                            context.getString(R.string.cloud_sync_error, error.message ?: context.getString(R.string.cloud_unknown_error))
+                        } finally { busy = false }
+                    }
+                }) { Text(stringResource(R.string.cloud_sync_now)) }
+            },
+            dismissButton = { TextButton(onClick = { showSyncConfirmation = false }) { Text(stringResource(R.string.cloud_cancel)) } }
+        )
+    }
+
     if (showRestoreConfirmation && selectedBackup != null) {
         AlertDialog(
             onDismissRequest = { if (!busy) showRestoreConfirmation = false },
@@ -177,7 +195,7 @@ fun CloudBackupScreen(onBack: () -> Unit) {
                             val safetyCopy = withContext(Dispatchers.IO) { CloudBackupManager.backupToFolder(context, tree) }
                             val result = withContext(Dispatchers.IO) { CloudBackupManager.restoreFromUri(context, backupToRestore.uri) }
                             restoreCompleted = true
-                            "$result\nSuojakopio ennen palautusta: $safetyCopy"
+                            context.getString(R.string.cloud_restore_safety_copy, result, safetyCopy)
                         } catch (error: Throwable) {
                             context.getString(R.string.cloud_restore_error, error.message ?: context.getString(R.string.cloud_unknown_error))
                         } finally { busy = false }
