@@ -245,4 +245,7 @@
     <string name="site_details_title">OBJEKTUPPGIFTER</string>
     <string name="site_new_field">Nytt fält</string>
     <string name="report_inspector_title">Inspektör</string>
+    <string name="cloud_sync_confirm_title">Synkronisera till delad mapp?</string>
+    <string name="cloud_sync_confirm_message">Synkronisering kan ladda upp alla lokala rapporter och PDF-filer till den valda mappen, även rapporter skapade utan registrering. Personer med åtkomst till mappen kan se dem. Fortsätta?</string>
+    <string name="cloud_restore_safety_copy">%1$s\nSäkerhetskopia före återställning: %2$s</string>
 </resources>
