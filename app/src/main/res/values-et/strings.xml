@@ -279,4 +279,12 @@
     <string name="user_guide_title">Kasutusjuhend</string>
     <string name="inspector_edit">Muuda kontrollijat</string>
     <string name="inspector_save">Salvesta kontrollija</string>
+    <string name="subscription_title">Sinu tellimus</string>
+    <string name="subscription_active">Reklaamivaba tellimus on aktiivne</string>
+    <string name="subscription_free">Tasuta versioon reklaamidega</string>
+    <string name="subscription_description">Eemalda reklaamid isikliku kuutellimusega.</string>
+    <string name="subscription_buy">Telli reklaamivaba versioon</string>
+    <string name="subscription_restore">Taasta ostud</string>
+    <string name="subscription_manage">Halda tellimust</string>
+    <string name="subscription_unavailable">Tellimus pole veel Google Plays saadaval.</string>
 </resources>
