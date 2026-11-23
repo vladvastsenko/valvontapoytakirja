@@ -245,4 +245,7 @@
     <string name="site_details_title">OBJEKTO DUOMENYS</string>
     <string name="site_new_field">Naujas laukas</string>
     <string name="report_inspector_title">Inspektorius</string>
+    <string name="cloud_sync_confirm_title">Sinchronizuoti su bendrinamu aplanku?</string>
+    <string name="cloud_sync_confirm_message">Sinchronizuojant į pasirinktą aplanką gali būti įkeltos visos vietinės ataskaitos ir PDF failai, įskaitant sukurtus be registracijos. Aplanko naudotojai galės juos matyti. Tęsti?</string>
+    <string name="cloud_restore_safety_copy">%1$s\nAtsarginė kopija prieš atkūrimą: %2$s</string>
 </resources>
