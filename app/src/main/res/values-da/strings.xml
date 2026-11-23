@@ -277,4 +277,6 @@
     <string name="auth_verify_resend">Send bekræftelsesmail igen</string>
     <string name="auth_verify_sent">Bekræftelsesmail sendt.</string>
     <string name="user_guide_title">Brugervejledning</string>
+    <string name="inspector_edit">Rediger inspektør</string>
+    <string name="inspector_save">Gem inspektør</string>
 </resources>
