@@ -279,4 +279,12 @@
     <string name="user_guide_title">Brugervejledning</string>
     <string name="inspector_edit">Rediger inspektør</string>
     <string name="inspector_save">Gem inspektør</string>
+    <string name="subscription_title">Dit abonnement</string>
+    <string name="subscription_active">Reklamefrit abonnement aktivt</string>
+    <string name="subscription_free">Gratisversion med reklamer</string>
+    <string name="subscription_description">Fjern reklamer med et personligt månedsabonnement.</string>
+    <string name="subscription_buy">Abonner uden reklamer</string>
+    <string name="subscription_restore">Gendan køb</string>
+    <string name="subscription_manage">Administrer abonnement</string>
+    <string name="subscription_unavailable">Abonnementet er endnu ikke tilgængeligt i Google Play.</string>
 </resources>
