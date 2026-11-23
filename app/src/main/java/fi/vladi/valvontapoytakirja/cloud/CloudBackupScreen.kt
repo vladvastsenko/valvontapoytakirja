@@ -40,8 +40,8 @@ fun CloudBackupScreen(onBack: () -> Unit) {
     val context = LocalContext.current
     if (com.google.firebase.auth.FirebaseAuth.getInstance().currentUser == null) {
         Column(Modifier.fillMaxSize().padding(24.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
-            Text("Pilvisynkronointi vaatii kirjautumisen.")
-            Button(onClick = onBack) { Text("Takaisin") }
+            Text(stringResource(R.string.guest_cloud_required))
+            Button(onClick = onBack) { Text(stringResource(R.string.back)) }
         }
         return
     }
