@@ -267,4 +267,5 @@
     <string name="cloud_share_guide_title">Så delar du mappen</string>
     <string name="cloud_share_guide_steps">1. Öppna Google Drive med kontot som äger den delade mappen.\n2. Hitta Tarkastus Clouds delade mapp.\n3. Tryck på de tre punkterna → Dela / Hantera åtkomst.\n4. Ange medarbetarens e-post och välj Redigerare.\n5. Skicka inbjudan. Medarbetaren accepterar och väljer mappen i Tarkastus Cloud.\n\nDela inte mappen för personliga säkerhetskopior.</string>
     <string name="cloud_share_open_drive">Öppna Google Drive</string>
+    <string name="cloud_restore_success">Säkerhetskopian har återställts.</string>
 </resources>
