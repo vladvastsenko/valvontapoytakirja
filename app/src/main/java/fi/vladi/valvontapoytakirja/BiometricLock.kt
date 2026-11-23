@@ -40,7 +40,7 @@ internal object BiometricLock {
         prefs(context).edit().putBoolean(key(uid, "offered"), true).apply()
     }
     fun setEnabled(context: Context, uid: String, enabled: Boolean) {
-        prefs(context).edit().putBoolean(key(uid, "enabled"), enabled).apply()
+        prefs(context).edit().putBoolean(key(uid, "enabled"), enabled).commit()
     }
     fun available(context: Context) =
         BiometricManager.from(context).canAuthenticate(AUTHENTICATORS) ==
@@ -108,7 +108,6 @@ internal fun BiometricSessionGate(onUnlocked: @Composable () -> Unit) {
     val context = LocalContext.current
     val uid = FirebaseAuth.getInstance().currentUser?.uid ?: return
     var unlocked by remember(uid) { mutableStateOf(!BiometricLock.enabled(context, uid)) }
-    var prompted by remember(uid) { mutableStateOf(false) }
     var offer by remember(uid) { mutableStateOf(false) }
     var error by remember(uid) { mutableStateOf("") }
 
