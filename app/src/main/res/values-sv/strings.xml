@@ -279,4 +279,12 @@
     <string name="user_guide_title">Användarhandbok</string>
     <string name="inspector_edit">Redigera inspektör</string>
     <string name="inspector_save">Spara inspektör</string>
+    <string name="subscription_title">Din prenumeration</string>
+    <string name="subscription_active">Annonsfri prenumeration aktiv</string>
+    <string name="subscription_free">Gratisversion med annonser</string>
+    <string name="subscription_description">Ta bort annonser med en personlig månadsprenumeration.</string>
+    <string name="subscription_buy">Prenumerera utan annonser</string>
+    <string name="subscription_restore">Återställ köp</string>
+    <string name="subscription_manage">Hantera prenumeration</string>
+    <string name="subscription_unavailable">Prenumerationen är ännu inte tillgänglig i Google Play.</string>
 </resources>
