@@ -257,10 +257,10 @@ private fun ManagementScreen(
                 Text(stringResource(R.string.cloud_sync))
             }
         } else {
-            Text("Vierastila: raportit tallennetaan vain tälle laitteelle. Pilvisynkronointi vaatii kirjautumisen.")
+            Text(stringResource(R.string.guest_local_notice))
         }
         OutlinedButton(onClick = { if (guestMode) onSignOut() else confirmSignOut = true }, modifier = Modifier.fillMaxWidth()) {
-            Text(if (guestMode) "Kirjaudu sisään / Rekisteröidy" else stringResource(R.string.sign_out))
+            Text(if (guestMode) stringResource(R.string.guest_sign_in) else stringResource(R.string.sign_out))
         }
         Spacer(Modifier.height(8.dp))
         OutlinedButton(onClick = onBack, modifier = Modifier.fillMaxWidth()) {
