@@ -268,4 +268,8 @@
     <string name="cloud_share_guide_steps">1. Avaa Google Drive yhteisen kansion omistajan tilillä.\n2. Etsi Tarkastus Cloudin yhteinen kansio.\n3. Valitse kolme pistettä → Jaa / Hallinnoi käyttöoikeuksia.\n4. Lisää työntekijän sähköpostiosoite ja valitse Muokkaaja.\n5. Lähetä kutsu. Työntekijä hyväksyy sen ja valitsee jaetun kansion Tarkastus Cloudissa.\n\nÄlä jaa henkilökohtaisten varmuuskopioiden kansiota.</string>
     <string name="cloud_share_open_drive">Avaa Google Drive</string>
     <string name="cloud_restore_success">Varmuuskopio palautettiin onnistuneesti.</string>
+    <string name="cloud_choose_private_backup_folder">Valitse henkilökohtaisen varmuuskopion kansio</string>
+    <string name="cloud_private_backup_hint">Valitse oma kansio, jota ei ole jaettu työtovereille. Varmuuskopiot eivät tallennu yrityksen yhteiseen kansioon.</string>
+    <string name="cloud_private_backup_selected">Henkilökohtainen varmuuskopiokansio valittu.</string>
+    <string name="cloud_private_backup_invalid">Valitse erillinen kirjoitettava kansio. Älä käytä yrityksen yhteistä kansiota.</string>
 </resources>
