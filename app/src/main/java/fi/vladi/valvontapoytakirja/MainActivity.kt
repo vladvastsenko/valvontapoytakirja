@@ -164,8 +164,11 @@ private fun UnifiedLauncher(onSignOut: () -> Unit) {
     var openSettings by remember { mutableStateOf(false) }
     var showManagement by remember { mutableStateOf(false) }
     var showCloudBackup by remember { mutableStateOf(false) }
+    var showUserGuide by remember { mutableStateOf(false) }
 
-    if (showCloudBackup) {
+    if (showUserGuide) {
+        UserGuideScreen(onBack = { showUserGuide = false })
+    } else if (showCloudBackup) {
         CloudBackupScreen(onBack = { showCloudBackup = false })
     } else if (showValvoja) {
         ValvontaApp(
@@ -186,6 +189,7 @@ private fun UnifiedLauncher(onSignOut: () -> Unit) {
                 showValvoja = true
             },
             onCloudBackup = { showCloudBackup = true },
+            onUserGuide = { showUserGuide = true },
             onBack = { showManagement = false },
             onSignOut = onSignOut
         )
@@ -242,6 +246,7 @@ private fun UnifiedStartScreen(
 private fun ManagementScreen(
     onSettings: () -> Unit,
     onCloudBackup: () -> Unit,
+    onUserGuide: () -> Unit,
     onBack: () -> Unit,
     onSignOut: () -> Unit
 ) {
@@ -301,6 +306,9 @@ private fun ManagementScreen(
             Text(if (guestMode) stringResource(R.string.guest_sign_in) else stringResource(R.string.sign_out))
         }
         Spacer(Modifier.height(8.dp))
+        OutlinedButton(onClick = onUserGuide, modifier = Modifier.fillMaxWidth()) {
+            Text(stringResource(R.string.user_guide_title))
+        }
         OutlinedButton(onClick = onBack, modifier = Modifier.fillMaxWidth()) {
             Text("← " + stringResource(R.string.back))
         }
