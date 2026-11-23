@@ -267,4 +267,5 @@
     <string name="cloud_share_guide_title">Kausta jagamise juhend</string>
     <string name="cloud_share_guide_steps">1. Ava Google Drive ühiskausta omaniku kontoga.\n2. Leia Tarkastus Cloudi ühiskaust.\n3. Vajuta kolme punkti → Jaga / Halda juurdepääsu.\n4. Sisesta töötaja e-post ja vali Muutja.\n5. Saada kutse. Töötaja võtab kutse vastu ja valib ühiskausta Tarkastus Cloudis.\n\nÄra jaga isiklike varukoopiate kausta.</string>
     <string name="cloud_share_open_drive">Ava Google Drive</string>
+    <string name="cloud_restore_success">Varukoopia taastati edukalt.</string>
 </resources>
