@@ -19,6 +19,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
@@ -42,7 +43,7 @@ fun SignaturePad(
     val latestOnChange by rememberUpdatedState(onChange)
 
     Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
-        Text("Allekirjoitus", style = MaterialTheme.typography.titleSmall)
+        Text(stringResource(R.string.settings_signature), style = MaterialTheme.typography.titleSmall)
         Canvas(
             modifier = Modifier
                 .fillMaxWidth()
@@ -102,12 +103,12 @@ fun SignaturePad(
             strokes.forEach { drawStroke(it.points) }
             drawStroke(activePoints)
         }
-        Text("Piirrä allekirjoitus sormella yllä olevaan kenttään.", style = MaterialTheme.typography.bodySmall)
+        Text(stringResource(R.string.signature_draw_hint), style = MaterialTheme.typography.bodySmall)
         OutlinedButton(
             onClick = {
                 activePoints = emptyList()
                 latestOnChange(emptyList())
             }
-        ) { Text("Tyhjennä allekirjoitus") }
+        ) { Text(stringResource(R.string.signature_clear)) }
     }
 }
