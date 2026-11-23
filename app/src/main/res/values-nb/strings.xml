@@ -287,4 +287,5 @@
     <string name="subscription_restore">Gjenopprett kjøp</string>
     <string name="subscription_manage">Administrer abonnement</string>
     <string name="subscription_unavailable">Abonnementet er ennå ikke tilgjengelig i Google Play.</string>
+    <string name="ad_privacy_options">Personvernvalg for annonser</string>
 </resources>
