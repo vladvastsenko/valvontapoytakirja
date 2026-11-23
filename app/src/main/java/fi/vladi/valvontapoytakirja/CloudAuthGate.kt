@@ -138,6 +138,17 @@ internal fun CloudAuthGate(content: @Composable (onSignOut: () -> Unit) -> Unit)
                 Text(stringResource(R.string.guest_continue))
             }
             Text(stringResource(R.string.guest_explanation), style = MaterialTheme.typography.bodySmall)
+            Button(
+                onClick = {
+                    busy = true
+                    error = null
+                    launcher.launch(GoogleSignIn.getClient(context, options).signInIntent)
+                },
+                enabled = !busy,
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Text(stringResource(R.string.sign_in))
+            }
             Text(stringResource(R.string.auth_title))
             OutlinedTextField(value = email, onValueChange = { email = it }, label = { Text(stringResource(R.string.email)) }, singleLine = true, modifier = Modifier.fillMaxWidth())
             OutlinedTextField(value = password, onValueChange = { password = it }, label = { Text(stringResource(R.string.password)) }, singleLine = true, visualTransformation = PasswordVisualTransformation(), modifier = Modifier.fillMaxWidth())
@@ -182,17 +193,6 @@ internal fun CloudAuthGate(content: @Composable (onSignOut: () -> Unit) -> Unit)
             }
             if (busy) CircularProgressIndicator()
             error?.let { Text(it, color = MaterialTheme.colorScheme.error) }
-            Button(
-                onClick = {
-                    busy = true
-                    error = null
-                    launcher.launch(GoogleSignIn.getClient(context, options).signInIntent)
-                },
-                enabled = !busy,
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                Text(stringResource(R.string.sign_in))
-            }
         }
     }
 }
