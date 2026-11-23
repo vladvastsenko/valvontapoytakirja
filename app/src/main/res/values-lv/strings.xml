@@ -259,4 +259,5 @@
     <string name="auth_error_weak_password">Parole ir pārāk vāja.</string>
     <string name="auth_error_too_many">Pārāk daudz mēģinājumu. Mēģiniet vēlāk.</string>
     <string name="auth_error_network">Tīkla kļūda. Pārbaudiet interneta savienojumu.</string>
+    <string name="cloud_folder_access_denied">Piekļuve mapei netika piešķirta. Vēlreiz izvēlieties koplietoto mapi un atļaujiet lasīšanu un rakstīšanu.</string>
 </resources>
