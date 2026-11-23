@@ -4,6 +4,7 @@ import android.app.Activity
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import com.google.android.ump.ConsentDebugSettings
 import com.google.android.ump.ConsentInformation
 import com.google.android.ump.ConsentRequestParameters
 import com.google.android.ump.UserMessagingPlatform
@@ -23,11 +24,49 @@ internal class AdConsentManager(private val activity: Activity) {
     var diagnostic by mutableStateOf("Not requested")
         private set
 
+    var debugEea by mutableStateOf(false)
+        private set
+    var testDeviceHash by mutableStateOf(
+        activity.getSharedPreferences("ump_debug", Activity.MODE_PRIVATE).getString("test_device_hash", "") ?: ""
+    )
+        private set
+
+    fun setTestDeviceHash(value: String) {
+        testDeviceHash = value.trim()
+        activity.getSharedPreferences("ump_debug", Activity.MODE_PRIVATE)
+            .edit().putString("test_device_hash", testDeviceHash).apply()
+    }
+
+    fun testEea() {
+        if (testDeviceHash.isBlank()) {
+            diagnostic = "Enter the UMP test device hashed ID from Logcat first."
+            return
+        }
+        debugEea = true
+        info.reset()
+        canRequestAds = false
+        request()
+    }
+
+    fun resetTestConsent() {
+        info.reset()
+        canRequestAds = false
+        request()
+    }
+
     fun request() {
         diagnostic = "Requesting consent information…"
         // A previously valid UMP decision can be reused while the refresh completes.
         update()
-        val params = ConsentRequestParameters.Builder().build()
+        val builder = ConsentRequestParameters.Builder()
+        if (debugEea && testDeviceHash.isNotBlank()) {
+            val debugSettings = ConsentDebugSettings.Builder(activity)
+                .addTestDeviceHashedId(testDeviceHash)
+                .setDebugGeography(ConsentDebugSettings.DebugGeography.DEBUG_GEOGRAPHY_EEA)
+                .build()
+            builder.setConsentDebugSettings(debugSettings)
+        }
+        val params = builder.build()
         info.requestConsentInfoUpdate(activity, params, {
             update()
             diagnostic = "Consent information updated; checking form…"
@@ -48,7 +87,7 @@ internal class AdConsentManager(private val activity: Activity) {
                 ConsentInformation.PrivacyOptionsRequirementStatus.REQUIRED
     }
 
-    fun statusText(): String = "Consent status: ${info.consentStatus}; ads allowed: $canRequestAds; privacy options: ${info.privacyOptionsRequirementStatus}; result: $diagnostic"
+    fun statusText(): String = "Consent status: ${info.consentStatus}; ads allowed: $canRequestAds; privacy options: ${info.privacyOptionsRequirementStatus}; test EEA: $debugEea; result: $diagnostic"
 
     fun showPrivacyOptions() {
         UserMessagingPlatform.showPrivacyOptionsForm(activity) { update() }
