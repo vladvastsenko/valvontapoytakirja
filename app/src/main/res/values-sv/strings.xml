@@ -260,4 +260,8 @@
     <string name="auth_error_too_many">För många försök. Försök igen senare.</string>
     <string name="auth_error_network">Nätverksfel. Kontrollera internetanslutningen.</string>
     <string name="cloud_folder_access_denied">Åtkomst till mappen nekades. Välj den delade mappen igen och tillåt läs- och skrivåtkomst.</string>
+    <string name="cloud_team_access_title">Åtkomst till delad mapp</string>
+    <string name="cloud_team_access_hint">Mappägaren bjuder in kollegor via Google Drive. Varje kollega väljer den delade mappen nedan.</string>
+    <string name="cloud_invite_teammate">Bjud in via Google Drive</string>
+    <string name="cloud_invite_hint">Hitta mappen i Drive och välj Dela. Appen kan inte öppna den valda mappen direkt i Drive.</string>
 </resources>
