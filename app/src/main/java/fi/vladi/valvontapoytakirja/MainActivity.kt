@@ -166,9 +166,6 @@ private fun UnifiedLauncher(onSignOut: () -> Unit) {
     LaunchedEffect(Unit) {
         withContext(Dispatchers.IO) { SharedDocumentsArchive.ensureFolder(context) }
     }
-    val activity = context as android.app.Activity
-    val subscription = remember(activity) { PersonalSubscription(activity) }
-    DisposableEffect(subscription) { subscription.connect(); onDispose { subscription.close() } }
     var showValvoja by remember { mutableStateOf(false) }
     var openSettings by remember { mutableStateOf(false) }
     var showManagement by remember { mutableStateOf(false) }
@@ -178,12 +175,12 @@ private fun UnifiedLauncher(onSignOut: () -> Unit) {
     if (showUserGuide) {
         Column(modifier = Modifier.fillMaxSize()) {
             Box(modifier = Modifier.weight(1f)) { UserGuideScreen(onBack = { showUserGuide = false }) }
-            if (!subscription.active) TestAdMobBanner()
+            TestAdMobBanner()
         }
     } else if (showCloudBackup) {
         Column(modifier = Modifier.fillMaxSize()) {
             Box(modifier = Modifier.weight(1f)) { CloudBackupScreen(onBack = { showCloudBackup = false }) }
-            if (!subscription.active) TestAdMobBanner()
+            TestAdMobBanner()
         }
     } else if (showValvoja) {
         ValvontaApp(
@@ -198,7 +195,9 @@ private fun UnifiedLauncher(onSignOut: () -> Unit) {
             }
         )
     } else if (showManagement) {
-        ManagementScreen(
+        Column(modifier = Modifier.fillMaxSize()) {
+            Box(modifier = Modifier.weight(1f)) {
+                ManagementScreen(
             onSettings = {
                 openSettings = true
                 showValvoja = true
@@ -206,9 +205,11 @@ private fun UnifiedLauncher(onSignOut: () -> Unit) {
             onCloudBackup = { showCloudBackup = true },
             onUserGuide = { showUserGuide = true },
             onBack = { showManagement = false },
-            onSignOut = onSignOut,
-            subscription = subscription
-        )
+            onSignOut = onSignOut
+                )
+            }
+            TestAdMobBanner()
+        }
     } else {
         UnifiedStartScreen(
             onValvoja = {
@@ -219,7 +220,7 @@ private fun UnifiedLauncher(onSignOut: () -> Unit) {
                 context.startActivity(Intent(context, TarkastusMainActivity::class.java))
             },
             onManagement = { showManagement = true },
-            showAds = !subscription.active
+            showAds = true
         )
     }
 }
@@ -286,8 +287,7 @@ private fun ManagementScreen(
     onCloudBackup: () -> Unit,
     onUserGuide: () -> Unit,
     onBack: () -> Unit,
-    onSignOut: () -> Unit,
-    subscription: PersonalSubscription
+    onSignOut: () -> Unit
 ) {
     val context = LocalContext.current
     val guestMode = com.google.firebase.auth.FirebaseAuth.getInstance().currentUser == null
@@ -330,7 +330,6 @@ private fun ManagementScreen(
         Text(when (AppLanguage.selected(context)) {
             "ru" -> "Русский"; "sv" -> "Svenska"; "en" -> "English"; "et" -> "Eesti"; "lt" -> "Lietuvių"; "lv" -> "Latviešu"; "nb" -> "Norsk"; "da" -> "Dansk"; else -> "Suomi"
         })
-        SubscriptionSection(subscription)
         if (!guestMode) BiometricSettingsControl()
         Button(onClick = onSettings, modifier = Modifier.fillMaxWidth()) {
             Text(stringResource(R.string.shared_settings))
