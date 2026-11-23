@@ -251,4 +251,6 @@
     <string name="signature_draw_hint">Pirštu nupieškite parašą aukščiau esančiame laukelyje.</string>
     <string name="signature_clear">Išvalyti parašą</string>
     <string name="inspector_select">Pasirinkite inspektorių</string>
+    <string name="password_show">Rodyti slaptažodį</string>
+    <string name="password_hide">Slėpti slaptažodį</string>
 </resources>
