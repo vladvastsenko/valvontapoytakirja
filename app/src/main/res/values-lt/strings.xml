@@ -234,4 +234,15 @@
     <string name="bio_not_now">Ne dabar</string>
     <string name="bio_unlock">Atrakinti biometrija</string>
     <string name="bio_sign_out">Atsijungti</string>
+    <string name="inspector_profiles">Inspektorių profiliai</string>
+    <string name="inspector_add">Pridėti inspektorių</string>
+    <string name="inspector_add_current">Pridėti dabartinį inspektorių į sąrašą</string>
+    <string name="inspector_copy_signature">Kopijuoti parašą iš nustatymų</string>
+    <string name="customer_new_title">NAUJAS KLIENTAS</string>
+    <string name="customer_details_title">KLIENTO DUOMENYS</string>
+    <string name="customer_sites_title">OBJEKTAI: %1$s</string>
+    <string name="site_new_title">NAUJAS OBJEKTAS</string>
+    <string name="site_details_title">OBJEKTO DUOMENYS</string>
+    <string name="site_new_field">Naujas laukas</string>
+    <string name="report_inspector_title">Inspektorius</string>
 </resources>
