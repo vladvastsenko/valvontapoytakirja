@@ -9,6 +9,10 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.height
+import androidx.compose.ui.Alignment
 import androidx.compose.material3.Button
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.DropdownMenu
@@ -96,11 +100,10 @@ internal fun CloudAuthGate(content: @Composable (onSignOut: () -> Unit) -> Unit)
         }) }
     } else {
         Column(
-            modifier = Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(24.dp),
-            verticalArrangement = Arrangement.spacedBy(20.dp)
+            modifier = Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(horizontal = 20.dp, vertical = 10.dp),
+            verticalArrangement = Arrangement.spacedBy(6.dp)
         ) {
-            Text("Tarkastus Cloud", style = MaterialTheme.typography.headlineLarge)
-            Text(stringResource(R.string.language))
+            Text("Tarkastus Cloud", style = MaterialTheme.typography.headlineSmall)
             Box {
                 OutlinedButton(onClick = { languageMenu = true }, modifier = Modifier.fillMaxWidth()) {
                     Text(when (AppLanguage.selected(context)) {
@@ -132,9 +135,9 @@ internal fun CloudAuthGate(content: @Composable (onSignOut: () -> Unit) -> Unit)
                 guestPrefs.edit().putBoolean("enabled", true).apply()
                 guest = true
             }, enabled = !busy, modifier = Modifier.fillMaxWidth()) {
-                Text("Jatka ilman rekisteröitymistä")
+                Text(stringResource(R.string.guest_continue))
             }
-            Text("Voit luoda ja tallentaa raportteja paikallisesti. Pilvisynkronointi vaatii kirjautumisen.")
+            Text(stringResource(R.string.guest_explanation), style = MaterialTheme.typography.bodySmall)
             Text(stringResource(R.string.auth_title))
             OutlinedTextField(value = email, onValueChange = { email = it }, label = { Text(stringResource(R.string.email)) }, singleLine = true, modifier = Modifier.fillMaxWidth())
             OutlinedTextField(value = password, onValueChange = { password = it }, label = { Text(stringResource(R.string.password)) }, singleLine = true, visualTransformation = PasswordVisualTransformation(), modifier = Modifier.fillMaxWidth())
@@ -160,10 +163,11 @@ internal fun CloudAuthGate(content: @Composable (onSignOut: () -> Unit) -> Unit)
                     }
                 }
             }, enabled = !busy, modifier = Modifier.fillMaxWidth()) { Text(if (register) stringResource(R.string.create_account) else stringResource(R.string.email_sign_in)) }
-            TextButton(onClick = { register = !register; error = null }, enabled = !busy) {
-                Text(if (register) stringResource(R.string.already_registered) else stringResource(R.string.new_user))
-            }
-            TextButton(onClick = {
+            Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.SpaceBetween) {
+                TextButton(onClick = { register = !register; error = null }, enabled = !busy) {
+                    Text(if (register) stringResource(R.string.already_registered) else stringResource(R.string.new_user))
+                }
+                TextButton(onClick = {
                 if (email.trim().isBlank()) error = context.getString(R.string.email_required)
                 else {
                     busy = true
@@ -174,8 +178,8 @@ internal fun CloudAuthGate(content: @Composable (onSignOut: () -> Unit) -> Unit)
                         else error = result.exception?.localizedMessage ?: context.getString(R.string.reset_failed)
                     }
                 }
-            }, enabled = !busy) { Text(stringResource(R.string.forgot_password)) }
-            Text(stringResource(R.string.or))
+                }, enabled = !busy) { Text(stringResource(R.string.forgot_password)) }
+            }
             if (busy) CircularProgressIndicator()
             error?.let { Text(it, color = MaterialTheme.colorScheme.error) }
             Button(
