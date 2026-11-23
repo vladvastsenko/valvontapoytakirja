@@ -264,4 +264,7 @@
     <string name="cloud_team_access_hint">The folder owner invites colleagues in Google Drive. Each colleague selects the shared folder below.</string>
     <string name="cloud_invite_teammate">Invite colleague in Google Drive</string>
     <string name="cloud_invite_hint">Find the folder in Drive and choose Share. The app cannot open the selected folder directly in Drive.</string>
+    <string name="cloud_share_guide_title">How to share the folder</string>
+    <string name="cloud_share_guide_steps">1. Open Google Drive using the shared folder owner’s account.\n2. Find the Tarkastus Cloud shared folder.\n3. Tap the three dots → Share / Manage access.\n4. Enter the employee’s email and choose Editor.\n5. Send the invitation. The employee accepts it and selects the shared folder in Tarkastus Cloud.\n\nDo not share your personal backup folder.</string>
+    <string name="cloud_share_open_drive">Open Google Drive</string>
 </resources>
