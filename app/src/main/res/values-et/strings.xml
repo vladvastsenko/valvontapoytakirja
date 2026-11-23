@@ -277,4 +277,6 @@
     <string name="auth_verify_resend">Saada kinnituskiri uuesti</string>
     <string name="auth_verify_sent">Kinnituskiri saadetud.</string>
     <string name="user_guide_title">Kasutusjuhend</string>
+    <string name="inspector_edit">Muuda kontrollijat</string>
+    <string name="inspector_save">Salvesta kontrollija</string>
 </resources>
