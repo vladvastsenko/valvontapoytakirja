@@ -626,7 +626,7 @@ private fun EditorScreen(
             Text(stringResource(R.string.report_inspector_title), fontWeight = FontWeight.SemiBold)
             Box {
                 OutlinedButton(onClick = { inspectorMenuExpanded = true }, modifier = Modifier.fillMaxWidth()) {
-                    Text(report.inspectorName.ifBlank { "Valitse tarkastaja / Select inspector" } + " ▾")
+                    Text(report.inspectorName.ifBlank { pdfContext.getString(R.string.inspector_select) } + " ▾")
                 }
                 DropdownMenu(expanded = inspectorMenuExpanded, onDismissRequest = { inspectorMenuExpanded = false }) {
                     inspectors.forEach { inspector ->
