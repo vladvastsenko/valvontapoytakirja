@@ -245,4 +245,7 @@
     <string name="site_details_title">OBJEKTI ANDMED</string>
     <string name="site_new_field">Uus väli</string>
     <string name="report_inspector_title">Inspektor</string>
+    <string name="cloud_sync_confirm_title">Kas sünkroonida jagatud kausta?</string>
+    <string name="cloud_sync_confirm_message">Sünkroonimine võib laadida kõik selle seadme kohalikud aruanded ja PDF-failid valitud kausta, sealhulgas registreerimata loodud aruanded. Kaustale ligipääsejad võivad neid näha. Kas jätkata?</string>
+    <string name="cloud_restore_safety_copy">%1$s\nTurvakoopia enne taastamist: %2$s</string>
 </resources>
