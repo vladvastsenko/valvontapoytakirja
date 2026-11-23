@@ -240,9 +240,9 @@ fun CloudBackupScreen(onBack: () -> Unit) {
                         status = try {
                             check(tree != null) { context.getString(R.string.cloud_drive_missing) }
                             val safetyCopy = withContext(Dispatchers.IO) { CloudBackupManager.backupToFolder(context, tree) }
-                            val result = withContext(Dispatchers.IO) { CloudBackupManager.restoreFromUri(context, backupToRestore.uri) }
+                            withContext(Dispatchers.IO) { CloudBackupManager.restoreFromUri(context, backupToRestore.uri) }
                             restoreCompleted = true
-                            context.getString(R.string.cloud_restore_safety_copy, result, safetyCopy)
+                            context.getString(R.string.cloud_restore_safety_copy, context.getString(R.string.cloud_restore_success), safetyCopy)
                         } catch (error: Throwable) {
                             context.getString(R.string.cloud_restore_error, error.message ?: context.getString(R.string.cloud_unknown_error))
                         } finally { busy = false }
