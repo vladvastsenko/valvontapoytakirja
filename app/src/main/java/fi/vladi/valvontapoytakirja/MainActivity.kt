@@ -338,6 +338,11 @@ private fun ManagementScreen(
                 Text(stringResource(R.string.ad_privacy_options))
             }
         }
+        Text("GDPR / AdMob diagnostics", fontWeight = FontWeight.Bold)
+        Text(consent.statusText(), style = MaterialTheme.typography.bodySmall)
+        OutlinedButton(onClick = { consent.request() }, modifier = Modifier.fillMaxWidth()) {
+            Text("Refresh GDPR status")
+        }
         if (!guestMode) BiometricSettingsControl()
         Button(onClick = onSettings, modifier = Modifier.fillMaxWidth()) {
             Text(stringResource(R.string.shared_settings))
