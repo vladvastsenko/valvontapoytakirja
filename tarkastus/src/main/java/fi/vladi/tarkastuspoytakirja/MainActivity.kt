@@ -351,7 +351,7 @@ private fun HomeScreen(
         modifier = Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(20.dp),
         verticalArrangement = Arrangement.spacedBy(12.dp)
     ) {
-        Text("Tarkastuspöytäkirja", style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.Bold)
+        Text(stringResource(R.string.report_title_localized), style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.Bold)
         Text(stringResource(R.string.loc3_general_intro))
         TextButton(onClick = onBackToDocumentSelection) { Text(stringResource(R.string.ui_back_reports)) }
         Button(onClick = onCreate, modifier = Modifier.fillMaxWidth()) {
@@ -435,10 +435,10 @@ private fun EditorScreen(
         }
         if (inspectors.size > 1) {
             var inspectorMenuExpanded by remember(report.id) { mutableStateOf(false) }
-            Text("Tarkastaja / Inspector", fontWeight = FontWeight.SemiBold)
+            Text(stringResource(R.string.inspector_heading_localized), fontWeight = FontWeight.SemiBold)
             Box {
                 OutlinedButton(onClick = { inspectorMenuExpanded = true }, modifier = Modifier.fillMaxWidth()) {
-                    Text(report.inspectorName.ifBlank { "Valitse tarkastaja / Select inspector" } + " ▾")
+                    Text(report.inspectorName.ifBlank { stringResource(R.string.select_inspector_localized) } + " ▾")
                 }
                 DropdownMenu(expanded = inspectorMenuExpanded, onDismissRequest = { inspectorMenuExpanded = false }) {
                     inspectors.forEach { inspector ->
@@ -592,7 +592,7 @@ private fun EditorScreen(
             }
         }
         OutlinedButton(
-            onClick = { onChange(report.copy(customFields = report.customFields + CustomReportField(label = "Uusi kenttä"))) },
+            onClick = { onChange(report.copy(customFields = report.customFields + CustomReportField(label = pdfContext.getString(R.string.new_custom_field_label)))) },
             modifier = Modifier.fillMaxWidth()
         ) { Text(stringResource(R.string.ui_add_field)) }
 
