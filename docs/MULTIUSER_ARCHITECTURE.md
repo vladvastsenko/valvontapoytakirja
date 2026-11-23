@@ -78,3 +78,11 @@ Status: implementation in progress on `auth-registration`. No APK build or devic
 - No fallback to PIN is currently enabled. If biometrics become unavailable, the user can sign out; recovery/reset behavior and account switching need device tests.
 - **Security limitations:** current implementation does not re-lock on background/resume, and other Android activities launched outside the main gate need separate protection review. Biometric UI text is currently Finnish and needs translation across supported UI languages.
 - No APK build, emulator run or device test was performed. Test on HONOR Magic V3: first opt-in, dismiss, failed attempt, restart, sign-out, settings switch, changed fingerprints, and account switching.
+
+## Guest mode (2026-11-23)
+- Login screen offers `Jatka ilman rekisteröitymistä`; guest choice is persisted locally.
+- Guests can use the existing local report editors and local PDF export. The cloud sync/backup screen requires a Firebase user and the management screen hides cloud/biometric controls in guest mode.
+- Management offers `Kirjaudu sisään / Rekisteröidy` to return to authentication without deleting local report files.
+- Signing in does not automatically upload local reports; explicit cloud synchronization remains required. Before first shared-folder sync, users must review which reports will be shared.
+- Guest-mode strings are currently Finnish and need translations. Account transitions and any secondary activities should be tested on device.
+- No APK build or device test performed.
