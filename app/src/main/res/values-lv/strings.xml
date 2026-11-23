@@ -213,4 +213,25 @@
     <string name="cloud_sync_complete">Sinhronizācija pabeigta. Faili: augšupielādēti %1$d, lejupielādēti %2$d, dzēsti %3$d, konflikti %4$d. PDF: ierīcē %5$d, Drive %6$d; augšupielādēti %7$d, lejupielādēti %8$d, dzēsti %9$d, konflikti %10$d.</string>
     <string name="ui_preview_pdf">PDF priekšskatījums</string>
     <string name="ui_preview_unavailable">Nav instalēta PDF skatīšanas programma</string>
+    <string name="guest_continue">Turpināt bez reģistrācijas</string>
+    <string name="guest_explanation">Veidojiet un saglabājiet pārskatus ierīcē. Mākoņa sinhronizācijai jāpierakstās.</string>
+    <string name="guest_local_notice">Viesa režīms: pārskati tiek glabāti tikai šajā ierīcē. Mākoņa sinhronizācijai jāpierakstās.</string>
+    <string name="guest_sign_in">Pierakstīties / Reģistrēties</string>
+    <string name="guest_cloud_required">Mākoņa sinhronizācijai jāpierakstās.</string>
+    <string name="bio_title">Biometriskā bloķēšana</string>
+    <string name="bio_description">Aizsargājiet lietotni ar pirksta nospiedumu vai citu atbalstītu biometriju.</string>
+    <string name="bio_enabled">Ieslēgta</string>
+    <string name="bio_disabled">Izslēgta</string>
+    <string name="bio_unavailable">Biometriskā autentifikācija šajā ierīcē nav pieejama.</string>
+    <string name="bio_not_confirmed">Autentifikācija netika apstiprināta.</string>
+    <string name="bio_verify">Apstipriniet identitāti</string>
+    <string name="bio_cancel">Atcelt</string>
+    <string name="bio_cancelled">Autentifikācija atcelta. Mēģiniet vēlreiz.</string>
+    <string name="bio_sign_in_again">Biometrija nav pieejama. Pierakstieties vēlreiz.</string>
+    <string name="bio_offer_title">Biometriskā pierakstīšanās</string>
+    <string name="bio_offer_message">Vai aizsargāt Tarkastus Cloud ar biometriju? To var mainīt iestatījumos.</string>
+    <string name="bio_enable">Ieslēgt</string>
+    <string name="bio_not_now">Ne tagad</string>
+    <string name="bio_unlock">Atbloķēt ar biometriju</string>
+    <string name="bio_sign_out">Izrakstīties</string>
 </resources>
