@@ -75,13 +75,28 @@ fun CloudBackupScreen(onBack: () -> Unit) {
     val folderPicker = rememberLauncherForActivityResult(ActivityResultContracts.OpenDocumentTree()) { uri ->
         if (uri != null) {
             val flags = Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_GRANT_WRITE_URI_PERMISSION
-            runCatching { context.contentResolver.takePersistableUriPermission(uri, flags) }
-            preferences.edit().putString(DRIVE_TREE_URI, uri.toString()).apply()
-            folderUri = uri.toString()
-            status = context.getString(R.string.cloud_drive_selected)
+            val granted = runCatching {
+                context.contentResolver.takePersistableUriPermission(uri, flags)
+                context.contentResolver.persistedUriPermissions.any {
+                    it.uri == uri && it.isReadPermission && it.isWritePermission
+                }
+            }.getOrDefault(false)
+            val directory = if (granted) androidx.documentfile.provider.DocumentFile.fromTreeUri(context, uri) else null
+            if (granted && directory?.isDirectory == true && directory.canRead() && directory.canWrite()) {
+                preferences.edit().putString(DRIVE_TREE_URI, uri.toString()).apply()
+                folderUri = uri.toString()
+                status = context.getString(R.string.cloud_drive_selected)
+            } else {
+                status = context.getString(R.string.cloud_folder_access_denied)
+            }
         }
     }
-    val selectedTree = folderUri?.let(Uri::parse)
+    val hasFolderPermission = folderUri?.let { saved ->
+        context.contentResolver.persistedUriPermissions.any {
+            it.uri.toString() == saved && it.isReadPermission && it.isWritePermission
+        }
+    } == true
+    val selectedTree = folderUri?.takeIf { hasFolderPermission }?.let(Uri::parse)
     val selectedBackup = backups.firstOrNull { it.uri.toString() == selectedBackupUri }
 
     Column(Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(20.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
