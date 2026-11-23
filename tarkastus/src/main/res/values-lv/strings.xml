@@ -118,4 +118,8 @@
     <string name="audit_choose">Izvēlēties</string>
     <string name="audit_choose_date">Izvēlieties datumu</string>
     <string name="audit_custom_fields_title">PAPILDU LAUKI</string>
+    <string name="report_title_localized">Apskates protokols</string>
+    <string name="inspector_heading_localized">Inspektors</string>
+    <string name="select_inspector_localized">Izvēlieties inspektoru</string>
+    <string name="new_custom_field_label">Jauns lauks</string>
 </resources>
