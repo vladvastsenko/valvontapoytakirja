@@ -31,7 +31,7 @@ internal class AdConsentManager(private val activity: Activity) {
     )
         private set
 
-    fun setTestDeviceHash(value: String) {
+    fun saveTestDeviceHash(value: String) {
         testDeviceHash = value.trim()
         activity.getSharedPreferences("ump_debug", Activity.MODE_PRIVATE)
             .edit().putString("test_device_hash", testDeviceHash).apply()
