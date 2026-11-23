@@ -234,4 +234,15 @@
     <string name="bio_not_now">Не сейчас</string>
     <string name="bio_unlock">Разблокировать биометрией</string>
     <string name="bio_sign_out">Выйти</string>
+    <string name="inspector_profiles">Профили инспекторов</string>
+    <string name="inspector_add">Добавить инспектора</string>
+    <string name="inspector_add_current">Добавить текущего инспектора в список</string>
+    <string name="inspector_copy_signature">Скопировать подпись из настроек</string>
+    <string name="customer_new_title">НОВЫЙ КЛИЕНТ</string>
+    <string name="customer_details_title">ДАННЫЕ КЛИЕНТА</string>
+    <string name="customer_sites_title">ОБЪЕКТЫ: %1$s</string>
+    <string name="site_new_title">НОВЫЙ ОБЪЕКТ</string>
+    <string name="site_details_title">ДАННЫЕ ОБЪЕКТА</string>
+    <string name="site_new_field">Новое поле</string>
+    <string name="report_inspector_title">Инспектор</string>
 </resources>
