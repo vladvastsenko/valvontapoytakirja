@@ -268,4 +268,8 @@
     <string name="cloud_share_guide_steps">1. Atidarykite Google Drive bendro aplanko savininko paskyroje.\n2. Raskite Tarkastus Cloud bendrą aplanką.\n3. Spauskite tris taškus → Bendrinti / Tvarkyti prieigą.\n4. Įveskite darbuotojo el. paštą ir pasirinkite Redaktorius.\n5. Išsiųskite kvietimą. Darbuotojas jį priima ir pasirenka aplanką Tarkastus Cloud.\n\nNebendrinkite asmeninių atsarginių kopijų aplanko.</string>
     <string name="cloud_share_open_drive">Atidaryti Google Drive</string>
     <string name="cloud_restore_success">Atsarginė kopija sėkmingai atkurta.</string>
+    <string name="cloud_choose_private_backup_folder">Pasirinkti asmeninių atsarginių kopijų aplanką</string>
+    <string name="cloud_private_backup_hint">Pasirinkite savo aplanką, kuris nėra bendrinamas su kolegomis. Kopijos nesaugomos įmonės bendrame aplanke.</string>
+    <string name="cloud_private_backup_selected">Asmeninių atsarginių kopijų aplankas pasirinktas.</string>
+    <string name="cloud_private_backup_invalid">Pasirinkite atskirą įrašomą aplanką, ne įmonės bendrą aplanką.</string>
 </resources>
