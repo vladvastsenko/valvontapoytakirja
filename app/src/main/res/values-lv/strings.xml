@@ -234,4 +234,15 @@
     <string name="bio_not_now">Ne tagad</string>
     <string name="bio_unlock">Atbloķēt ar biometriju</string>
     <string name="bio_sign_out">Izrakstīties</string>
+    <string name="inspector_profiles">Inspektoru profili</string>
+    <string name="inspector_add">Pievienot inspektoru</string>
+    <string name="inspector_add_current">Pievienot pašreizējo inspektoru sarakstam</string>
+    <string name="inspector_copy_signature">Kopēt parakstu no iestatījumiem</string>
+    <string name="customer_new_title">JAUNS KLIENTS</string>
+    <string name="customer_details_title">KLIENTA DATI</string>
+    <string name="customer_sites_title">OBJEKTI: %1$s</string>
+    <string name="site_new_title">JAUNS OBJEKTS</string>
+    <string name="site_details_title">OBJEKTA DATI</string>
+    <string name="site_new_field">Jauns lauks</string>
+    <string name="report_inspector_title">Inspektors</string>
 </resources>
