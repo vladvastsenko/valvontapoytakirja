@@ -56,3 +56,10 @@ Status: implementation in progress on `auth-registration`. No APK build or devic
 - Failed replacements attempt rollback; the next sync restores a stranded `.sync_backup` if the target is missing.
 - Neither temporary nor backup files are uploaded.
 - This is **not** a cross-device transaction: SAF Drive writes still need verification and concurrency testing. The restore behavior has not yet been device-tested.
+
+## Concurrent shared-file writes (in progress)
+- Before each action, the Drive file is re-read and compared with its hash from the initial scan. A changed remote file causes a conflict instead of an automatic overwrite.
+- Shared-data uploads stage bytes in a temporary Drive document, verify SHA-256, and preserve the prior remote bytes as a backup before replacement. Temporary/backup files are excluded from synchronization scans.
+- **Important limitation:** DocumentFile/SAF offers no atomic compare-and-swap, locking, or transactional rename. Two devices can still race between the final hash check and replacement. This is risk reduction, **not** a correctness guarantee. For robust concurrent editing, use a server-mediated versioned object store or immutable per-edit versions.
+- Backup files created by replacements require retention and recovery tooling; they must not be silently treated as ordinary shared documents.
+- No device build or multi-device test was run.
