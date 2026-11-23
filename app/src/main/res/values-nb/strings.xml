@@ -234,4 +234,15 @@
     <string name="bio_not_now">Ikke nå</string>
     <string name="bio_unlock">Lås opp med biometri</string>
     <string name="bio_sign_out">Logg ut</string>
+    <string name="inspector_profiles">Inspektørprofiler</string>
+    <string name="inspector_add">Legg til inspektør</string>
+    <string name="inspector_add_current">Legg til gjeldende inspektør i listen</string>
+    <string name="inspector_copy_signature">Kopier signatur fra innstillingene</string>
+    <string name="customer_new_title">NY KUNDE</string>
+    <string name="customer_details_title">KUNDEDETALJER</string>
+    <string name="customer_sites_title">OBJEKTER: %1$s</string>
+    <string name="site_new_title">NYTT OBJEKT</string>
+    <string name="site_details_title">OBJEKTDETALJER</string>
+    <string name="site_new_field">Nytt felt</string>
+    <string name="report_inspector_title">Inspektør</string>
 </resources>
