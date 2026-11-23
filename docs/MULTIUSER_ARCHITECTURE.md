@@ -50,3 +50,9 @@ Status: implementation in progress on `auth-registration`. No APK build or devic
 - Migration of legacy `Tarkastus_Sync/PDF` copies files but does not delete the original folder.
 - **Privacy boundary:** Shared report JSON and PDFs intentionally include the inspector identity and signature captured in that report. Private profile/settings files are excluded, but reports are accessible to everyone with Drive-folder access. Limit folder sharing accordingly.
 - Pending: SAF provider tests, two-device concurrent write tests, crash recovery, explicit deletion UX and review of filename collisions.
+
+## Interrupted local download recovery
+- Downloads are staged as `.sync_tmp`; before replacement the existing file is renamed to `.sync_backup`.
+- Failed replacements attempt rollback; the next sync restores a stranded `.sync_backup` if the target is missing.
+- Neither temporary nor backup files are uploaded.
+- This is **not** a cross-device transaction: SAF Drive writes still need verification and concurrency testing. The restore behavior has not yet been device-tested.
