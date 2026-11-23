@@ -63,7 +63,8 @@ fun CloudBackupScreen(onBack: () -> Unit) {
         }
         return
     }
-    val preferences = remember { context.getSharedPreferences(BACKUP_PREFS, Context.MODE_PRIVATE) }
+    val uid = com.google.firebase.auth.FirebaseAuth.getInstance().currentUser!!.uid
+    val preferences = remember(uid) { context.getSharedPreferences("${BACKUP_PREFS}_$uid", Context.MODE_PRIVATE) }
     var folderUri by remember { mutableStateOf(preferences.getString(DRIVE_TREE_URI, null)) }
     var privateBackupUri by remember { mutableStateOf(preferences.getString(PRIVATE_BACKUP_TREE_URI, null)) }
     var backups by remember { mutableStateOf<List<CloudBackupManager.BackupFile>>(emptyList()) }
