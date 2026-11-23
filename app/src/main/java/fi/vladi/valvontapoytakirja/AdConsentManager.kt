@@ -20,19 +20,24 @@ internal class AdConsentManager(private val activity: Activity) {
     var privacyOptionsRequired by mutableStateOf(false)
         private set
 
+    var diagnostic by mutableStateOf("Not requested")
+        private set
+
     fun request() {
+        diagnostic = "Requesting consent information…"
         // A previously valid UMP decision can be reused while the refresh completes.
         update()
         val params = ConsentRequestParameters.Builder().build()
         info.requestConsentInfoUpdate(activity, params, {
             update()
-            UserMessagingPlatform.loadAndShowConsentFormIfRequired(activity) {
+            diagnostic = "Consent information updated; checking form…"
+            UserMessagingPlatform.loadAndShowConsentFormIfRequired(activity) { formError ->
                 update()
+                diagnostic = if (formError == null) "Consent form check completed" else "Consent form error ${formError.errorCode}: ${formError.message}"
             }
-        }, {
-            // If consent cannot be refreshed, UMP determines whether an existing
-            // consent state permits requests. Do not assume consent on failure.
+        }, { error ->
             update()
+            diagnostic = "Consent request error ${error.errorCode}: ${error.message}"
         })
     }
 
@@ -42,6 +47,8 @@ internal class AdConsentManager(private val activity: Activity) {
             info.privacyOptionsRequirementStatus ==
                 ConsentInformation.PrivacyOptionsRequirementStatus.REQUIRED
     }
+
+    fun statusText(): String = "Consent status: ${info.consentStatus}; ads allowed: $canRequestAds; privacy options: ${info.privacyOptionsRequirementStatus}; result: $diagnostic"
 
     fun showPrivacyOptions() {
         UserMessagingPlatform.showPrivacyOptionsForm(activity) { update() }
