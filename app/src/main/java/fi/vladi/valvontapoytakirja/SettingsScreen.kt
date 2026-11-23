@@ -63,6 +63,7 @@ fun SettingsScreen(
     onRemoveSignature: () -> Unit,
     onBack: () -> Unit
 ) {
+    val context = androidx.compose.ui.platform.LocalContext.current
     var editingInspector by remember { mutableStateOf<InspectorProfile?>(null) }
     var editingCustomer by remember { mutableStateOf<CustomerProfile?>(null) }
     var editingSite by remember { mutableStateOf<CustomerSite?>(null) }
@@ -101,7 +102,7 @@ fun SettingsScreen(
         if (logoBitmap != null) {
             Image(
                 bitmap = logoBitmap!!.asImageBitmap(),
-                contentDescription = "Raportin logo",
+                contentDescription = stringResource(R.string.settings_logo),
                 modifier = Modifier.fillMaxWidth().height(120.dp),
                 contentScale = ContentScale.Fit
             )
@@ -137,7 +138,7 @@ fun SettingsScreen(
                 ) {
                     Image(
                         bitmap = signatureBitmap!!.asImageBitmap(),
-                        contentDescription = "Valittu allekirjoitus",
+                        contentDescription = stringResource(R.string.settings_signature),
                         modifier = Modifier.fillMaxWidth().height(190.dp).padding(8.dp),
                         contentScale = ContentScale.Fit
                     )
@@ -159,7 +160,7 @@ fun SettingsScreen(
             if (settings.signatureImagePath.isNotBlank()) TextButton(onClick = onRemoveSignature) { Text(stringResource(R.string.settings_remove_image)) }
         }
 
-        SettingsSection("Tarkastajat / Inspectors")
+        SettingsSection(stringResource(R.string.inspector_profiles))
         inspectors.forEach { inspector ->
             Card(modifier = Modifier.fillMaxWidth().clickable { editingInspector = inspector }) {
                 Row(Modifier.padding(12.dp), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -169,7 +170,7 @@ fun SettingsScreen(
             }
         }
         OutlinedButton(onClick = { editingInspector = InspectorProfile() }, modifier = Modifier.fillMaxWidth()) {
-            Text("Lisää tarkastaja / Add inspector")
+            Text(stringResource(R.string.inspector_add))
         }
         if (settings.inspectorName.isNotBlank() &&
             inspectors.none { it.name.trim().equals(settings.inspectorName.trim(), ignoreCase = true) }
@@ -186,7 +187,7 @@ fun SettingsScreen(
                     )
                 },
                 modifier = Modifier.fillMaxWidth()
-            ) { Text("Lisää nykyinen tarkastaja luetteloon") }
+            ) { Text(stringResource(R.string.inspector_add_current)) }
         }
         editingInspector?.let { draft ->
             SettingField(stringResource(R.string.settings_inspector), draft.name) { editingInspector = draft.copy(name = it) }
@@ -201,7 +202,7 @@ fun SettingsScreen(
             if (draft.signatureStrokes.isEmpty() && settings.signatureStrokes.isNotEmpty()) {
                 OutlinedButton(onClick = {
                     editingInspector = draft.copy(signatureStrokes = settings.signatureStrokes, signatureImagePath = "")
-                }) { Text("Kopioi allekirjoitus asetuksista") }
+                }) { Text(stringResource(R.string.inspector_copy_signature)) }
             }
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 Button(onClick = { onSaveInspector(draft); editingInspector = null }, enabled = draft.name.isNotBlank()) {
@@ -248,7 +249,7 @@ fun SettingsScreen(
 
         if (editingCustomer != null) {
             val draft = editingCustomer!!
-            SettingsSection(if (draft.name.isBlank()) "UUSI ASIAKAS" else "ASIAKKAAN TIEDOT")
+            SettingsSection(if (draft.name.isBlank()) stringResource(R.string.customer_new_title) else stringResource(R.string.customer_details_title))
             SettingField(stringResource(R.string.settings_company), draft.name) { editingCustomer = draft.copy(name = it) }
             SettingField(stringResource(R.string.settings_business_id), draft.businessId) { editingCustomer = draft.copy(businessId = it) }
             SettingField(stringResource(R.string.settings_billing), draft.address, minLines = 2) { editingCustomer = draft.copy(address = it) }
@@ -277,7 +278,7 @@ fun SettingsScreen(
         }
 
         if (selectedCustomer != null) {
-            SettingsSection("KOHTEET: ${selectedCustomer.name}")
+            SettingsSection(stringResource(R.string.customer_sites_title, selectedCustomer.name))
             customerSites.forEach { site ->
                 Card(modifier = Modifier.fillMaxWidth()) {
                     Column(Modifier.padding(12.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
@@ -300,7 +301,7 @@ fun SettingsScreen(
 
         if (editingSite != null) {
             val draft = editingSite!!
-            SettingsSection(if (draft.name.isBlank()) "UUSI KOHDE" else "KOHTEEN TIEDOT")
+            SettingsSection(if (draft.name.isBlank()) stringResource(R.string.site_new_title) else stringResource(R.string.site_details_title))
             SettingField(stringResource(R.string.settings_site_name), draft.name) { editingSite = draft.copy(name = it) }
             SettingField(stringResource(R.string.settings_site_detail), draft.address, minLines = 2) { editingSite = draft.copy(address = it) }
             Text(stringResource(R.string.settings_site_fields), style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.SemiBold)
@@ -319,7 +320,7 @@ fun SettingsScreen(
             }
             OutlinedButton(
                 onClick = {
-                    editingSite = draft.copy(fieldDefinitions = draft.fieldDefinitions + SiteFieldDefinition(label = "Uusi kenttä"))
+                    editingSite = draft.copy(fieldDefinitions = draft.fieldDefinitions + SiteFieldDefinition(label = context.getString(R.string.site_new_field)))
                 },
                 modifier = Modifier.fillMaxWidth()
             ) { Text(stringResource(R.string.settings_add_field)) }
