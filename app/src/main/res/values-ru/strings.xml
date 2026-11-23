@@ -260,4 +260,8 @@
     <string name="auth_error_too_many">Слишком много попыток. Повторите позже.</string>
     <string name="auth_error_network">Ошибка сети. Проверьте подключение к интернету.</string>
     <string name="cloud_folder_access_denied">Доступ к папке не предоставлен. Выберите общую папку снова и разрешите чтение и запись.</string>
+    <string name="cloud_team_access_title">Доступ к общей папке</string>
+    <string name="cloud_team_access_hint">Владелец приглашает коллег через Google Drive. Каждый сотрудник выбирает общую папку ниже.</string>
+    <string name="cloud_invite_teammate">Пригласить через Google Drive</string>
+    <string name="cloud_invite_hint">Найдите папку в Google Drive и нажмите «Поделиться». Приложение не может открыть выбранную папку напрямую в Drive.</string>
 </resources>
