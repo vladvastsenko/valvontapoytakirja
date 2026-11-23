@@ -259,4 +259,5 @@
     <string name="auth_error_weak_password">The password is too weak.</string>
     <string name="auth_error_too_many">Too many attempts. Try again later.</string>
     <string name="auth_error_network">Network error. Check your internet connection.</string>
+    <string name="cloud_folder_access_denied">Folder access was not granted. Select the shared folder again and allow read and write access.</string>
 </resources>
