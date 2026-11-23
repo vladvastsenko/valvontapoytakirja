@@ -63,8 +63,8 @@ internal object BiometricLock {
             })
         prompt.authenticate(BiometricPrompt.PromptInfo.Builder()
             .setTitle("Tarkastus Cloud")
-            .setSubtitle("Vahvista henkilöllisyytesi")
-            .setNegativeButtonText("Peruuta")
+            .setSubtitle(context.getString(R.string.bio_verify))
+            .setNegativeButtonText(context.getString(R.string.bio_cancel))
             .setAllowedAuthenticators(AUTHENTICATORS)
             .build())
     }
@@ -77,25 +77,25 @@ internal fun BiometricSettingsControl() {
     var enabled by remember(uid) { mutableStateOf(BiometricLock.enabled(context, uid)) }
     var status by remember { mutableStateOf("") }
     Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-        Text("Biometrinen lukitus")
-        Text("Suojaa sovelluksen avaaminen sormenjäljellä tai muulla tuetulla biometrisellä tunnisteella.")
+        Text(androidx.compose.ui.res.stringResource(R.string.bio_title))
+        Text(androidx.compose.ui.res.stringResource(R.string.bio_description))
         androidx.compose.foundation.layout.Row(modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceBetween) {
-            Text(if (enabled) "Käytössä" else "Pois käytöstä")
+            Text(if (enabled) context.getString(R.string.bio_enabled) else context.getString(R.string.bio_disabled))
             Switch(checked = enabled, onCheckedChange = { requested ->
                 if (!requested) {
                     BiometricLock.setEnabled(context, uid, false)
                     enabled = false
                     status = ""
                 } else if (!BiometricLock.available(context)) {
-                    status = "Biometrinen tunnistus ei ole käytettävissä tässä laitteessa."
+                    status = context.getString(R.string.bio_unavailable)
                 } else {
                     BiometricLock.prompt(context, {
                         BiometricLock.setEnabled(context, uid, true)
                         BiometricLock.markOffered(context, uid)
                         enabled = true
                         status = ""
-                    }, { status = "Tunnistusta ei vahvistettu." })
+                    }, { status = context.getString(R.string.bio_not_confirmed) })
                 }
             })
         }
@@ -115,10 +115,10 @@ internal fun BiometricSessionGate(onUnlocked: @Composable () -> Unit) {
         if (BiometricLock.enabled(context, uid)) {
             if (BiometricLock.available(context)) {
                 BiometricLock.prompt(context, { unlocked = true }, {
-                    error = "Tunnistus peruutettiin. Yritä uudelleen."
+                    error = context.getString(R.string.bio_cancelled)
                 })
             } else {
-                error = "Biometria ei ole käytettävissä. Kirjaudu uudelleen tai poista lukitus sovelluksen asetuksista."
+                error = context.getString(R.string.bio_sign_in_again)
             }
         } else if (!BiometricLock.offered(context, uid) && BiometricLock.available(context)) {
             offer = true
@@ -130,37 +130,37 @@ internal fun BiometricSessionGate(onUnlocked: @Composable () -> Unit) {
             AlertDialog(onDismissRequest = {
                 BiometricLock.markOffered(context, uid)
                 offer = false
-            }, title = { Text("Biometrinen kirjautuminen") },
-                text = { Text("Haluatko suojata Tarkastus Cloudin avaamisen biometrisellä tunnistuksella? Voit muuttaa valintaa asetuksissa.") },
+            }, title = { Text(androidx.compose.ui.res.stringResource(R.string.bio_offer_title)) },
+                text = { Text(androidx.compose.ui.res.stringResource(R.string.bio_offer_message)) },
                 confirmButton = { Button(onClick = {
                     BiometricLock.markOffered(context, uid)
                     offer = false
                     BiometricLock.prompt(context, {
                         BiometricLock.setEnabled(context, uid, true)
                     }, {})
-                }) { Text("Ota käyttöön") } },
+                }) { Text(androidx.compose.ui.res.stringResource(R.string.bio_enable)) } },
                 dismissButton = { OutlinedButton(onClick = {
                     BiometricLock.markOffered(context, uid)
                     offer = false
-                }) { Text("Ei nyt") } })
+                }) { Text(androidx.compose.ui.res.stringResource(R.string.bio_not_now)) } })
         }
     } else {
         Column(modifier = Modifier.padding(24.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
-            Text("Tarkastus Cloud – biometrinen lukitus")
+            Text("Tarkastus Cloud – " + androidx.compose.ui.res.stringResource(R.string.bio_title))
             if (error.isNotEmpty()) Text(error)
             Button(onClick = {
                 if (BiometricLock.available(context)) {
                     BiometricLock.prompt(context, { unlocked = true; error = "" }, {
-                        error = "Tunnistus peruutettiin. Yritä uudelleen."
+                        error = context.getString(R.string.bio_cancelled)
                     })
                 } else {
                     error = "Biometrinen tunnistus ei ole käytettävissä."
                 }
-            }) { Text("Avaa biometrialla") }
+            }) { Text(androidx.compose.ui.res.stringResource(R.string.bio_unlock)) }
             OutlinedButton(onClick = {
                 FirebaseAuth.getInstance().signOut()
                 (context as? android.app.Activity)?.recreate()
-            }) { Text("Kirjaudu ulos") }
+            }) { Text(androidx.compose.ui.res.stringResource(R.string.bio_sign_out)) }
         }
     }
 }
