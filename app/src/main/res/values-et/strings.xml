@@ -259,4 +259,5 @@
     <string name="auth_error_weak_password">Parool on liiga nõrk.</string>
     <string name="auth_error_too_many">Liiga palju katseid. Proovige hiljem uuesti.</string>
     <string name="auth_error_network">Võrguviga. Kontrollige internetiühendust.</string>
+    <string name="cloud_folder_access_denied">Kaustale juurdepääsu ei antud. Valige jagatud kaust uuesti ning lubage lugemine ja kirjutamine.</string>
 </resources>
