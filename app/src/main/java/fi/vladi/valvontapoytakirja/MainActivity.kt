@@ -208,6 +208,7 @@ private fun ManagementScreen(
     onSignOut: () -> Unit
 ) {
     val context = LocalContext.current
+    val guestMode = com.google.firebase.auth.FirebaseAuth.getInstance().currentUser == null
     var languageMenu by remember { mutableStateOf(false) }
     var confirmSignOut by remember { mutableStateOf(false) }
     if (confirmSignOut) {
@@ -247,15 +248,19 @@ private fun ManagementScreen(
         Text(when (AppLanguage.selected(context)) {
             "ru" -> "Русский"; "sv" -> "Svenska"; "en" -> "English"; "et" -> "Eesti"; "lt" -> "Lietuvių"; "lv" -> "Latviešu"; "nb" -> "Norsk"; "da" -> "Dansk"; else -> "Suomi"
         })
-        BiometricSettingsControl()
+        if (!guestMode) BiometricSettingsControl()
         Button(onClick = onSettings, modifier = Modifier.fillMaxWidth()) {
             Text(stringResource(R.string.shared_settings))
         }
-        Button(onClick = onCloudBackup, modifier = Modifier.fillMaxWidth()) {
-            Text(stringResource(R.string.cloud_sync))
+        if (!guestMode) {
+            Button(onClick = onCloudBackup, modifier = Modifier.fillMaxWidth()) {
+                Text(stringResource(R.string.cloud_sync))
+            }
+        } else {
+            Text("Vierastila: raportit tallennetaan vain tälle laitteelle. Pilvisynkronointi vaatii kirjautumisen.")
         }
-        OutlinedButton(onClick = { confirmSignOut = true }, modifier = Modifier.fillMaxWidth()) {
-            Text(stringResource(R.string.sign_out))
+        OutlinedButton(onClick = { if (guestMode) onSignOut() else confirmSignOut = true }, modifier = Modifier.fillMaxWidth()) {
+            Text(if (guestMode) "Kirjaudu sisään / Rekisteröidy" else stringResource(R.string.sign_out))
         }
         Spacer(Modifier.height(8.dp))
         OutlinedButton(onClick = onBack, modifier = Modifier.fillMaxWidth()) {
