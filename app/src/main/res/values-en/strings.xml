@@ -213,4 +213,25 @@
     <string name="cloud_sync_complete">Synchronization complete. Files: uploaded %1$d, downloaded %2$d, deleted %3$d, conflicts %4$d. PDFs: on device %5$d, on Drive %6$d; uploaded %7$d, downloaded %8$d, deleted %9$d, conflicts %10$d.</string>
     <string name="ui_preview_pdf">Preview PDF</string>
     <string name="ui_preview_unavailable">No PDF viewer is installed</string>
+    <string name="guest_continue">Continue without registration</string>
+    <string name="guest_explanation">Create and save reports locally. Cloud sync requires sign-in.</string>
+    <string name="guest_local_notice">Guest mode: reports are stored only on this device. Cloud sync requires sign-in.</string>
+    <string name="guest_sign_in">Sign in / Register</string>
+    <string name="guest_cloud_required">Cloud sync requires sign-in.</string>
+    <string name="bio_title">Biometric lock</string>
+    <string name="bio_description">Protect app access with a fingerprint or other supported biometric.</string>
+    <string name="bio_enabled">Enabled</string>
+    <string name="bio_disabled">Disabled</string>
+    <string name="bio_unavailable">Biometric authentication is unavailable on this device.</string>
+    <string name="bio_not_confirmed">Authentication was not confirmed.</string>
+    <string name="bio_verify">Verify your identity</string>
+    <string name="bio_cancel">Cancel</string>
+    <string name="bio_cancelled">Authentication cancelled. Try again.</string>
+    <string name="bio_sign_in_again">Biometrics unavailable. Sign in again.</string>
+    <string name="bio_offer_title">Biometric sign-in</string>
+    <string name="bio_offer_message">Protect Tarkastus Cloud with biometric authentication? You can change this in settings.</string>
+    <string name="bio_enable">Enable</string>
+    <string name="bio_not_now">Not now</string>
+    <string name="bio_unlock">Unlock with biometrics</string>
+    <string name="bio_sign_out">Sign out</string>
 </resources>
