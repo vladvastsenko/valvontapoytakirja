@@ -268,4 +268,8 @@
     <string name="cloud_share_guide_steps">1. Откройте Google Drive под аккаунтом владельца общей папки.\n2. Найдите общую папку Tarkastus Cloud.\n3. Нажмите три точки → Поделиться / Управление доступом.\n4. Введите email сотрудника и выберите Редактор.\n5. Отправьте приглашение. Сотрудник принимает его и выбирает общую папку в Tarkastus Cloud.\n\nНе открывайте доступ к папке личных резервных копий.</string>
     <string name="cloud_share_open_drive">Открыть Google Drive</string>
     <string name="cloud_restore_success">Резервная копия успешно восстановлена.</string>
+    <string name="cloud_choose_private_backup_folder">Выбрать папку личных копий</string>
+    <string name="cloud_private_backup_hint">Выберите собственную папку без доступа коллег. Резервные копии не сохраняются в общей папке компании.</string>
+    <string name="cloud_private_backup_selected">Папка личных копий выбрана.</string>
+    <string name="cloud_private_backup_invalid">Выберите отдельную папку с правом записи, не общую папку компании.</string>
 </resources>
