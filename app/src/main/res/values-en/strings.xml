@@ -251,4 +251,6 @@
     <string name="signature_draw_hint">Draw your signature with your finger in the field above.</string>
     <string name="signature_clear">Clear signature</string>
     <string name="inspector_select">Select inspector</string>
+    <string name="password_show">Show password</string>
+    <string name="password_hide">Hide password</string>
 </resources>
