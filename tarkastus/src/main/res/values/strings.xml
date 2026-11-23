@@ -118,4 +118,8 @@
     <string name="audit_choose">Valitse</string>
     <string name="audit_choose_date">Valitse päivämäärä</string>
     <string name="audit_custom_fields_title">OMAT LISÄKENTÄT</string>
+    <string name="report_title_localized">Tarkastuspöytäkirja</string>
+    <string name="inspector_heading_localized">Tarkastaja</string>
+    <string name="select_inspector_localized">Valitse tarkastaja</string>
+    <string name="new_custom_field_label">Uusi kenttä</string>
 </resources>
