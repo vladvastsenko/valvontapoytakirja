@@ -264,4 +264,7 @@
     <string name="cloud_team_access_hint">Kansion omistaja kutsuu työntekijät Google Drivessa. Työntekijä valitsee jaetun kansion alla.</string>
     <string name="cloud_invite_teammate">Kutsu työntekijä Google Drivessa</string>
     <string name="cloud_invite_hint">Valitse kansio Drivessa ja käytä Jaa-toimintoa. Sovellus ei voi avata valittua kansiota suoraan Drivessa.</string>
+    <string name="cloud_share_guide_title">Ohje: kansion jakaminen</string>
+    <string name="cloud_share_guide_steps">1. Avaa Google Drive yhteisen kansion omistajan tilillä.\n2. Etsi Tarkastus Cloudin yhteinen kansio.\n3. Valitse kolme pistettä → Jaa / Hallinnoi käyttöoikeuksia.\n4. Lisää työntekijän sähköpostiosoite ja valitse Muokkaaja.\n5. Lähetä kutsu. Työntekijä hyväksyy sen ja valitsee jaetun kansion Tarkastus Cloudissa.\n\nÄlä jaa henkilökohtaisten varmuuskopioiden kansiota.</string>
+    <string name="cloud_share_open_drive">Avaa Google Drive</string>
 </resources>
