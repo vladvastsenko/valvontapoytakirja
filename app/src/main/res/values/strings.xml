@@ -213,4 +213,25 @@
     <string name="cloud_sync_complete">Synkronointi valmis. Tiedostot: lähetetty %1$d, ladattu %2$d, poistettu %3$d, ristiriitoja %4$d. PDF:t: laitteella %5$d, Drivessa %6$d; lähetetty %7$d, ladattu %8$d, poistettu %9$d, ristiriitoja %10$d.</string>
     <string name="ui_preview_pdf">Esikatsele PDF</string>
     <string name="ui_preview_unavailable">PDF-katselusovellusta ei löytynyt</string>
+    <string name="guest_continue">Jatka ilman rekisteröitymistä</string>
+    <string name="guest_explanation">Voit luoda ja tallentaa raportteja paikallisesti. Pilvisynkronointi vaatii kirjautumisen.</string>
+    <string name="guest_local_notice">Vierastila: raportit tallennetaan vain tälle laitteelle. Pilvisynkronointi vaatii kirjautumisen.</string>
+    <string name="guest_sign_in">Kirjaudu sisään / Rekisteröidy</string>
+    <string name="guest_cloud_required">Pilvisynkronointi vaatii kirjautumisen.</string>
+    <string name="bio_title">Biometrinen lukitus</string>
+    <string name="bio_description">Suojaa sovelluksen avaaminen sormenjäljellä tai muulla tuetulla biometrisellä tunnisteella.</string>
+    <string name="bio_enabled">Käytössä</string>
+    <string name="bio_disabled">Pois käytöstä</string>
+    <string name="bio_unavailable">Biometrinen tunnistus ei ole käytettävissä tässä laitteessa.</string>
+    <string name="bio_not_confirmed">Tunnistusta ei vahvistettu.</string>
+    <string name="bio_verify">Vahvista henkilöllisyytesi</string>
+    <string name="bio_cancel">Peruuta</string>
+    <string name="bio_cancelled">Tunnistus peruutettiin. Yritä uudelleen.</string>
+    <string name="bio_sign_in_again">Biometria ei ole käytettävissä. Kirjaudu uudelleen.</string>
+    <string name="bio_offer_title">Biometrinen kirjautuminen</string>
+    <string name="bio_offer_message">Haluatko suojata Tarkastus Cloudin avaamisen biometrisellä tunnistuksella? Voit muuttaa valintaa asetuksissa.</string>
+    <string name="bio_enable">Ota käyttöön</string>
+    <string name="bio_not_now">Ei nyt</string>
+    <string name="bio_unlock">Avaa biometrialla</string>
+    <string name="bio_sign_out">Kirjaudu ulos</string>
 </resources>
