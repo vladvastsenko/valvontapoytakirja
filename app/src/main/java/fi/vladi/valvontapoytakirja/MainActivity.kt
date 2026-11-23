@@ -99,7 +99,7 @@ private val WATERPROOFING_FAMILY_CATEGORIES = setOf(
 private fun isWaterproofingFamilyCategory(category: String): Boolean =
     category.trim().lowercase() in WATERPROOFING_FAMILY_CATEGORIES
 
-class MainActivity : ComponentActivity() {
+class MainActivity : androidx.fragment.app.FragmentActivity() {
     override fun attachBaseContext(newBase: Context) {
         super.attachBaseContext(AppLanguage.wrap(newBase))
     }
@@ -247,6 +247,7 @@ private fun ManagementScreen(
         Text(when (AppLanguage.selected(context)) {
             "ru" -> "Русский"; "sv" -> "Svenska"; "en" -> "English"; "et" -> "Eesti"; "lt" -> "Lietuvių"; "lv" -> "Latviešu"; "nb" -> "Norsk"; "da" -> "Dansk"; else -> "Suomi"
         })
+        BiometricSettingsControl()
         Button(onClick = onSettings, modifier = Modifier.fillMaxWidth()) {
             Text(stringResource(R.string.shared_settings))
         }
