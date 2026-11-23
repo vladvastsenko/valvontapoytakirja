@@ -37,6 +37,22 @@ private const val BACKUP_PREFS = "tarkastus_cloud_backup"
 private const val DRIVE_TREE_URI = "drive_tree_uri"
 private const val PRIVATE_BACKUP_TREE_URI = "private_backup_tree_uri"
 
+// SAF grants can point to an ancestor or descendant of another selected folder.
+// Compare tree document IDs, not URI strings, to prevent storing private archives
+// anywhere inside a shared company directory (or its parent).
+private fun foldersOverlap(first: String?, second: String?): Boolean {
+    if (first.isNullOrBlank() || second.isNullOrBlank()) return false
+    return runCatching {
+        val a = android.provider.DocumentsContract.getTreeDocumentId(Uri.parse(first)).trimEnd('/')
+        val b = android.provider.DocumentsContract.getTreeDocumentId(Uri.parse(second)).trimEnd('/')
+        val authorityA = Uri.parse(first).authority
+        val authorityB = Uri.parse(second).authority
+        if (authorityA != authorityB) false
+        else a == b || a.startsWith("$" + "{b}/") || b.startsWith("$" + "{a}/") ||
+            a.startsWith("$" + "{b}:") || b.startsWith("$" + "{a}:")
+    }.getOrDefault(first == second)
+}
+
 @Composable
 fun CloudBackupScreen(onBack: () -> Unit) {
     val context = LocalContext.current
@@ -60,9 +76,9 @@ fun CloudBackupScreen(onBack: () -> Unit) {
     var showShareGuide by remember { mutableStateOf(false) }
     val scope = rememberCoroutineScope()
 
-    LaunchedEffect(privateBackupUri) {
+    LaunchedEffect(privateBackupUri, folderUri) {
         val savedUri = privateBackupUri
-        if (!savedUri.isNullOrBlank()) {
+        if (!savedUri.isNullOrBlank() && !foldersOverlap(savedUri, folderUri)) {
             runCatching { withContext(Dispatchers.IO) { CloudBackupManager.listBackups(context, Uri.parse(savedUri)) } }
                 .onSuccess { found ->
                     backups = found
@@ -86,7 +102,8 @@ fun CloudBackupScreen(onBack: () -> Unit) {
                 }
             }.getOrDefault(false)
             val directory = if (granted) androidx.documentfile.provider.DocumentFile.fromTreeUri(context, uri) else null
-            if (granted && directory?.isDirectory == true && directory.canRead() && directory.canWrite()) {
+            if (granted && directory?.isDirectory == true && directory.canRead() && directory.canWrite() &&
+                !foldersOverlap(uri.toString(), privateBackupUri)) {
                 preferences.edit().putString(DRIVE_TREE_URI, uri.toString()).apply()
                 folderUri = uri.toString()
                 status = context.getString(R.string.cloud_drive_selected)
@@ -106,7 +123,7 @@ fun CloudBackupScreen(onBack: () -> Unit) {
             }.getOrDefault(false)
             val directory = if (granted) androidx.documentfile.provider.DocumentFile.fromTreeUri(context, uri) else null
             if (granted && directory?.isDirectory == true && directory.canRead() && directory.canWrite() &&
-                uri.toString() != folderUri) {
+                !foldersOverlap(uri.toString(), folderUri)) {
                 preferences.edit().putString(PRIVATE_BACKUP_TREE_URI, uri.toString()).apply()
                 privateBackupUri = uri.toString()
                 status = context.getString(R.string.cloud_private_backup_selected)
@@ -120,14 +137,14 @@ fun CloudBackupScreen(onBack: () -> Unit) {
             it.uri.toString() == saved && it.isReadPermission && it.isWritePermission
         }
     } == true
-    val privateBackupTree = privateBackupUri?.takeIf { hasPrivateBackupPermission && it != folderUri }?.let(Uri::parse)
+    val privateBackupTree = privateBackupUri?.takeIf { hasPrivateBackupPermission && !foldersOverlap(it, folderUri) }?.let(Uri::parse)
     val hasFolderPermission = folderUri?.let { saved ->
         context.contentResolver.persistedUriPermissions.any {
             it.uri.toString() == saved && it.isReadPermission && it.isWritePermission
         }
     } == true
     val selectedTree = folderUri?.takeIf { hasFolderPermission }?.let(Uri::parse)
-    val selectedBackup = backups.firstOrNull { it.uri.toString() == selectedBackupUri }
+    val selectedBackup = backups.firstOrNull { it.uri.toString() == selectedBackupUri }?.takeIf { privateBackupTree != null }
 
     Column(Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(20.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
         TextButton(onClick = onBack, enabled = !busy) { Text(stringResource(R.string.cloud_back)) }
