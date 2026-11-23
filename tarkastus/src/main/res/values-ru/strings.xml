@@ -122,4 +122,8 @@
     <string name="inspector_heading_localized">Инспектор</string>
     <string name="select_inspector_localized">Выберите инспектора</string>
     <string name="new_custom_field_label">Новое поле</string>
+    <string name="new_customer_heading">НОВЫЙ КЛИЕНТ</string>
+    <string name="customer_details_heading">ДАННЫЕ КЛИЕНТА</string>
+    <string name="new_site_heading">НОВЫЙ ОБЪЕКТ</string>
+    <string name="site_details_heading">ДАННЫЕ ОБЪЕКТА</string>
 </resources>
