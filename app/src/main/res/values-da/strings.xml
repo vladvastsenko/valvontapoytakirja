@@ -245,4 +245,7 @@
     <string name="site_details_title">OBJEKTOPLYSNINGER</string>
     <string name="site_new_field">Nyt felt</string>
     <string name="report_inspector_title">Inspektør</string>
+    <string name="cloud_sync_confirm_title">Synkronisere til delt mappe?</string>
+    <string name="cloud_sync_confirm_message">Synkronisering kan uploade alle lokale rapporter og PDF-filer til den valgte mappe, også rapporter oprettet uden registrering. Personer med adgang til mappen kan se dem. Fortsæt?</string>
+    <string name="cloud_restore_safety_copy">%1$s\nSikkerhedskopi før gendannelse: %2$s</string>
 </resources>
