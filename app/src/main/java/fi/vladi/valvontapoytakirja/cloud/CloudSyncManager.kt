@@ -240,7 +240,8 @@ object CloudSyncManager {
             val name = child.name ?: return@forEach
             val path = if (prefix.isEmpty()) name else "$prefix/$name"
             if (child.isDirectory) collectRemoteFiles(child, path, result)
-            else if (child.isFile) result[path] = child
+            else if (child.isFile && !name.endsWith(".sync_tmp") &&
+                !name.endsWith(".sync_backup")) result[path] = child
         }
     }
 
