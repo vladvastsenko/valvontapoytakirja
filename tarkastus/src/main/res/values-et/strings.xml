@@ -118,4 +118,8 @@
     <string name="audit_choose">Vali</string>
     <string name="audit_choose_date">Vali kuupäev</string>
     <string name="audit_custom_fields_title">LISAVÄLJAD</string>
+    <string name="report_title_localized">Ülevaatusprotokoll</string>
+    <string name="inspector_heading_localized">Kontrollija</string>
+    <string name="select_inspector_localized">Vali kontrollija</string>
+    <string name="new_custom_field_label">Uus väli</string>
 </resources>
