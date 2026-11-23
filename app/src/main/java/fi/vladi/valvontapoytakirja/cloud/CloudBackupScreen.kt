@@ -38,6 +38,13 @@ private const val DRIVE_TREE_URI = "drive_tree_uri"
 @Composable
 fun CloudBackupScreen(onBack: () -> Unit) {
     val context = LocalContext.current
+    if (com.google.firebase.auth.FirebaseAuth.getInstance().currentUser == null) {
+        Column(Modifier.fillMaxSize().padding(24.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
+            Text("Pilvisynkronointi vaatii kirjautumisen.")
+            Button(onClick = onBack) { Text("Takaisin") }
+        }
+        return
+    }
     val preferences = remember { context.getSharedPreferences(BACKUP_PREFS, Context.MODE_PRIVATE) }
     var folderUri by remember { mutableStateOf(preferences.getString(DRIVE_TREE_URI, null)) }
     var backups by remember { mutableStateOf<List<CloudBackupManager.BackupFile>>(emptyList()) }
