@@ -338,27 +338,6 @@ private fun ManagementScreen(
                 Text(stringResource(R.string.ad_privacy_options))
             }
         }
-        Text("GDPR / AdMob diagnostics", fontWeight = FontWeight.Bold)
-        Text(consent.statusText(), style = MaterialTheme.typography.bodySmall)
-        OutlinedButton(onClick = { consent.request() }, modifier = Modifier.fillMaxWidth()) {
-            Text("Refresh GDPR status")
-        }
-        if ((context.applicationInfo.flags and android.content.pm.ApplicationInfo.FLAG_DEBUGGABLE) != 0) {
-            Text("EEA test requires UMP test-device hash from Android Logcat.", style = MaterialTheme.typography.bodySmall)
-            OutlinedTextField(
-                value = consent.testDeviceHash,
-                onValueChange = { consent.saveTestDeviceHash(it) },
-                label = { Text("UMP test device hash") },
-                modifier = Modifier.fillMaxWidth(),
-                singleLine = true
-            )
-            OutlinedButton(onClick = { consent.testEea() }, modifier = Modifier.fillMaxWidth()) {
-                Text("Test EEA consent form")
-            }
-            OutlinedButton(onClick = { consent.resetTestConsent() }, modifier = Modifier.fillMaxWidth()) {
-                Text("Reset test consent")
-            }
-        }
         if (!guestMode) BiometricSettingsControl()
         Button(onClick = onSettings, modifier = Modifier.fillMaxWidth()) {
             Text(stringResource(R.string.shared_settings))
