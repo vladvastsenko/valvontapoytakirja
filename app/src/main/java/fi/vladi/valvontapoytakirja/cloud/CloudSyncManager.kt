@@ -311,6 +311,20 @@ object CloudSyncManager {
         // SAF cannot guarantee an atomic rename; use a staging document and
         // retain a backup in Conflicts if replacing an existing remote file.
         val existing = parent.findFile(name)?.takeIf { it.isFile }
+        // Preserve the prior remote report revision too, including changes
+        // authored by a different employee on another device.
+        if (existing != null && path.endsWith(".json") &&
+            (path.startsWith("reports/") || path.startsWith("tarkastus_reports/"))) {
+            val previous = File.createTempFile("report_previous_", ".json", context.cacheDir)
+            try {
+                context.contentResolver.openInputStream(existing.uri)?.use { input ->
+                    previous.outputStream().buffered().use { output -> input.copyTo(output) }
+                } ?: error("Vanhaa raporttiversiota ei voitu lukea: $path")
+                preserveReportVersion(context, root, path, previous)
+            } finally {
+                previous.delete()
+            }
+        }
         val stagedName = "upload_${java.util.UUID.randomUUID()}.sync_tmp"
         val staged = parent.createFile("application/octet-stream", stagedName)
             ?: error("Väliaikaista Drive-tiedostoa ei voitu luoda: $path")
