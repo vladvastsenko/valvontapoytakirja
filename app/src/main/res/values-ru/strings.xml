@@ -277,4 +277,6 @@
     <string name="auth_verify_resend">Отправить письмо повторно</string>
     <string name="auth_verify_sent">Письмо с подтверждением отправлено.</string>
     <string name="user_guide_title">Инструкция пользователя</string>
+    <string name="inspector_edit">Редактировать инспектора</string>
+    <string name="inspector_save">Сохранить инспектора</string>
 </resources>
