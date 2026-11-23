@@ -259,4 +259,5 @@
     <string name="auth_error_weak_password">Adgangskoden er for svag.</string>
     <string name="auth_error_too_many">For mange forsøg. Prøv igen senere.</string>
     <string name="auth_error_network">Netværksfejl. Kontrollér internetforbindelsen.</string>
+    <string name="cloud_folder_access_denied">Adgang til mappen blev ikke givet. Vælg den delte mappe igen, og tillad læse- og skriveadgang.</string>
 </resources>
