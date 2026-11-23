@@ -154,7 +154,7 @@ internal fun BiometricSessionGate(onUnlocked: @Composable () -> Unit) {
                         error = context.getString(R.string.bio_cancelled)
                     })
                 } else {
-                    error = "Biometrinen tunnistus ei ole käytettävissä."
+                    error = context.getString(R.string.bio_unavailable)
                 }
             }) { Text(androidx.compose.ui.res.stringResource(R.string.bio_unlock)) }
             OutlinedButton(onClick = {
