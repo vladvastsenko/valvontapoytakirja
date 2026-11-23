@@ -234,4 +234,15 @@
     <string name="bio_not_now">Mitte praegu</string>
     <string name="bio_unlock">Ava biomeetriaga</string>
     <string name="bio_sign_out">Logi välja</string>
+    <string name="inspector_profiles">Inspektorite profiilid</string>
+    <string name="inspector_add">Lisa inspektor</string>
+    <string name="inspector_add_current">Lisa praegune inspektor loendisse</string>
+    <string name="inspector_copy_signature">Kopeeri allkiri seadetest</string>
+    <string name="customer_new_title">UUS KLIENT</string>
+    <string name="customer_details_title">KLIENDI ANDMED</string>
+    <string name="customer_sites_title">OBJEKTID: %1$s</string>
+    <string name="site_new_title">UUS OBJEKT</string>
+    <string name="site_details_title">OBJEKTI ANDMED</string>
+    <string name="site_new_field">Uus väli</string>
+    <string name="report_inspector_title">Inspektor</string>
 </resources>
