@@ -279,4 +279,12 @@
     <string name="user_guide_title">Инструкция пользователя</string>
     <string name="inspector_edit">Редактировать инспектора</string>
     <string name="inspector_save">Сохранить инспектора</string>
+    <string name="subscription_title">Ваша подписка</string>
+    <string name="subscription_active">Подписка без рекламы активна</string>
+    <string name="subscription_free">Бесплатная версия с рекламой</string>
+    <string name="subscription_description">Отключите рекламу с личной ежемесячной подпиской.</string>
+    <string name="subscription_buy">Оформить подписку без рекламы</string>
+    <string name="subscription_restore">Восстановить покупки</string>
+    <string name="subscription_manage">Управление подпиской</string>
+    <string name="subscription_unavailable">Подписка пока недоступна в Google Play.</string>
 </resources>
