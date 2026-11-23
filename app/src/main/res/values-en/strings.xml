@@ -260,4 +260,8 @@
     <string name="auth_error_too_many">Too many attempts. Try again later.</string>
     <string name="auth_error_network">Network error. Check your internet connection.</string>
     <string name="cloud_folder_access_denied">Folder access was not granted. Select the shared folder again and allow read and write access.</string>
+    <string name="cloud_team_access_title">Shared folder access</string>
+    <string name="cloud_team_access_hint">The folder owner invites colleagues in Google Drive. Each colleague selects the shared folder below.</string>
+    <string name="cloud_invite_teammate">Invite colleague in Google Drive</string>
+    <string name="cloud_invite_hint">Find the folder in Drive and choose Share. The app cannot open the selected folder directly in Drive.</string>
 </resources>
