@@ -253,4 +253,10 @@
     <string name="inspector_select">Välj inspektör</string>
     <string name="password_show">Visa lösenord</string>
     <string name="password_hide">Dölj lösenord</string>
+    <string name="auth_error_invalid_email">Kontrollera e-postadressen.</string>
+    <string name="auth_error_invalid_credentials">Felaktig e-postadress eller lösenord.</string>
+    <string name="auth_error_email_in_use">E-postadressen används redan.</string>
+    <string name="auth_error_weak_password">Lösenordet är för svagt.</string>
+    <string name="auth_error_too_many">För många försök. Försök igen senare.</string>
+    <string name="auth_error_network">Nätverksfel. Kontrollera internetanslutningen.</string>
 </resources>
