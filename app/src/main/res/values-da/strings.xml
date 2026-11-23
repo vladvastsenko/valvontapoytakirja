@@ -253,4 +253,10 @@
     <string name="inspector_select">Vælg inspektør</string>
     <string name="password_show">Vis adgangskode</string>
     <string name="password_hide">Skjul adgangskode</string>
+    <string name="auth_error_invalid_email">Kontrollér e-mailadressen.</string>
+    <string name="auth_error_invalid_credentials">Forkert e-mailadresse eller adgangskode.</string>
+    <string name="auth_error_email_in_use">E-mailadressen er allerede i brug.</string>
+    <string name="auth_error_weak_password">Adgangskoden er for svag.</string>
+    <string name="auth_error_too_many">For mange forsøg. Prøv igen senere.</string>
+    <string name="auth_error_network">Netværksfejl. Kontrollér internetforbindelsen.</string>
 </resources>
