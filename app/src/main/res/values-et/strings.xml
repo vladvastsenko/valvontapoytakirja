@@ -213,4 +213,25 @@
     <string name="cloud_sync_complete">Sünkroonimine valmis. Failid: üles laaditud %1$d, alla laaditud %2$d, kustutatud %3$d, konfliktid %4$d. PDF-id: seadmes %5$d, Drive\'is %6$d; üles laaditud %7$d, alla laaditud %8$d, kustutatud %9$d, konfliktid %10$d.</string>
     <string name="ui_preview_pdf">PDF-i eelvaade</string>
     <string name="ui_preview_unavailable">PDF-i vaaturit pole paigaldatud</string>
+    <string name="guest_continue">Jätka registreerimata</string>
+    <string name="guest_explanation">Loo ja salvesta aruandeid seadmesse. Pilvesünkroonimiseks tuleb sisse logida.</string>
+    <string name="guest_local_notice">Külalisrežiim: aruanded salvestatakse ainult sellesse seadmesse. Pilvesünkroonimiseks tuleb sisse logida.</string>
+    <string name="guest_sign_in">Logi sisse / Registreeru</string>
+    <string name="guest_cloud_required">Pilvesünkroonimiseks tuleb sisse logida.</string>
+    <string name="bio_title">Biomeetriline lukustus</string>
+    <string name="bio_description">Kaitse rakenduse avamist sõrmejälje või muu toetatud biomeetriaga.</string>
+    <string name="bio_enabled">Sees</string>
+    <string name="bio_disabled">Väljas</string>
+    <string name="bio_unavailable">Biomeetriline autentimine pole selles seadmes saadaval.</string>
+    <string name="bio_not_confirmed">Autentimist ei kinnitatud.</string>
+    <string name="bio_verify">Kinnita oma isik</string>
+    <string name="bio_cancel">Tühista</string>
+    <string name="bio_cancelled">Autentimine katkestati. Proovi uuesti.</string>
+    <string name="bio_sign_in_again">Biomeetria pole saadaval. Logi uuesti sisse.</string>
+    <string name="bio_offer_title">Biomeetriline sisselogimine</string>
+    <string name="bio_offer_message">Kas soovid kaitsta Tarkastus Cloudi biomeetriaga? Seda saab seadetes muuta.</string>
+    <string name="bio_enable">Lülita sisse</string>
+    <string name="bio_not_now">Mitte praegu</string>
+    <string name="bio_unlock">Ava biomeetriaga</string>
+    <string name="bio_sign_out">Logi välja</string>
 </resources>
