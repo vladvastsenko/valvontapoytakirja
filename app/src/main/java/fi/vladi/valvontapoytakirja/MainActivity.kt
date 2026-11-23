@@ -257,6 +257,7 @@ private fun TestAdMobBanner() {
         AdView(context).apply {
             setAdSize(AdSize.BANNER)
             // Official Google test banner ID. Never request live ads in testing builds.
+            // Production unit: ca-app-pub-5274592019802045/9861021951
             adUnitId = "ca-app-pub-3940256099942544/6300978111"
             loadAd(AdRequest.Builder().build())
         }
