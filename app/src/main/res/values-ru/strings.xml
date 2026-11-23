@@ -287,4 +287,5 @@
     <string name="subscription_restore">Восстановить покупки</string>
     <string name="subscription_manage">Управление подпиской</string>
     <string name="subscription_unavailable">Подписка пока недоступна в Google Play.</string>
+    <string name="ad_privacy_options">Настройки конфиденциальности рекламы</string>
 </resources>
