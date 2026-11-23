@@ -96,7 +96,7 @@ object CloudSyncManager {
         val localFiles = localRoot.walkTopDown().filter { it.isFile }.mapNotNull { file ->
             val path = file.relativeTo(localRoot).invariantSeparatorsPath
             // Never publish interrupted downloads or temporary local files to colleagues.
-            if (!isSharedPath(path) || path.endsWith(".sync_tmp") || path.endsWith(".tmp")
+            if (!isSharedPath(path) || path.endsWith(".sync_tmp") || path.endsWith(".sync_backup") || path.endsWith(".tmp")
             ) null else path to file
         }.toMap()
         val remoteFiles = linkedMapOf<String, DocumentFile>()
@@ -268,8 +268,25 @@ object CloudSyncManager {
             context.contentResolver.openInputStream(source.uri)?.use { input ->
                 temporary.outputStream().buffered().use { output -> input.copyTo(output) }
             } ?: error("Drive-tiedoston lukeminen epäonnistui: $path")
-            if (target.exists() && !target.delete()) error("Paikallista tiedostoa ei voitu päivittää: $path")
-            if (!temporary.renameTo(target)) error("Ladatun tiedoston käyttöönotto epäonnistui: $path")
+            // Stage a complete download before touching the current file.
+            // Keep a rollback copy until the replacement has succeeded.
+            val backup = File(target.parentFile, target.name + ".sync_backup")
+            if (backup.exists() && !backup.delete()) error("Vanhaa varmuuskopiota ei voitu poistaa: $path")
+            if (target.exists() && !target.renameTo(backup)) {
+                error("Paikallista tiedostoa ei voitu varmuuskopioida: $path")
+            }
+            try {
+                if (!temporary.renameTo(target)) error("Ladatun tiedoston käyttöönotto epäonnistui: $path")
+                backup.delete()
+            } catch (error: Throwable) {
+                if (backup.exists()) {
+                    if (target.exists()) target.delete()
+                    if (!backup.renameTo(target)) {
+                        error("Tiedoston palautus epäonnistui; varmuuskopio on tallessa: ${backup.absolutePath}")
+                    }
+                }
+                throw error
+            }
         } finally {
             temporary.delete()
         }
