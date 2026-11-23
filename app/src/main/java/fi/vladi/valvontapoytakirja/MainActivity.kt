@@ -343,7 +343,7 @@ private fun ManagementScreen(
         OutlinedButton(onClick = { consent.request() }, modifier = Modifier.fillMaxWidth()) {
             Text("Refresh GDPR status")
         }
-        if (BuildConfig.DEBUG) {
+        if ((context.applicationInfo.flags and android.content.pm.ApplicationInfo.FLAG_DEBUGGABLE) != 0) {
             Text("EEA test requires UMP test-device hash from Android Logcat.", style = MaterialTheme.typography.bodySmall)
             OutlinedTextField(
                 value = consent.testDeviceHash,
