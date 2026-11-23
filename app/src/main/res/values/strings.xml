@@ -272,4 +272,8 @@
     <string name="cloud_private_backup_hint">Valitse oma kansio, jota ei ole jaettu työtovereille. Varmuuskopiot eivät tallennu yrityksen yhteiseen kansioon.</string>
     <string name="cloud_private_backup_selected">Henkilökohtainen varmuuskopiokansio valittu.</string>
     <string name="cloud_private_backup_invalid">Valitse erillinen kirjoitettava kansio. Älä käytä yrityksen yhteistä kansiota.</string>
+    <string name="auth_verify_required">Vahvista sähköpostiosoitteesi ennen jatkamista.</string>
+    <string name="auth_verify_check">Tarkista vahvistus</string>
+    <string name="auth_verify_resend">Lähetä vahvistusviesti uudelleen</string>
+    <string name="auth_verify_sent">Vahvistusviesti lähetetty.</string>
 </resources>
