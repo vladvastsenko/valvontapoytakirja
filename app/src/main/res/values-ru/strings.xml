@@ -267,4 +267,5 @@
     <string name="cloud_share_guide_title">Как предоставить доступ к папке</string>
     <string name="cloud_share_guide_steps">1. Откройте Google Drive под аккаунтом владельца общей папки.\n2. Найдите общую папку Tarkastus Cloud.\n3. Нажмите три точки → Поделиться / Управление доступом.\n4. Введите email сотрудника и выберите Редактор.\n5. Отправьте приглашение. Сотрудник принимает его и выбирает общую папку в Tarkastus Cloud.\n\nНе открывайте доступ к папке личных резервных копий.</string>
     <string name="cloud_share_open_drive">Открыть Google Drive</string>
+    <string name="cloud_restore_success">Резервная копия успешно восстановлена.</string>
 </resources>
