@@ -159,6 +159,7 @@ object CloudBackupManager {
             check(mkdirs()) { "Palautuksen väliaikaista kansiota ei voitu luoda." }
         }
         var manifestFound = false
+        val seenEntries = hashSetOf<String>()
         var entryCount = 0
         var totalBytes = 0L
 
@@ -172,6 +173,7 @@ object CloudBackupManager {
                     require(entryCount <= MAX_ENTRIES) { "Varmuuskopiossa on liian monta tiedostoa." }
 
                     val name = entry.name.replace('\\', '/')
+                    require(seenEntries.add(name)) { "Varmuuskopiossa on päällekkäinen tiedostopolku." }
                     require(!name.startsWith("/") && name.split('/').none { it == ".." || it.isBlank() }) {
                         "Varmuuskopiossa on virheellinen tiedostopolku."
                     }
@@ -215,6 +217,7 @@ object CloudBackupManager {
                 }
             }
             check(manifestFound) { "Varmuuskopion tunnistetietoja ei löytynyt." }
+            check(seenEntries.size > 1) { "Varmuuskopio ei sisällä palautettavia tiedostoja." }
 
             // Keep the current local data until the complete archive has been extracted and validated.
             val current = context.filesDir
