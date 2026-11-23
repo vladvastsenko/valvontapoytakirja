@@ -71,6 +71,15 @@ object CloudSyncManager {
 
         val syncRoot = selectedRoot.findFile(SYNC_FOLDER) ?: selectedRoot.createDirectory(SYNC_FOLDER)
             ?: error("Synkronointikansiota ei voitu luoda.")
+        // Older builds synchronized every private file into Tarkastus_Sync/data.
+        // Refuse to silently treat that unsafe folder as the new shared dataset.
+        // The old folder is left untouched for the owner to review and remove.
+        val legacyData = syncRoot.findFile("data")
+        check(legacyData == null || !legacyData.isDirectory ||
+            legacyData.listFiles().isEmpty()) {
+            "Vanhassa Tarkastus_Sync/data-kansiossa voi olla henkilökohtaisia tietoja. " +
+                "Tarkista ja poista vanha data-kansio Google Drivesta ennen uutta synkronointia."
+        }
         val remoteData = syncRoot.findFile(DATA_FOLDER) ?: syncRoot.createDirectory(DATA_FOLDER)
             ?: error("Synkronoinnin tietokansiota ei voitu luoda.")
         val conflictRoot = syncRoot.findFile(CONFLICTS_FOLDER) ?: syncRoot.createDirectory(CONFLICTS_FOLDER)
