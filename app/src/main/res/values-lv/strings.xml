@@ -260,4 +260,8 @@
     <string name="auth_error_too_many">Pārāk daudz mēģinājumu. Mēģiniet vēlāk.</string>
     <string name="auth_error_network">Tīkla kļūda. Pārbaudiet interneta savienojumu.</string>
     <string name="cloud_folder_access_denied">Piekļuve mapei netika piešķirta. Vēlreiz izvēlieties koplietoto mapi un atļaujiet lasīšanu un rakstīšanu.</string>
+    <string name="cloud_team_access_title">Piekļuve koplietotajai mapei</string>
+    <string name="cloud_team_access_hint">Mapes īpašnieks uzaicina kolēģus Google diskā. Katrs darbinieks tālāk izvēlas koplietoto mapi.</string>
+    <string name="cloud_invite_teammate">Uzaicināt Google diskā</string>
+    <string name="cloud_invite_hint">Atrodiet mapi Diskā un izvēlieties Kopīgot. Lietotne nevar atvērt izvēlēto mapi tieši Diskā.</string>
 </resources>
