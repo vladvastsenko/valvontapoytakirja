@@ -279,4 +279,12 @@
     <string name="user_guide_title">Naudotojo vadovas</string>
     <string name="inspector_edit">Redaguoti inspektorių</string>
     <string name="inspector_save">Išsaugoti inspektorių</string>
+    <string name="subscription_title">Jūsų prenumerata</string>
+    <string name="subscription_active">Prenumerata be reklamų aktyvi</string>
+    <string name="subscription_free">Nemokama versija su reklamomis</string>
+    <string name="subscription_description">Pašalinkite reklamas su asmenine mėnesine prenumerata.</string>
+    <string name="subscription_buy">Prenumeruoti be reklamų</string>
+    <string name="subscription_restore">Atkurti pirkinius</string>
+    <string name="subscription_manage">Tvarkyti prenumeratą</string>
+    <string name="subscription_unavailable">Prenumerata dar nepasiekiama Google Play.</string>
 </resources>
