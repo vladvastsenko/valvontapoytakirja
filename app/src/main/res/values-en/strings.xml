@@ -279,4 +279,12 @@
     <string name="user_guide_title">User guide</string>
     <string name="inspector_edit">Edit inspector</string>
     <string name="inspector_save">Save inspector</string>
+    <string name="subscription_title">Your subscription</string>
+    <string name="subscription_active">Ad-free subscription active</string>
+    <string name="subscription_free">Free version with ads</string>
+    <string name="subscription_description">Remove ads with a personal monthly subscription.</string>
+    <string name="subscription_buy">Subscribe without ads</string>
+    <string name="subscription_restore">Restore purchases</string>
+    <string name="subscription_manage">Manage subscription</string>
+    <string name="subscription_unavailable">Subscription is not yet available in Google Play.</string>
 </resources>
