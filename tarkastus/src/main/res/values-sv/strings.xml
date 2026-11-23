@@ -122,4 +122,8 @@
     <string name="inspector_heading_localized">Inspektör</string>
     <string name="select_inspector_localized">Välj inspektör</string>
     <string name="new_custom_field_label">Nytt fält</string>
+    <string name="new_customer_heading">NY KUND</string>
+    <string name="customer_details_heading">KUNDUPPGIFTER</string>
+    <string name="new_site_heading">NYTT OBJEKT</string>
+    <string name="site_details_heading">OBJEKTUPPGIFTER</string>
 </resources>
