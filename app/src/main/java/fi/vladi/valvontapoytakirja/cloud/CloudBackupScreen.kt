@@ -4,6 +4,7 @@ import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
+import android.content.ActivityNotFoundException
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.clickable
@@ -105,7 +106,25 @@ fun CloudBackupScreen(onBack: () -> Unit) {
         Text(stringResource(R.string.cloud_intro))
         Text(if (folderUri.isNullOrBlank()) context.getString(R.string.cloud_folder_missing) else context.getString(R.string.cloud_folder_selected),
             style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.primary)
-        OutlinedButton(onClick = { folderPicker.launch(null) }, modifier = Modifier.fillMaxWidth(), enabled = !busy) {
+        Text(stringResource(R.string.cloud_team_access_title), style = MaterialTheme.typography.titleMedium)
+        Text(stringResource(R.string.cloud_team_access_hint), style = MaterialTheme.typography.bodySmall)
+        OutlinedButton(
+            onClick = {
+                // SAF tree URIs are not public Drive URLs. Open Drive itself so the
+                // folder owner can select the folder and use Google's Share dialog.
+                val driveIntent = Intent(Intent.ACTION_VIEW, Uri.parse("https://drive.google.com/drive/my-drive"))
+                val appIntent = Intent(driveIntent).setPackage("com.google.android.apps.docs")
+                try {
+                    context.startActivity(appIntent)
+                } catch (_: ActivityNotFoundException) {
+                    context.startActivity(driveIntent)
+                }
+            },
+            modifier = Modifier.fillMaxWidth(),
+            enabled = !busy
+        ) { Text(stringResource(R.string.cloud_invite_teammate)) }
+        Text(stringResource(R.string.cloud_invite_hint), style = MaterialTheme.typography.bodySmall)
+                OutlinedButton(onClick = { folderPicker.launch(null) }, modifier = Modifier.fillMaxWidth(), enabled = !busy) {
             Text(stringResource(R.string.cloud_choose_folder))
         }
         Button(
