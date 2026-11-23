@@ -248,4 +248,7 @@
     <string name="cloud_sync_confirm_title">Синхронизировать с общей папкой?</string>
     <string name="cloud_sync_confirm_message">Синхронизация может загрузить все локальные отчёты и PDF с устройства в выбранную папку, включая созданные без регистрации. Пользователи с доступом к папке смогут их видеть. Продолжить?</string>
     <string name="cloud_restore_safety_copy">%1$s\nРезервная копия перед восстановлением: %2$s</string>
+    <string name="signature_draw_hint">Нарисуйте подпись пальцем в поле выше.</string>
+    <string name="signature_clear">Очистить подпись</string>
+    <string name="inspector_select">Выберите инспектора</string>
 </resources>
