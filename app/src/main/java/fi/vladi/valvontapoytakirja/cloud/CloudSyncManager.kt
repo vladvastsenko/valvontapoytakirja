@@ -142,6 +142,17 @@ object CloudSyncManager {
                 continue
             }
 
+            // Recheck just before acting: another device may have edited the
+            // Drive document since our initial directory scan. Preserve the
+            // local version rather than overwrite a newly changed remote.
+            val currentRemote = findRemoteFile(remoteData, path)
+            val currentRemoteHash = currentRemote?.let { sha256(context, it) }
+            if (currentRemoteHash != remoteHash) {
+                if (local != null) saveConflict(context, conflictRoot, path, local)
+                conflicts++
+                continue
+            }
+
             if (baseHash == null) {
                 when {
                     local != null && remote == null -> {
@@ -256,15 +267,57 @@ object CloudSyncManager {
     private fun upload(context: Context, root: DocumentFile, path: String, source: File) {
         val parent = ensureRemoteParent(root, path)
         val name = path.substringAfterLast('/')
-        parent.findFile(name)?.delete()
-        val target = parent.createFile(mimeType(name), name) ?: error("Tiedostoa ei voitu luoda Driveen: $path")
+        // Never delete the old Drive document before the replacement is ready.
+        // SAF cannot guarantee an atomic rename; use a staging document and
+        // retain a backup in Conflicts if replacing an existing remote file.
+        val existing = parent.findFile(name)?.takeIf { it.isFile }
+        val stagedName = "upload_${java.util.UUID.randomUUID()}.sync_tmp"
+        val staged = parent.createFile("application/octet-stream", stagedName)
+            ?: error("Väliaikaista Drive-tiedostoa ei voitu luoda: $path")
         try {
-            context.contentResolver.openOutputStream(target.uri, "w")?.use { output ->
+            context.contentResolver.openOutputStream(staged.uri, "w")?.use { output ->
                 source.inputStream().buffered().use { input -> input.copyTo(output) }
             } ?: error("Drive-tiedoston kirjoittaminen epäonnistui: $path")
-        } catch (error: Throwable) {
-            target.delete()
-            throw error
+            check(sha256(context, staged) == sha256(source)) {
+                "Drive-siirron tarkistussumma ei täsmää: $path"
+            }
+            if (existing != null) {
+                // Keep the original until the replacement is completely staged.
+                val archived = parent.createFile("application/octet-stream",
+                    "previous_${java.util.UUID.randomUUID()}.sync_backup")
+                    ?: error("Drive-varmuuskopiota ei voitu luoda: $path")
+                try {
+                    context.contentResolver.openInputStream(existing.uri)?.use { input ->
+                        context.contentResolver.openOutputStream(archived.uri, "w")?.use { output ->
+                            input.copyTo(output)
+                        } ?: error("Drive-varmuuskopion kirjoittaminen epäonnistui")
+                    } ?: error("Drive-varmuuskopion lukeminen epäonnistui")
+                    check(sha256(context, archived) == sha256(context, existing)) {
+                        "Drive-varmuuskopion tarkistussumma ei täsmää"
+                    }
+                } catch (error: Throwable) {
+                    archived.delete()
+                    throw error
+                }
+                check(existing.delete()) { "Vanhaa Drive-tiedostoa ei voitu korvata: $path" }
+            }
+            val target = parent.createFile(mimeType(name), name)
+                ?: error("Uutta Drive-tiedostoa ei voitu luoda: $path")
+            try {
+                context.contentResolver.openInputStream(staged.uri)?.use { input ->
+                    context.contentResolver.openOutputStream(target.uri, "w")?.use { output ->
+                        input.copyTo(output)
+                    } ?: error("Drive-tiedoston viimeistely epäonnistui: $path")
+                } ?: error("Drive-väliaikaistiedostoa ei voitu lukea: $path")
+                check(sha256(context, target) == sha256(source)) {
+                    "Valmiin Drive-tiedoston tarkistussumma ei täsmää: $path"
+                }
+            } catch (error: Throwable) {
+                target.delete()
+                throw error
+            }
+        } finally {
+            staged.delete()
         }
     }
 
