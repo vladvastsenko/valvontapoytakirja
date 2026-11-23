@@ -86,9 +86,15 @@ object CloudSyncManager {
         val conflictRoot = syncRoot.findFile(CONFLICTS_FOLDER) ?: syncRoot.createDirectory(CONFLICTS_FOLDER)
             ?: error("Ristiriitakansiota ei voitu luoda.")
 
+        val uid = com.google.firebase.auth.FirebaseAuth.getInstance().currentUser?.uid
+            ?: error("Pilvisynkronointi vaatii kirjautumisen.")
+        val scope = java.security.MessageDigest.getInstance("SHA-256")
+            .digest("$uid|$treeUri".toByteArray(Charsets.UTF_8))
+            .joinToString("") { "%02x".format(it) }
+        val baselineKey = "${BASELINE_KEY}_$scope"
         val preferences = context.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
         val oldBaseline = runCatching {
-            JSONObject(preferences.getString(BASELINE_KEY, "{}") ?: "{}")
+            JSONObject(preferences.getString(baselineKey, "{}") ?: "{}")
         }.getOrDefault(JSONObject())
         val nextBaseline = JSONObject()
 
@@ -211,7 +217,7 @@ object CloudSyncManager {
             if (localHash != null && localHash == remoteHash) nextBaseline.put(path, localHash)
         }
 
-        check(preferences.edit().putString(BASELINE_KEY, nextBaseline.toString()).commit()) {
+        check(preferences.edit().putString(baselineKey, nextBaseline.toString()).commit()) {
             "Synkronoinnin tilaa ei voitu tallentaa laitteelle."
         }
 
