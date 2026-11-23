@@ -118,4 +118,8 @@
     <string name="audit_choose">Выбрать</string>
     <string name="audit_choose_date">Выберите дату</string>
     <string name="audit_custom_fields_title">ДОПОЛНИТЕЛЬНЫЕ ПОЛЯ</string>
+    <string name="report_title_localized">Протокол осмотра</string>
+    <string name="inspector_heading_localized">Инспектор</string>
+    <string name="select_inspector_localized">Выберите инспектора</string>
+    <string name="new_custom_field_label">Новое поле</string>
 </resources>
