@@ -213,4 +213,25 @@
     <string name="cloud_sync_complete">Sinchronizavimas baigtas. Failai: įkelta %1$d, atsisiųsta %2$d, ištrinta %3$d, konfliktų %4$d. PDF: įrenginyje %5$d, Drive %6$d; įkelta %7$d, atsisiųsta %8$d, ištrinta %9$d, konfliktų %10$d.</string>
     <string name="ui_preview_pdf">PDF peržiūra</string>
     <string name="ui_preview_unavailable">Neįdiegta PDF peržiūros programa</string>
+    <string name="guest_continue">Tęsti be registracijos</string>
+    <string name="guest_explanation">Kurkite ir saugokite ataskaitas įrenginyje. Sinchronizacijai debesyje reikia prisijungti.</string>
+    <string name="guest_local_notice">Svečio režimas: ataskaitos saugomos tik šiame įrenginyje. Sinchronizacijai reikia prisijungti.</string>
+    <string name="guest_sign_in">Prisijungti / Registruotis</string>
+    <string name="guest_cloud_required">Sinchronizacijai debesyje reikia prisijungti.</string>
+    <string name="bio_title">Biometrinis užraktas</string>
+    <string name="bio_description">Apsaugokite programėlę piršto atspaudu ar kita palaikoma biometrija.</string>
+    <string name="bio_enabled">Įjungta</string>
+    <string name="bio_disabled">Išjungta</string>
+    <string name="bio_unavailable">Biometrinis tapatybės patvirtinimas šiame įrenginyje nepasiekiamas.</string>
+    <string name="bio_not_confirmed">Tapatybė nepatvirtinta.</string>
+    <string name="bio_verify">Patvirtinkite tapatybę</string>
+    <string name="bio_cancel">Atšaukti</string>
+    <string name="bio_cancelled">Patvirtinimas atšauktas. Bandykite dar kartą.</string>
+    <string name="bio_sign_in_again">Biometrija nepasiekiama. Prisijunkite iš naujo.</string>
+    <string name="bio_offer_title">Biometrinis prisijungimas</string>
+    <string name="bio_offer_message">Ar apsaugoti Tarkastus Cloud biometrija? Tai galėsite pakeisti nustatymuose.</string>
+    <string name="bio_enable">Įjungti</string>
+    <string name="bio_not_now">Ne dabar</string>
+    <string name="bio_unlock">Atrakinti biometrija</string>
+    <string name="bio_sign_out">Atsijungti</string>
 </resources>
