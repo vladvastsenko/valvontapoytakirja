@@ -245,4 +245,7 @@
     <string name="site_details_title">OBJEKTA DATI</string>
     <string name="site_new_field">Jauns lauks</string>
     <string name="report_inspector_title">Inspektors</string>
+    <string name="cloud_sync_confirm_title">Sinhronizēt koplietotajā mapē?</string>
+    <string name="cloud_sync_confirm_message">Sinhronizācija var augšupielādēt visus ierīces vietējos pārskatus un PDF failus izvēlētajā mapē, tostarp bez reģistrācijas izveidotos. Personas ar piekļuvi mapei tos var redzēt. Turpināt?</string>
+    <string name="cloud_restore_safety_copy">%1$s\nDrošības kopija pirms atjaunošanas: %2$s</string>
 </resources>
