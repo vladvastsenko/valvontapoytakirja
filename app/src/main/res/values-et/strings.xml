@@ -276,4 +276,5 @@
     <string name="auth_verify_check">Kontrolli kinnitust</string>
     <string name="auth_verify_resend">Saada kinnituskiri uuesti</string>
     <string name="auth_verify_sent">Kinnituskiri saadetud.</string>
+    <string name="user_guide_title">Kasutusjuhend</string>
 </resources>
