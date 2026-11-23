@@ -18,10 +18,30 @@ import java.util.Locale
  */
 object CloudSyncManager {
     private const val PREFS = "tarkastus_cloud_sync"
-    private const val BASELINE_KEY = "baseline_v1"
+    private const val BASELINE_KEY = "baseline_shared_v2"
     private const val SYNC_FOLDER = "Tarkastus_Sync"
-    private const val DATA_FOLDER = "data"
+    private const val DATA_FOLDER = "shared_v2"
     private const val CONFLICTS_FOLDER = "Conflicts"
+
+    /**
+     * Explicit shared-data allowlist. Inspector profiles, licenses, signatures,
+     * app_settings.json, credentials, templates and local preferences stay private.
+     * Report snapshots and their attachments are shared intentionally.
+     * Never synchronize arbitrary files from the app-private directory.
+     */
+    private fun isSharedPath(path: String): Boolean {
+        val parts = path.split('/')
+        if (parts.size < 2 || parts.any { it.isBlank() || it == "." || it == ".." }) return false
+        return when (parts.first()) {
+            "customers", "customer_sites" -> parts.size == 2 &&
+                parts.last().endsWith(".json")
+            "reports", "audit_reports", "tarkastus_reports" ->
+                (parts.size == 2 && parts.last().endsWith(".json")) ||
+                (parts.size > 2 && parts.last().substringAfterLast('.', "").lowercase() in
+                    setOf("jpg", "jpeg", "png", "webp"))
+            else -> false
+        }
+    }
 
     data class Result(
         val uploaded: Int,
@@ -62,8 +82,7 @@ object CloudSyncManager {
         val localFiles = localRoot.walkTopDown().filter { it.isFile }.mapNotNull { file ->
             val path = file.relativeTo(localRoot).invariantSeparatorsPath
             // Never publish interrupted downloads or temporary local files to colleagues.
-            if (path.isBlank() || path.startsWith("../") ||
-                path.endsWith(".sync_tmp") || path.endsWith(".tmp")
+            if (!isSharedPath(path) || path.endsWith(".sync_tmp") || path.endsWith(".tmp")
             ) null else path to file
         }.toMap()
         val remoteFiles = linkedMapOf<String, DocumentFile>()
@@ -84,6 +103,7 @@ object CloudSyncManager {
 
         for (path in allPaths) {
             validateRelativePath(path)
+            if (!isSharedPath(path)) continue
             var local = localFiles[path]?.takeIf { it.isFile }
             var remote = remoteFiles[path]?.takeIf { it.exists() }
             var localHash = local?.let(::sha256)
@@ -115,8 +135,9 @@ object CloudSyncManager {
             } else if (localHash == baseHash) {
                 // Local side is unchanged: accept remote edit or deletion.
                 if (remote == null) {
-                    local?.delete()
-                    deleted++
+                    // Do not delete local reports based on a missing Drive file.
+                    // A colleague or provider may have removed it accidentally.
+                    if (local != null) { upload(context, remoteData, path, local); uploaded++ }
                 } else {
                     download(context, remote, localRoot, path)
                     downloaded++
@@ -124,8 +145,9 @@ object CloudSyncManager {
             } else if (remoteHash == baseHash) {
                 // Remote side is unchanged: publish local edit or deletion.
                 if (local == null) {
-                    remote?.delete()
-                    deleted++
+                    // A local deletion is not sufficient authorization to delete
+                    // a shared report or customer record from Drive.
+                    if (remote != null) { download(context, remote, localRoot, path); downloaded++ }
                 } else {
                     upload(context, remoteData, path, local)
                     uploaded++
