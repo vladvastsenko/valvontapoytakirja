@@ -35,6 +35,7 @@ import java.util.Locale
 
 private const val BACKUP_PREFS = "tarkastus_cloud_backup"
 private const val DRIVE_TREE_URI = "drive_tree_uri"
+private const val PRIVATE_BACKUP_TREE_URI = "private_backup_tree_uri"
 
 @Composable
 fun CloudBackupScreen(onBack: () -> Unit) {
@@ -48,6 +49,7 @@ fun CloudBackupScreen(onBack: () -> Unit) {
     }
     val preferences = remember { context.getSharedPreferences(BACKUP_PREFS, Context.MODE_PRIVATE) }
     var folderUri by remember { mutableStateOf(preferences.getString(DRIVE_TREE_URI, null)) }
+    var privateBackupUri by remember { mutableStateOf(preferences.getString(PRIVATE_BACKUP_TREE_URI, null)) }
     var backups by remember { mutableStateOf<List<CloudBackupManager.BackupFile>>(emptyList()) }
     var selectedBackupUri by remember { mutableStateOf<String?>(null) }
     var busy by remember { mutableStateOf(false) }
@@ -58,8 +60,8 @@ fun CloudBackupScreen(onBack: () -> Unit) {
     var showShareGuide by remember { mutableStateOf(false) }
     val scope = rememberCoroutineScope()
 
-    LaunchedEffect(folderUri) {
-        val savedUri = folderUri
+    LaunchedEffect(privateBackupUri) {
+        val savedUri = privateBackupUri
         if (!savedUri.isNullOrBlank()) {
             runCatching { withContext(Dispatchers.IO) { CloudBackupManager.listBackups(context, Uri.parse(savedUri)) } }
                 .onSuccess { found ->
@@ -93,6 +95,32 @@ fun CloudBackupScreen(onBack: () -> Unit) {
             }
         }
     }
+    val privateBackupPicker = rememberLauncherForActivityResult(ActivityResultContracts.OpenDocumentTree()) { uri ->
+        if (uri != null) {
+            val flags = Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_GRANT_WRITE_URI_PERMISSION
+            val granted = runCatching {
+                context.contentResolver.takePersistableUriPermission(uri, flags)
+                context.contentResolver.persistedUriPermissions.any {
+                    it.uri == uri && it.isReadPermission && it.isWritePermission
+                }
+            }.getOrDefault(false)
+            val directory = if (granted) androidx.documentfile.provider.DocumentFile.fromTreeUri(context, uri) else null
+            if (granted && directory?.isDirectory == true && directory.canRead() && directory.canWrite() &&
+                uri.toString() != folderUri) {
+                preferences.edit().putString(PRIVATE_BACKUP_TREE_URI, uri.toString()).apply()
+                privateBackupUri = uri.toString()
+                status = context.getString(R.string.cloud_private_backup_selected)
+            } else {
+                status = context.getString(R.string.cloud_private_backup_invalid)
+            }
+        }
+    }
+    val hasPrivateBackupPermission = privateBackupUri?.let { saved ->
+        context.contentResolver.persistedUriPermissions.any {
+            it.uri.toString() == saved && it.isReadPermission && it.isWritePermission
+        }
+    } == true
+    val privateBackupTree = privateBackupUri?.takeIf { hasPrivateBackupPermission && it != folderUri }?.let(Uri::parse)
     val hasFolderPermission = folderUri?.let { saved ->
         context.contentResolver.persistedUriPermissions.any {
             it.uri.toString() == saved && it.isReadPermission && it.isWritePermission
@@ -126,9 +154,13 @@ fun CloudBackupScreen(onBack: () -> Unit) {
         Text(stringResource(R.string.cloud_sync_hint),
             style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
 
+        OutlinedButton(onClick = { privateBackupPicker.launch(null) }, modifier = Modifier.fillMaxWidth(), enabled = !busy) {
+            Text(stringResource(R.string.cloud_choose_private_backup_folder))
+        }
+        Text(stringResource(R.string.cloud_private_backup_hint), style = MaterialTheme.typography.bodySmall)
         OutlinedButton(
             onClick = {
-                val uri = selectedTree
+                val uri = privateBackupTree
                 if (uri == null) status = context.getString(R.string.cloud_backup_first) else {
                     busy = true
                     scope.launch {
@@ -142,7 +174,7 @@ fun CloudBackupScreen(onBack: () -> Unit) {
                         finally { busy = false }
                     }
                 }
-            }, modifier = Modifier.fillMaxWidth(), enabled = !busy && selectedTree != null
+            }, modifier = Modifier.fillMaxWidth(), enabled = !busy && privateBackupTree != null
         ) { Text(stringResource(R.string.cloud_backup)) }
 
         Text(stringResource(R.string.cloud_backups), style = MaterialTheme.typography.titleMedium)
@@ -235,10 +267,10 @@ fun CloudBackupScreen(onBack: () -> Unit) {
                     busy = true
                     restoreCompleted = false
                     val backupToRestore = selectedBackup
-                    val tree = selectedTree
+                    val tree = privateBackupTree
                     scope.launch {
                         status = try {
-                            check(tree != null) { context.getString(R.string.cloud_drive_missing) }
+                            check(tree != null) { context.getString(R.string.cloud_private_backup_invalid) }
                             val safetyCopy = withContext(Dispatchers.IO) { CloudBackupManager.backupToFolder(context, tree) }
                             withContext(Dispatchers.IO) { CloudBackupManager.restoreFromUri(context, backupToRestore.uri) }
                             restoreCompleted = true
