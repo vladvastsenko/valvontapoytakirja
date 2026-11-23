@@ -63,3 +63,9 @@ Status: implementation in progress on `auth-registration`. No APK build or devic
 - **Important limitation:** DocumentFile/SAF offers no atomic compare-and-swap, locking, or transactional rename. Two devices can still race between the final hash check and replacement. This is risk reduction, **not** a correctness guarantee. For robust concurrent editing, use a server-mediated versioned object store or immutable per-edit versions.
 - Backup files created by replacements require retention and recovery tooling; they must not be silently treated as ordinary shared documents.
 - No device build or multi-device test was run.
+
+## Immutable report revisions (2026-11-23)
+- Before writing a report JSON into `Tarkastus_Sync/shared_v2/reports` or `tarkastus_reports`, the app saves its SHA-256-addressed version in `Tarkastus_Sync/shared_v2/Versions/<report-kind>/<report-id>_<sha256>.json`.
+- If replacing a remote report, its previous bytes are also saved in Versions before deletion. Each version is checked against its SHA-256 digest.
+- Versions is excluded from the normal shared-data file scanner and is not auto-deleted. This preserves history independently of the mutable current report.
+- **Limitations:** no revision browsing/restoration UI yet; concurrent createFile races and SAF non-atomic writes can still cause conflicts or provider-specific duplicate filenames. JSON revisions do not by themselves preserve all referenced photos; PDF sync is a separate dataset. Real-device verification is required.
