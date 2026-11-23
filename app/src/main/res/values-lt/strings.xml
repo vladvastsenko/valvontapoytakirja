@@ -260,4 +260,8 @@
     <string name="auth_error_too_many">Per daug bandymų. Bandykite vėliau.</string>
     <string name="auth_error_network">Tinklo klaida. Patikrinkite interneto ryšį.</string>
     <string name="cloud_folder_access_denied">Prieiga prie aplanko nesuteikta. Dar kartą pasirinkite bendrinamą aplanką ir suteikite skaitymo bei rašymo teises.</string>
+    <string name="cloud_team_access_title">Prieiga prie bendrinamo aplanko</string>
+    <string name="cloud_team_access_hint">Aplanko savininkas kviečia kolegas per Google diską. Kiekvienas darbuotojas žemiau pasirenka bendrinamą aplanką.</string>
+    <string name="cloud_invite_teammate">Pakviesti per Google diską</string>
+    <string name="cloud_invite_hint">Raskite aplanką Diske ir pasirinkite Bendrinti. Programa negali tiesiogiai atidaryti pasirinkto aplanko Diske.</string>
 </resources>
