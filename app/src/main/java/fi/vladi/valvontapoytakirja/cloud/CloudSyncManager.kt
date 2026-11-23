@@ -93,6 +93,19 @@ object CloudSyncManager {
         val nextBaseline = JSONObject()
 
         val localRoot = context.filesDir
+        // Recover interrupted replacements before scanning files for synchronization.
+        localRoot.walkTopDown().filter { it.isFile && it.name.endsWith(".sync_backup") }
+            .forEach { backup ->
+                val target = File(backup.parentFile, backup.name.removeSuffix(".sync_backup"))
+                val relativePath = target.relativeTo(localRoot).invariantSeparatorsPath
+                if (isSharedPath(relativePath) && !target.exists()) {
+                    check(backup.renameTo(target)) {
+                        "Keskeytyneen synkronoinnin palautus epäonnistui: $relativePath"
+                    }
+                } else if (isSharedPath(relativePath) && target.exists()) {
+                    backup.delete()
+                }
+            }
         val localFiles = localRoot.walkTopDown().filter { it.isFile }.mapNotNull { file ->
             val path = file.relativeTo(localRoot).invariantSeparatorsPath
             // Never publish interrupted downloads or temporary local files to colleagues.
