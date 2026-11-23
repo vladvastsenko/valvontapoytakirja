@@ -259,4 +259,5 @@
     <string name="auth_error_weak_password">Slaptažodis per silpnas.</string>
     <string name="auth_error_too_many">Per daug bandymų. Bandykite vėliau.</string>
     <string name="auth_error_network">Tinklo klaida. Patikrinkite interneto ryšį.</string>
+    <string name="cloud_folder_access_denied">Prieiga prie aplanko nesuteikta. Dar kartą pasirinkite bendrinamą aplanką ir suteikite skaitymo bei rašymo teises.</string>
 </resources>
