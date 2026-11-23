@@ -623,7 +623,7 @@ private fun EditorScreen(
         }
         if (inspectors.size > 1) {
             var inspectorMenuExpanded by remember(report.id) { mutableStateOf(false) }
-            Text("Tarkastaja / Inspector", fontWeight = FontWeight.SemiBold)
+            Text(stringResource(R.string.report_inspector_title), fontWeight = FontWeight.SemiBold)
             Box {
                 OutlinedButton(onClick = { inspectorMenuExpanded = true }, modifier = Modifier.fillMaxWidth()) {
                     Text(report.inspectorName.ifBlank { "Valitse tarkastaja / Select inspector" } + " ▾")
