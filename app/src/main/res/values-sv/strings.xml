@@ -288,4 +288,8 @@
     <string name="subscription_manage">Hantera prenumeration</string>
     <string name="subscription_unavailable">Prenumerationen är ännu inte tillgänglig i Google Play.</string>
     <string name="ad_privacy_options">Sekretessinställningar för annonser</string>
+    <string name="delete_account">Ta bort konto</string>
+    <string name="delete_account_warning">Ditt Tarkastus Cloud-konto tas bort permanent. Lokala rapporter, inställningar och Google Drive-filer finns kvar. Åtgärden kan inte ångras.</string>
+    <string name="delete_account_relogin">Logga av säkerhetsskäl ut och in igen och upprepa borttagningen.</string>
+    <string name="delete_account_failed">Kontot kunde inte tas bort. Försök igen.</string>
 </resources>
