@@ -288,4 +288,8 @@
     <string name="subscription_manage">Tvarkyti prenumeratą</string>
     <string name="subscription_unavailable">Prenumerata dar nepasiekiama Google Play.</string>
     <string name="ad_privacy_options">Reklamų privatumo nustatymai</string>
+    <string name="delete_account">Ištrinti paskyrą</string>
+    <string name="delete_account_warning">Tavo Tarkastus Cloud paskyra bus ištrinta visam laikui. Vietinės ataskaitos, nustatymai ir Google Drive failai išliks. Veiksmo atšaukti negalima.</string>
+    <string name="delete_account_relogin">Saugumo sumetimais atsijunk, prisijunk iš naujo ir pakartok paskyros ištrynimą.</string>
+    <string name="delete_account_failed">Nepavyko ištrinti paskyros. Bandyk dar kartą.</string>
 </resources>
