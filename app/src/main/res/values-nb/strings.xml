@@ -288,4 +288,8 @@
     <string name="subscription_manage">Administrer abonnement</string>
     <string name="subscription_unavailable">Abonnementet er ennå ikke tilgjengelig i Google Play.</string>
     <string name="ad_privacy_options">Personvernvalg for annonser</string>
+    <string name="delete_account">Slett konto</string>
+    <string name="delete_account_warning">Tarkastus Cloud-kontoen din slettes permanent. Lokale rapporter, innstillinger og Google Drive-filer beholdes. Dette kan ikke angres.</string>
+    <string name="delete_account_relogin">Logg ut og inn igjen av sikkerhetshensyn, og gjenta slettingen.</string>
+    <string name="delete_account_failed">Kunne ikke slette kontoen. Prøv igjen.</string>
 </resources>
