@@ -359,6 +359,7 @@ private fun ManagementScreen(
                 Text(stringResource(R.string.ad_privacy_options))
             }
         }
+        if (!guestMode) DeleteAccountControl(onDeleted = onSignOut)
     }
 }
 
