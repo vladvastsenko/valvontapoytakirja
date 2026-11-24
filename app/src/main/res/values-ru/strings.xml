@@ -288,4 +288,8 @@
     <string name="subscription_manage">Управление подпиской</string>
     <string name="subscription_unavailable">Подписка пока недоступна в Google Play.</string>
     <string name="ad_privacy_options">Настройки конфиденциальности рекламы</string>
+    <string name="delete_account">Удалить аккаунт</string>
+    <string name="delete_account_warning">Ваш аккаунт Tarkastus Cloud будет удалён навсегда. Локальные отчёты, настройки и файлы Google Drive сохранятся. Отменить удаление невозможно.</string>
+    <string name="delete_account_relogin">Для безопасности выйдите, войдите снова и повторите удаление аккаунта.</string>
+    <string name="delete_account_failed">Не удалось удалить аккаунт. Попробуйте снова.</string>
 </resources>
