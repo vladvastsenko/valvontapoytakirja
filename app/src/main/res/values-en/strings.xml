@@ -288,4 +288,8 @@
     <string name="subscription_manage">Manage subscription</string>
     <string name="subscription_unavailable">Subscription is not yet available in Google Play.</string>
     <string name="ad_privacy_options">Advertising privacy options</string>
+    <string name="delete_account">Delete account</string>
+    <string name="delete_account_warning">Your Tarkastus Cloud account will be permanently deleted. Local reports, settings and Google Drive files will remain. This cannot be undone.</string>
+    <string name="delete_account_relogin">For security, sign out, sign in again and repeat account deletion.</string>
+    <string name="delete_account_failed">Account deletion failed. Please try again.</string>
 </resources>
