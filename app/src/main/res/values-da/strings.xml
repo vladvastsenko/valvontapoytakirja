@@ -288,4 +288,8 @@
     <string name="subscription_manage">Administrer abonnement</string>
     <string name="subscription_unavailable">Abonnementet er endnu ikke tilgængeligt i Google Play.</string>
     <string name="ad_privacy_options">Privatlivsindstillinger for annoncer</string>
+    <string name="delete_account">Slet konto</string>
+    <string name="delete_account_warning">Din Tarkastus Cloud-konto slettes permanent. Lokale rapporter, indstillinger og Google Drive-filer bevares. Handlingen kan ikke fortrydes.</string>
+    <string name="delete_account_relogin">Log af og på igen af sikkerhedshensyn, og gentag sletningen.</string>
+    <string name="delete_account_failed">Kontoen kunne ikke slettes. Prøv igen.</string>
 </resources>
