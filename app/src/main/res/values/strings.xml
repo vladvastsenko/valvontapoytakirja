@@ -288,4 +288,8 @@
     <string name="subscription_manage">Hallitse tilausta</string>
     <string name="subscription_unavailable">Tilausta ei ole vielä saatavilla Google Playssa.</string>
     <string name="ad_privacy_options">Mainonnan tietosuoja-asetukset</string>
+    <string name="delete_account">Poista tili</string>
+    <string name="delete_account_warning">Tarkastus Cloud -tilisi poistetaan pysyvästi. Paikalliset raportit, asetukset ja Google Drive -tiedostot säilyvät. Toimintoa ei voi perua.</string>
+    <string name="delete_account_relogin">Kirjaudu turvallisuussyistä ulos ja uudelleen sisään ja toista tilin poisto.</string>
+    <string name="delete_account_failed">Tilin poistaminen epäonnistui. Yritä uudelleen.</string>
 </resources>
