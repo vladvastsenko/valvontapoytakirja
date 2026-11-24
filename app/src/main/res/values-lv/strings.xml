@@ -288,4 +288,8 @@
     <string name="subscription_manage">Pārvaldīt abonementu</string>
     <string name="subscription_unavailable">Abonements vēl nav pieejams Google Play.</string>
     <string name="ad_privacy_options">Reklāmu privātuma iestatījumi</string>
+    <string name="delete_account">Dzēst kontu</string>
+    <string name="delete_account_warning">Tavs Tarkastus Cloud konts tiks neatgriezeniski dzēsts. Lokālie pārskati, iestatījumi un Google Drive faili tiks saglabāti.</string>
+    <string name="delete_account_relogin">Drošības nolūkos izraksties, pieraksties vēlreiz un atkārto konta dzēšanu.</string>
+    <string name="delete_account_failed">Neizdevās dzēst kontu. Mēģini vēlreiz.</string>
 </resources>
