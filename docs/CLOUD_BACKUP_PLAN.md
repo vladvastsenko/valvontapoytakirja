@@ -26,7 +26,7 @@
 - Valvontapöytäkirja data: `context.filesDir/reports`, templates: `context.filesDir/templates`.
 - Tarkastuspöytäkirja data: `context.filesDir/tarkastus_reports`, templates: `context.filesDir/tarkastus_templates`.
 - Both modules also store settings, customers, sites and report photos in app-private storage.
-- Existing visible archive: `Documents/Tarkastus`; PDF exports are written under report-type subfolders.
+- Existing visible archive: `Documents/TarkastusPro`; PDF exports are written under report-type subfolders.
 - Do not treat the visible Documents archive as a complete backup: it does not contain all private photo/source data.
 
 ## Future compatibility

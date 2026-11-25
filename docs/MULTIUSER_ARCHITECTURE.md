@@ -1,4 +1,4 @@
-# Tarkastus Cloud — Google Drive collaboration plan
+# Tarkastus Pro — Google Drive collaboration plan
 
 Status: implementation in progress on `auth-registration`. No APK build or device test yet.
 
@@ -37,17 +37,17 @@ Status: implementation in progress on `auth-registration`. No APK build or devic
 - Profile selection appears only if there are at least two saved inspectors; with one, it is automatic.
 
 ## Shared Drive sync safety (2026-11-23)
-- Shared data now uses `Tarkastus_Sync/shared_v2` and a new `baseline_shared_v2`; only `customers/*.json`, `customer_sites/*.json`, `reports/*.json`, `tarkastus_reports/*.json`, and their report photo assets are eligible. Exported PDFs retain their separate sync mechanism.
+- Shared data now uses `TarkastusPro_Building_Sync/shared_v2` and a new `baseline_shared_v2`; only `customers/*.json`, `customer_sites/*.json`, `reports/*.json`, `tarkastus_reports/*.json`, and their report photo assets are eligible. Exported PDFs retain their separate sync mechanism.
 - Personal `app_settings.json`, `settings/`, `inspectors/`, templates, authentication/preferences, and other app-private files are **not** uploaded to the shared folder.
 - Personal inspector profiles are **local to the device** at this stage; syncing them privately between a user's own devices still requires a separate authenticated personal backup/restore design. Do not promise personal multi-device sync yet.
 - Shared deletions are disabled in the file sync. A missing file on either side is restored from the existing copy. A future explicit, permissioned delete/tombstone design is needed.
-- Old `Tarkastus_Sync/data` may contain previously synchronized private information. Sync now refuses to continue if it is nonempty. The folder owner must inspect/back up and remove this legacy folder manually; do not automatically delete it.
+- Old `TarkastusPro_Building_Sync/data` may contain previously synchronized private information. Sync now refuses to continue if it is nonempty. The folder owner must inspect/back up and remove this legacy folder manually; do not automatically delete it.
 - Simultaneous changes to the same file are preserved as conflicts where possible, but there is no server-side atomic compare-and-swap for SAF/DocumentFile. Concurrent multi-device editing still requires real-device tests.
 - No APK build or Android/Drive end-to-end tests were run for this change.
 
 ## Additional PDF safety changes
 - Exported PDF synchronization no longer deletes the other copy when a file disappears on one device or Drive.
-- Migration of legacy `Tarkastus_Sync/PDF` copies files but does not delete the original folder.
+- Migration of legacy `TarkastusPro_Building_Sync/PDF` copies files but does not delete the original folder.
 - **Privacy boundary:** Shared report JSON and PDFs intentionally include the inspector identity and signature captured in that report. Private profile/settings files are excluded, but reports are accessible to everyone with Drive-folder access. Limit folder sharing accordingly.
 - Pending: SAF provider tests, two-device concurrent write tests, crash recovery, explicit deletion UX and review of filename collisions.
 
@@ -65,7 +65,7 @@ Status: implementation in progress on `auth-registration`. No APK build or devic
 - No device build or multi-device test was run.
 
 ## Immutable report revisions (2026-11-23)
-- Before writing a report JSON into `Tarkastus_Sync/shared_v2/reports` or `tarkastus_reports`, the app saves its SHA-256-addressed version in `Tarkastus_Sync/shared_v2/Versions/<report-kind>/<report-id>_<sha256>.json`.
+- Before writing a report JSON into `TarkastusPro_Building_Sync/shared_v2/reports` or `tarkastus_reports`, the app saves its SHA-256-addressed version in `TarkastusPro_Building_Sync/shared_v2/Versions/<report-kind>/<report-id>_<sha256>.json`.
 - If replacing a remote report, its previous bytes are also saved in Versions before deletion. Each version is checked against its SHA-256 digest.
 - Versions is excluded from the normal shared-data file scanner and is not auto-deleted. This preserves history independently of the mutable current report.
 - **Limitations:** no revision browsing/restoration UI yet; concurrent createFile races and SAF non-atomic writes can still cause conflicts or provider-specific duplicate filenames. JSON revisions do not by themselves preserve all referenced photos; PDF sync is a separate dataset. Real-device verification is required.
