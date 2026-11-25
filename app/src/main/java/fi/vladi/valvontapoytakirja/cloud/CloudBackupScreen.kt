@@ -153,6 +153,9 @@ fun CloudBackupScreen(onBack: () -> Unit) {
         Text(stringResource(R.string.cloud_intro))
         Text(if (folderUri.isNullOrBlank()) context.getString(R.string.cloud_folder_missing) else context.getString(R.string.cloud_folder_selected),
             style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.primary)
+        OutlinedButton(onClick = { folderPicker.launch(null) }, modifier = Modifier.fillMaxWidth(), enabled = !busy) {
+            Text(stringResource(R.string.cloud_choose_folder))
+        }
         Text(stringResource(R.string.cloud_team_access_title), style = MaterialTheme.typography.titleMedium)
         Text(stringResource(R.string.cloud_team_access_hint), style = MaterialTheme.typography.bodySmall)
         OutlinedButton(
@@ -161,9 +164,6 @@ fun CloudBackupScreen(onBack: () -> Unit) {
             enabled = !busy
         ) { Text(stringResource(R.string.cloud_invite_teammate)) }
         Text(stringResource(R.string.cloud_invite_hint), style = MaterialTheme.typography.bodySmall)
-                OutlinedButton(onClick = { folderPicker.launch(null) }, modifier = Modifier.fillMaxWidth(), enabled = !busy) {
-            Text(stringResource(R.string.cloud_choose_folder))
-        }
         Button(
             onClick = { showSyncConfirmation = true },
             modifier = Modifier.fillMaxWidth(),
