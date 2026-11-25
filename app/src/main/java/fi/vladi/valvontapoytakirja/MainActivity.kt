@@ -112,7 +112,7 @@ class MainActivity : androidx.fragment.app.FragmentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
-            MaterialTheme {
+            MaterialTheme(colorScheme = fi.vladi.tarkastuspoytakirja.TarkastusBlueColors) {
                 Surface(modifier = Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background) {
                     var languageChosen by remember { mutableStateOf(AppLanguage.hasSelection(this@MainActivity)) }
                     if (!languageChosen) {
@@ -138,23 +138,49 @@ private fun FirstLaunchLanguageScreen(onContinue: (String) -> Unit) {
         "lv" to "Latviešu", "lt" to "Lietuvių", "ru" to "Русский"
     )
     var selected by remember { mutableStateOf("en") }
-    Column(
-        modifier = Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(24.dp),
-        verticalArrangement = Arrangement.spacedBy(10.dp)
+    var expanded by remember { mutableStateOf(false) }
+    androidx.compose.foundation.layout.BoxWithConstraints(
+        modifier = Modifier.fillMaxSize(),
+        contentAlignment = Alignment.Center
     ) {
-        Text("Tarkastus Cloud", style = MaterialTheme.typography.headlineMedium)
-        Text("Choose your language", style = MaterialTheme.typography.titleLarge)
-        Text("English is selected by default. You can change the language later in Settings.")
-        languages.forEach { (code, label) ->
-            OutlinedButton(
-                onClick = { selected = code },
-                modifier = Modifier.fillMaxWidth()
+        val pictureWidth = minOf(maxWidth, maxHeight * (2f / 3f))
+        val pictureHeight = pictureWidth * 1.5f
+        Box(modifier = Modifier.width(pictureWidth).height(pictureHeight)) {
+            Image(
+                painter = androidx.compose.ui.res.painterResource(R.drawable.welcome),
+                contentDescription = "Tarkastus Cloud — Inspect. Document. Share.",
+                contentScale = ContentScale.Fit,
+                modifier = Modifier.fillMaxSize()
+            )
+            Column(
+                modifier = Modifier.align(Alignment.BottomCenter)
+                    .width(pictureWidth * 0.78f)
+                    .padding(bottom = pictureHeight * 0.035f),
+                verticalArrangement = Arrangement.spacedBy(6.dp)
             ) {
-                Text(if (selected == code) "✓  $label" else label)
+                Box {
+                    OutlinedButton(
+                        onClick = { expanded = true },
+                        modifier = Modifier.fillMaxWidth(),
+                        colors = ButtonDefaults.outlinedButtonColors(
+                            containerColor = androidx.compose.ui.graphics.Color.White
+                        )
+                    ) {
+                        Text(languages.first { it.first == selected }.second + " ▾")
+                    }
+                    DropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
+                        languages.forEach { (code, label) ->
+                            DropdownMenuItem(text = { Text(label) }, onClick = {
+                                selected = code
+                                expanded = false
+                            })
+                        }
+                    }
+                }
+                Button(onClick = { onContinue(selected) }, modifier = Modifier.fillMaxWidth()) {
+                    Text("START")
+                }
             }
-        }
-        Button(onClick = { onContinue(selected) }, modifier = Modifier.fillMaxWidth()) {
-            Text("Continue")
         }
     }
 }
