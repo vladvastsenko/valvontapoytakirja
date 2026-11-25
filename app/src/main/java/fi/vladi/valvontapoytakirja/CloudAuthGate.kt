@@ -112,7 +112,7 @@ internal fun CloudAuthGate(content: @Composable (onSignOut: () -> Unit) -> Unit)
             modifier = Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(horizontal = 20.dp, vertical = 10.dp),
             verticalArrangement = Arrangement.spacedBy(6.dp)
         ) {
-            Text("Tarkastus Cloud", style = MaterialTheme.typography.headlineSmall)
+            Text("Tarkastus Pro", style = MaterialTheme.typography.headlineSmall)
             Box {
                 OutlinedButton(onClick = { languageMenu = true }, modifier = Modifier.fillMaxWidth()) {
                     Text(when (AppLanguage.selected(context)) {
