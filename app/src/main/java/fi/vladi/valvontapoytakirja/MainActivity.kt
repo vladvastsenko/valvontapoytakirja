@@ -148,7 +148,7 @@ private fun FirstLaunchLanguageScreen(onContinue: (String) -> Unit) {
         Box(modifier = Modifier.width(pictureWidth).height(pictureHeight)) {
             Image(
                 painter = androidx.compose.ui.res.painterResource(R.drawable.welcome),
-                contentDescription = "Tarkastus Cloud — Inspect. Document. Share.",
+                contentDescription = "Tarkastus Pro — Inspect. Document. Share.",
                 contentScale = ContentScale.Fit,
                 modifier = Modifier.fillMaxSize()
             )
@@ -298,7 +298,7 @@ private fun TestAdMobBanner() {
         AdView(context).apply {
             setAdSize(AdSize.BANNER)
             // Official Google test banner ID. Never request live ads in testing builds.
-            // Production unit: ca-app-pub-5274592019802045/9861021951
+            // Production unit: ca-app-pub-3940256099942544/6300978111
             adUnitId = "ca-app-pub-3940256099942544/6300978111"
             loadAd(AdRequest.Builder().build())
         }

@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">Tarkastus Cloud</string>
+    <string name="app_name">Tarkastus Pro</string>
     <string name="choose_report">Izvēlieties veidojamā pārskata veidu.</string>
     <string name="settings_sync">Iestatījumi un sinhronizācija</string>
     <string name="shared_settings">Kopīgie iestatījumi</string>
@@ -229,7 +229,7 @@
     <string name="bio_cancelled">Autentifikācija atcelta. Mēģiniet vēlreiz.</string>
     <string name="bio_sign_in_again">Biometrija nav pieejama. Pierakstieties vēlreiz.</string>
     <string name="bio_offer_title">Biometriskā pierakstīšanās</string>
-    <string name="bio_offer_message">Vai aizsargāt Tarkastus Cloud ar biometriju? To var mainīt iestatījumos.</string>
+    <string name="bio_offer_message">Vai aizsargāt Tarkastus Pro ar biometriju? To var mainīt iestatījumos.</string>
     <string name="bio_enable">Ieslēgt</string>
     <string name="bio_not_now">Ne tagad</string>
     <string name="bio_unlock">Atbloķēt ar biometriju</string>
@@ -265,7 +265,7 @@
     <string name="cloud_invite_teammate">Uzaicināt Google diskā</string>
     <string name="cloud_invite_hint">Atrodiet mapi Diskā un izvēlieties Kopīgot. Lietotne nevar atvērt izvēlēto mapi tieši Diskā.</string>
     <string name="cloud_share_guide_title">Kā kopīgot mapi</string>
-    <string name="cloud_share_guide_steps">1. Atver Google Drive ar koplietotās mapes īpašnieka kontu.\n2. Atrodi Tarkastus Cloud koplietoto mapi.\n3. Pieskaries trim punktiem → Kopīgot / Pārvaldīt piekļuvi.\n4. Ievadi darbinieka e-pastu un izvēlies Redaktors.\n5. Nosūti uzaicinājumu. Darbinieks to pieņem un izvēlas mapi Tarkastus Cloud.\n\nNekopīgo personīgo rezerves kopiju mapi.</string>
+    <string name="cloud_share_guide_steps">1. Atver Google Drive ar koplietotās mapes īpašnieka kontu.\n2. Atrodi Tarkastus Pro koplietoto mapi.\n3. Pieskaries trim punktiem → Kopīgot / Pārvaldīt piekļuvi.\n4. Ievadi darbinieka e-pastu un izvēlies Redaktors.\n5. Nosūti uzaicinājumu. Darbinieks to pieņem un izvēlas mapi Tarkastus Pro.\n\nNekopīgo personīgo rezerves kopiju mapi.</string>
     <string name="cloud_share_open_drive">Atvērt Google Drive</string>
     <string name="cloud_restore_success">Rezerves kopija veiksmīgi atjaunota.</string>
     <string name="cloud_choose_private_backup_folder">Izvēlēties personīgo rezerves kopiju mapi</string>
@@ -289,7 +289,7 @@
     <string name="subscription_unavailable">Abonements vēl nav pieejams Google Play.</string>
     <string name="ad_privacy_options">Reklāmu privātuma iestatījumi</string>
     <string name="delete_account">Dzēst kontu</string>
-    <string name="delete_account_warning">Tavs Tarkastus Cloud konts tiks neatgriezeniski dzēsts. Lokālie pārskati, iestatījumi un Google Drive faili tiks saglabāti.</string>
+    <string name="delete_account_warning">Tavs Tarkastus Pro konts tiks neatgriezeniski dzēsts. Lokālie pārskati, iestatījumi un Google Drive faili tiks saglabāti.</string>
     <string name="delete_account_relogin">Drošības nolūkos izraksties, pieraksties vēlreiz un atkārto konta dzēšanu.</string>
     <string name="delete_account_failed">Neizdevās dzēst kontu. Mēģini vēlreiz.</string>
 </resources>

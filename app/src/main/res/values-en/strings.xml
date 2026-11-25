@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">Tarkastus Cloud</string>
+    <string name="app_name">Tarkastus Pro</string>
     <string name="choose_report">Choose the type of report to create.</string>
     <string name="settings_sync">Settings and synchronization</string>
     <string name="shared_settings">Shared settings</string>
@@ -229,7 +229,7 @@
     <string name="bio_cancelled">Authentication cancelled. Try again.</string>
     <string name="bio_sign_in_again">Biometrics unavailable. Sign in again.</string>
     <string name="bio_offer_title">Biometric sign-in</string>
-    <string name="bio_offer_message">Protect Tarkastus Cloud with biometric authentication? You can change this in settings.</string>
+    <string name="bio_offer_message">Protect Tarkastus Pro with biometric authentication? You can change this in settings.</string>
     <string name="bio_enable">Enable</string>
     <string name="bio_not_now">Not now</string>
     <string name="bio_unlock">Unlock with biometrics</string>
@@ -265,7 +265,7 @@
     <string name="cloud_invite_teammate">Invite colleague in Google Drive</string>
     <string name="cloud_invite_hint">Find the folder in Drive and choose Share. The app cannot open the selected folder directly in Drive.</string>
     <string name="cloud_share_guide_title">How to share the folder</string>
-    <string name="cloud_share_guide_steps">1. Open Google Drive using the shared folder owner’s account.\n2. Find the Tarkastus Cloud shared folder.\n3. Tap the three dots → Share / Manage access.\n4. Enter the employee’s email and choose Editor.\n5. Send the invitation. The employee accepts it and selects the shared folder in Tarkastus Cloud.\n\nDo not share your personal backup folder.</string>
+    <string name="cloud_share_guide_steps">1. Open Google Drive using the shared folder owner’s account.\n2. Find the Tarkastus Pro shared folder.\n3. Tap the three dots → Share / Manage access.\n4. Enter the employee’s email and choose Editor.\n5. Send the invitation. The employee accepts it and selects the shared folder in Tarkastus Pro.\n\nDo not share your personal backup folder.</string>
     <string name="cloud_share_open_drive">Open Google Drive</string>
     <string name="cloud_restore_success">Backup restored successfully.</string>
     <string name="cloud_choose_private_backup_folder">Choose personal backup folder</string>
@@ -289,7 +289,7 @@
     <string name="subscription_unavailable">Subscription is not yet available in Google Play.</string>
     <string name="ad_privacy_options">Advertising privacy options</string>
     <string name="delete_account">Delete account</string>
-    <string name="delete_account_warning">Your Tarkastus Cloud account will be permanently deleted. Local reports, settings and Google Drive files will remain. This cannot be undone.</string>
+    <string name="delete_account_warning">Your Tarkastus Pro account will be permanently deleted. Local reports, settings and Google Drive files will remain. This cannot be undone.</string>
     <string name="delete_account_relogin">For security, sign out, sign in again and repeat account deletion.</string>
     <string name="delete_account_failed">Account deletion failed. Please try again.</string>
 </resources>

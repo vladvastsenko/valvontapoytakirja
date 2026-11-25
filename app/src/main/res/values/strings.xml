@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">Tarkastus Cloud</string>
+    <string name="app_name">Tarkastus Pro</string>
     <string name="choose_report">Valitse luotavan pöytäkirjan tyyppi.</string>
     <string name="settings_sync">Asetukset ja synkronointi</string>
     <string name="shared_settings">Yhteiset asetukset</string>
@@ -229,7 +229,7 @@
     <string name="bio_cancelled">Tunnistus peruutettiin. Yritä uudelleen.</string>
     <string name="bio_sign_in_again">Biometria ei ole käytettävissä. Kirjaudu uudelleen.</string>
     <string name="bio_offer_title">Biometrinen kirjautuminen</string>
-    <string name="bio_offer_message">Haluatko suojata Tarkastus Cloudin avaamisen biometrisellä tunnistuksella? Voit muuttaa valintaa asetuksissa.</string>
+    <string name="bio_offer_message">Haluatko suojata Tarkastus Proin avaamisen biometrisellä tunnistuksella? Voit muuttaa valintaa asetuksissa.</string>
     <string name="bio_enable">Ota käyttöön</string>
     <string name="bio_not_now">Ei nyt</string>
     <string name="bio_unlock">Avaa biometrialla</string>
@@ -265,7 +265,7 @@
     <string name="cloud_invite_teammate">Kutsu työntekijä Google Drivessa</string>
     <string name="cloud_invite_hint">Valitse kansio Drivessa ja käytä Jaa-toimintoa. Sovellus ei voi avata valittua kansiota suoraan Drivessa.</string>
     <string name="cloud_share_guide_title">Ohje: kansion jakaminen</string>
-    <string name="cloud_share_guide_steps">1. Avaa Google Drive yhteisen kansion omistajan tilillä.\n2. Etsi Tarkastus Cloudin yhteinen kansio.\n3. Valitse kolme pistettä → Jaa / Hallinnoi käyttöoikeuksia.\n4. Lisää työntekijän sähköpostiosoite ja valitse Muokkaaja.\n5. Lähetä kutsu. Työntekijä hyväksyy sen ja valitsee jaetun kansion Tarkastus Cloudissa.\n\nÄlä jaa henkilökohtaisten varmuuskopioiden kansiota.</string>
+    <string name="cloud_share_guide_steps">1. Avaa Google Drive yhteisen kansion omistajan tilillä.\n2. Etsi Tarkastus Proin yhteinen kansio.\n3. Valitse kolme pistettä → Jaa / Hallinnoi käyttöoikeuksia.\n4. Lisää työntekijän sähköpostiosoite ja valitse Muokkaaja.\n5. Lähetä kutsu. Työntekijä hyväksyy sen ja valitsee jaetun kansion Tarkastus Proissa.\n\nÄlä jaa henkilökohtaisten varmuuskopioiden kansiota.</string>
     <string name="cloud_share_open_drive">Avaa Google Drive</string>
     <string name="cloud_restore_success">Varmuuskopio palautettiin onnistuneesti.</string>
     <string name="cloud_choose_private_backup_folder">Valitse henkilökohtaisen varmuuskopion kansio</string>
@@ -289,7 +289,7 @@
     <string name="subscription_unavailable">Tilausta ei ole vielä saatavilla Google Playssa.</string>
     <string name="ad_privacy_options">Mainonnan tietosuoja-asetukset</string>
     <string name="delete_account">Poista tili</string>
-    <string name="delete_account_warning">Tarkastus Cloud -tilisi poistetaan pysyvästi. Paikalliset raportit, asetukset ja Google Drive -tiedostot säilyvät. Toimintoa ei voi perua.</string>
+    <string name="delete_account_warning">Tarkastus Pro -tilisi poistetaan pysyvästi. Paikalliset raportit, asetukset ja Google Drive -tiedostot säilyvät. Toimintoa ei voi perua.</string>
     <string name="delete_account_relogin">Kirjaudu turvallisuussyistä ulos ja uudelleen sisään ja toista tilin poisto.</string>
     <string name="delete_account_failed">Tilin poistaminen epäonnistui. Yritä uudelleen.</string>
 </resources>
