@@ -122,7 +122,7 @@ class MainActivity : androidx.fragment.app.FragmentActivity() {
                             recreate()
                         }
                     } else {
-                        CloudAuthGate { signOut -> UnifiedLauncher(onSignOut = signOut) }
+                        if (BuildConfig.OFFLINE_PREVIEW) UnifiedLauncher(onSignOut = {}) else CloudAuthGate { signOut -> UnifiedLauncher(onSignOut = signOut) }
                     }
                 }
             }
@@ -191,8 +191,8 @@ private fun UnifiedLauncher(onSignOut: () -> Unit) {
     LaunchedEffect(Unit) {
         withContext(Dispatchers.IO) { SharedDocumentsArchive.ensureFolder(context) }
     }
-    val consent = remember(context) { AdConsentManager(context as android.app.Activity) }
-    LaunchedEffect(consent) { consent.request() }
+    val consent = remember(context) { if (BuildConfig.OFFLINE_PREVIEW) null else AdConsentManager(context as android.app.Activity) }
+    LaunchedEffect(consent) { consent?.request() }
     var showValvoja by remember { mutableStateOf(false) }
     var openSettings by remember { mutableStateOf(false) }
     var showManagement by remember { mutableStateOf(false) }
@@ -202,12 +202,12 @@ private fun UnifiedLauncher(onSignOut: () -> Unit) {
     if (showUserGuide) {
         Column(modifier = Modifier.fillMaxSize()) {
             Box(modifier = Modifier.weight(1f)) { UserGuideScreen(onBack = { showUserGuide = false }) }
-            if (consent.canRequestAds) TestAdMobBanner()
+            if ((consent?.canRequestAds == true)) TestAdMobBanner()
         }
     } else if (showCloudBackup) {
         Column(modifier = Modifier.fillMaxSize()) {
             Box(modifier = Modifier.weight(1f)) { CloudBackupScreen(onBack = { showCloudBackup = false }) }
-            if (consent.canRequestAds) TestAdMobBanner()
+            if ((consent?.canRequestAds == true)) TestAdMobBanner()
         }
     } else if (showValvoja) {
         ValvontaApp(
@@ -236,7 +236,7 @@ private fun UnifiedLauncher(onSignOut: () -> Unit) {
             consent = consent
                 )
             }
-            if (consent.canRequestAds) TestAdMobBanner()
+            if ((consent?.canRequestAds == true)) TestAdMobBanner()
         }
     } else {
         UnifiedStartScreen(
@@ -248,7 +248,7 @@ private fun UnifiedLauncher(onSignOut: () -> Unit) {
                 context.startActivity(Intent(context, TarkastusMainActivity::class.java))
             },
             onManagement = { showManagement = true },
-            showAds = consent.canRequestAds
+            showAds = (consent?.canRequestAds == true)
         )
     }
 }
@@ -316,10 +316,10 @@ private fun ManagementScreen(
     onUserGuide: () -> Unit,
     onBack: () -> Unit,
     onSignOut: () -> Unit,
-    consent: AdConsentManager
+    consent: AdConsentManager?
 ) {
     val context = LocalContext.current
-    val guestMode = com.google.firebase.auth.FirebaseAuth.getInstance().currentUser == null
+    val guestMode = BuildConfig.OFFLINE_PREVIEW || com.google.firebase.auth.FirebaseAuth.getInstance().currentUser == null
     var languageMenu by remember { mutableStateOf(false) }
     var confirmSignOut by remember { mutableStateOf(false) }
     if (confirmSignOut) {
@@ -373,15 +373,15 @@ private fun ManagementScreen(
         OutlinedButton(onClick = onBack, modifier = Modifier.fillMaxWidth()) {
             Text("← " + stringResource(R.string.back))
         }
-        OutlinedButton(onClick = { if (guestMode) onSignOut() else confirmSignOut = true }, modifier = Modifier.fillMaxWidth()) {
+        if (!BuildConfig.OFFLINE_PREVIEW) OutlinedButton(onClick = { if (guestMode) onSignOut() else confirmSignOut = true }, modifier = Modifier.fillMaxWidth()) {
             Text(if (guestMode) stringResource(R.string.guest_sign_in) else stringResource(R.string.sign_out))
         }
         Spacer(Modifier.height(8.dp))
         OutlinedButton(onClick = onUserGuide, modifier = Modifier.fillMaxWidth()) {
             Text(stringResource(R.string.user_guide_title))
         }
-        if (consent.privacyOptionsRequired) {
-            OutlinedButton(onClick = { consent.showPrivacyOptions() }, modifier = Modifier.fillMaxWidth()) {
+        if (consent?.privacyOptionsRequired == true) {
+            OutlinedButton(onClick = { consent?.showPrivacyOptions() }, modifier = Modifier.fillMaxWidth()) {
                 Text(stringResource(R.string.ad_privacy_options))
             }
         }

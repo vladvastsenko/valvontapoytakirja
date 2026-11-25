@@ -1,10 +1,13 @@
 plugins {
     id("com.android.application")
-    id("com.google.gms.google-services")
+    id("com.google.gms.google-services") apply false
     id("org.jetbrains.kotlin.android")
     id("org.jetbrains.kotlin.plugin.serialization")
     id("org.jetbrains.kotlin.plugin.compose")
 }
+
+val preview = providers.gradleProperty("offlinePreview").orNull == "true"
+if (!preview) apply(plugin = "com.google.gms.google-services")
 
 val cloudKeystorePath = System.getenv("CLOUD_KEYSTORE_PATH")
 val cloudKeystorePassword = System.getenv("CLOUD_KEYSTORE_PASSWORD")
@@ -19,7 +22,8 @@ android {
         minSdk = 26
         targetSdk = 35
         versionCode = 46
-        versionName = "0.6.24-test"
+        versionName = if (preview) "0.6.24-rename-preview" else "0.6.24-test"
+        buildConfigField("boolean", "OFFLINE_PREVIEW", preview.toString())
     }
 
     if (!cloudKeystorePath.isNullOrBlank() &&
@@ -37,6 +41,7 @@ android {
 
     buildFeatures {
         compose = true
+        buildConfig = true
     }
 
     compileOptions {

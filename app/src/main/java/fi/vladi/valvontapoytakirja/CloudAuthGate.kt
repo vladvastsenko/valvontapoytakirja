@@ -64,7 +64,7 @@ internal fun CloudAuthGate(content: @Composable (onSignOut: () -> Unit) -> Unit)
     var register by remember { mutableStateOf(false) }
     var message by remember { mutableStateOf<String?>(null) }
     var languageMenu by remember { mutableStateOf(false) }
-    val webClientId = context.getString(R.string.default_web_client_id)
+    val webClientId = context.resources.getIdentifier("default_web_client_id", "string", context.packageName).let { if (it != 0) context.getString(it) else "" }
     val options = remember(webClientId) {
         GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
             .requestIdToken(webClientId)
