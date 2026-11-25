@@ -30,19 +30,19 @@ object CloudBackupManager {
             ?: error("Valittua Google Drive -kansiota ei voi avata.")
         check(folder.isDirectory && folder.canRead()) { "Valitun Google Drive -kansion sisältöä ei voi lukea." }
         return folder.listFiles()
-            .filter { it.isFile && it.name?.startsWith("Tarkastus_backup_") == true && it.name?.endsWith(".zip") == true }
+            .filter { it.isFile && it.name?.startsWith("TarkastusPro_building_backup_") == true && it.name?.endsWith(".zip") == true }
             .map { BackupFile(it.uri, it.name.orEmpty(), it.length(), it.lastModified()) }
             .sortedByDescending { backupTimestamp(it.name) ?: it.lastModified }
     }
 
     private fun backupTimestamp(name: String): Long? {
-        val stamp = name.removePrefix("Tarkastus_backup_").removeSuffix(".zip")
+        val stamp = name.removePrefix("TarkastusPro_building_backup_").removeSuffix(".zip")
         return listOf("yyyyMMdd_HHmmss_SSS", "yyyyMMdd_HHmmss").firstNotNullOfOrNull { pattern ->
             runCatching { SimpleDateFormat(pattern, Locale.US).parse(stamp)?.time }.getOrNull()
         }
     }
-    private const val MANIFEST = "TARKASTUS_BACKUP_INFO.txt"
-    private const val MANIFEST_CONTENT = "TARKASTUS_BACKUP_V1"
+    private const val MANIFEST = "TARKASTUSPRO_BUILDING_BACKUP_INFO.txt"
+    private const val MANIFEST_CONTENT = "TARKASTUSPRO_BUILDING_BACKUP_V1"
     private const val MAX_ENTRIES = 20_000
     private const val MAX_UNPACKED_BYTES = 2L * 1024L * 1024L * 1024L
 
@@ -53,7 +53,7 @@ object CloudBackupManager {
             "Valittuun kansioon ei voi tallentaa."
         }
 
-        val tempZip = File(context.cacheDir, "tarkastus_backup_${System.currentTimeMillis()}.zip")
+        val tempZip = File(context.cacheDir, "tarkastuspro_building_backup_${System.currentTimeMillis()}.zip")
         try {
             ZipOutputStream(BufferedOutputStream(FileOutputStream(tempZip))).use { zip ->
                 zip.putNextEntry(ZipEntry(MANIFEST))
@@ -74,7 +74,7 @@ object CloudBackupManager {
                     }
             }
 
-            val displayName = "Tarkastus_backup_${SimpleDateFormat("yyyyMMdd_HHmmss_SSS", Locale.US).format(Date())}.zip"
+            val displayName = "TarkastusPro_building_backup_${SimpleDateFormat("yyyyMMdd_HHmmss_SSS", Locale.US).format(Date())}.zip"
             folder.findFile(displayName)?.delete()
             val target = folder.createFile("application/zip", displayName)
                 ?: error("Varmuuskopiotiedostoa ei voitu luoda Google Driveen.")
@@ -96,7 +96,7 @@ object CloudBackupManager {
     private fun copyPdfExportsToDrive(context: Context, destinationRoot: DocumentFile): Int {
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) return 0
         val collection = MediaStore.Files.getContentUri(MediaStore.VOLUME_EXTERNAL_PRIMARY)
-        val basePath = "${Environment.DIRECTORY_DOCUMENTS}/Tarkastus/"
+        val basePath = "${Environment.DIRECTORY_DOCUMENTS}/TarkastusPro/"
         val selection = "${MediaStore.MediaColumns.RELATIVE_PATH} LIKE ? AND ${MediaStore.MediaColumns.MIME_TYPE} = ?"
         val args = arrayOf("${basePath}Raportit/PDF/%", "application/pdf")
         var copied = 0

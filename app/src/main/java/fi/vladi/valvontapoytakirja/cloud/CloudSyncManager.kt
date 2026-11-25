@@ -17,9 +17,9 @@ import java.util.Locale
  * Deletions propagate only when the other side has not changed since the last sync.
  */
 object CloudSyncManager {
-    private const val PREFS = "tarkastus_cloud_sync"
+    private const val PREFS = "tarkastus_pro_building_sync"
     private const val BASELINE_KEY = "baseline_shared_v2"
-    private const val SYNC_FOLDER = "Tarkastus_Sync"
+    private const val SYNC_FOLDER = "TarkastusPro_Building_Sync"
     private const val DATA_FOLDER = "shared_v2"
     private const val CONFLICTS_FOLDER = "Conflicts"
 
@@ -72,13 +72,13 @@ object CloudSyncManager {
 
         val syncRoot = selectedRoot.findFile(SYNC_FOLDER) ?: selectedRoot.createDirectory(SYNC_FOLDER)
             ?: error("Synkronointikansiota ei voitu luoda.")
-        // Older builds synchronized every private file into Tarkastus_Sync/data.
+        // Older builds synchronized every private file into TarkastusPro_Building_Sync/data.
         // Refuse to silently treat that unsafe folder as the new shared dataset.
         // The old folder is left untouched for the owner to review and remove.
         val legacyData = syncRoot.findFile("data")
         check(legacyData == null || !legacyData.isDirectory ||
             legacyData.listFiles().isEmpty()) {
-            "Vanhassa Tarkastus_Sync/data-kansiossa voi olla henkilökohtaisia tietoja. " +
+            "Vanhassa TarkastusPro_Building_Sync/data-kansiossa voi olla henkilökohtaisia tietoja. " +
                 "Tarkista ja poista vanha data-kansio Google Drivesta ennen uutta synkronointia."
         }
         val remoteData = syncRoot.findFile(DATA_FOLDER) ?: syncRoot.createDirectory(DATA_FOLDER)
@@ -221,7 +221,7 @@ object CloudSyncManager {
             "Synkronoinnin tilaa ei voitu tallentaa laitteelle."
         }
 
-        // Synchronize exported PDFs from Documents/Tarkastus as a separate dataset.
+        // Synchronize exported PDFs from Documents/TarkastusPro as a separate dataset.
         val pdfResult = PdfArchiveSyncManager.sync(context, selectedRoot, syncRoot, conflictRoot)
         return Result(
             uploaded = uploaded,

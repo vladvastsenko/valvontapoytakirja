@@ -33,7 +33,7 @@ import kotlinx.coroutines.withContext
 import java.text.SimpleDateFormat
 import java.util.Locale
 
-private const val BACKUP_PREFS = "tarkastus_cloud_backup"
+private const val BACKUP_PREFS = "tarkastus_pro_building_backup"
 private const val DRIVE_TREE_URI = "drive_tree_uri"
 private const val PRIVATE_BACKUP_TREE_URI = "private_backup_tree_uri"
 
@@ -305,7 +305,7 @@ fun CloudBackupScreen(onBack: () -> Unit) {
 }
 
 private fun formatBackupDate(context: Context, name: String): String {
-    val stamp = name.removePrefix("Tarkastus_backup_").removeSuffix(".zip")
+    val stamp = name.removePrefix("TarkastusPro_building_backup_").removeSuffix(".zip")
     val date = listOf("yyyyMMdd_HHmmss_SSS", "yyyyMMdd_HHmmss").firstNotNullOfOrNull { pattern ->
         runCatching { SimpleDateFormat(pattern, Locale.US).parse(stamp) }.getOrNull()
     }

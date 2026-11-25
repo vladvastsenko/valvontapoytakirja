@@ -10,11 +10,11 @@ import java.io.File
 
 /**
  * Shared public archive for both report types.
- * On Android 10+ MediaStore creates Documents/Tarkastus and its subfolders
+ * On Android 10+ MediaStore creates Documents/TarkastusPro and its subfolders
  * without asking for broad storage permission.
  */
 object SharedDocumentsArchive {
-    private const val ROOT = "Tarkastus"
+    private const val ROOT = "TarkastusPro"
 
     /** Create a visible marker on first launch so the user can immediately find the shared folder. */
     fun ensureFolder(context: Context) {
