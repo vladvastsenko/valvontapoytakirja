@@ -152,7 +152,7 @@
     <string name="cloud_folder_selected">Tallennuskansio on valittu.</string>
     <string name="cloud_choose_folder">Valitse Google Drive -kansio</string>
     <string name="cloud_sync">Synkronoi nyt</string>
-    <string name="cloud_sync_hint">Synkronointi lähettää ja vastaanottaa raportit, kuvat, mallit, asetustiedostot sekä valmiit PDF-raportit kansiosta Documents/Tarkastus/Raportit/PDF. Käytä samaa Drive-kansiota molemmissa laitteissa. Synkronointi käynnistetään toistaiseksi käsin.</string>
+    <string name="cloud_sync_hint">Synkronointi lähettää ja vastaanottaa raportit, kuvat, mallit, asetustiedostot sekä valmiit PDF-raportit kansiosta Documents/TarkastusPro/Raportit/PDF. Käytä samaa Drive-kansiota molemmissa laitteissa. Synkronointi käynnistetään toistaiseksi käsin.</string>
     <string name="cloud_backup">Luo erillinen varmuuskopio</string>
     <string name="cloud_backups">Tallennetut varmuuskopiot</string>
     <string name="cloud_empty">Varmuuskopioita ei vielä ole. Luo erillinen varmuuskopio, jotta se näkyy tässä.</string>
@@ -195,7 +195,7 @@
     <string name="cloud_backup_saved">Varmuuskopio tallennettu. %1$s</string>
     <string name="cloud_backup_error">Varmuuskopiointi epäonnistui: %1$s</string>
     <string name="cloud_size_label">Koko: %1$s</string>
-    <string name="cloud_sync_warning">Synkronointi käsittelee muutoksia molempiin suuntiin. Jos sama tiedosto muuttui eri tavoin molemmilla laitteilla, paikallinen versio tallennetaan Drive-kansion Tarkastus_Sync/Conflicts-kansioon ja ristiriita ilmoitetaan. Älä sulje sovellusta kesken synkronoinnin.</string>
+    <string name="cloud_sync_warning">Synkronointi käsittelee muutoksia molempiin suuntiin. Jos sama tiedosto muuttui eri tavoin molemmilla laitteilla, paikallinen versio tallennetaan Drive-kansion TarkastusPro_Building_Sync/Conflicts-kansioon ja ristiriita ilmoitetaan. Älä sulje sovellusta kesken synkronoinnin.</string>
     <string name="cloud_restore_confirm_details">Palautetaanko kopio %1$s (%2$s)? Ennen palautusta nykyisistä tiedoista luodaan automaattisesti uusi suojakopio Google Driveen.</string>
     <string name="cloud_restore_error">Palautus epäonnistui: %1$s</string>
     <string name="cloud_unknown_error">Tuntematon virhe</string>

@@ -152,7 +152,7 @@
     <string name="cloud_folder_selected">Папка хранения выбрана.</string>
     <string name="cloud_choose_folder">Выбрать папку Google Drive</string>
     <string name="cloud_sync">Синхронизировать сейчас</string>
-    <string name="cloud_sync_hint">Синхронизация передаёт отчёты, фотографии, шаблоны, настройки и готовые PDF из Documents/Tarkastus/Raportit/PDF. Используйте одну папку Drive на всех устройствах. Пока синхронизация запускается вручную.</string>
+    <string name="cloud_sync_hint">Синхронизация передаёт отчёты, фотографии, шаблоны, настройки и готовые PDF из Documents/TarkastusPro/Raportit/PDF. Используйте одну папку Drive на всех устройствах. Пока синхронизация запускается вручную.</string>
     <string name="cloud_backup">Создать отдельную резервную копию</string>
     <string name="cloud_backups">Сохранённые резервные копии</string>
     <string name="cloud_empty">Резервных копий пока нет. Создайте копию, чтобы она появилась здесь.</string>
@@ -195,7 +195,7 @@
     <string name="cloud_backup_saved">Резервная копия сохранена. %1$s</string>
     <string name="cloud_backup_error">Ошибка резервного копирования: %1$s</string>
     <string name="cloud_size_label">Размер: %1$s</string>
-    <string name="cloud_sync_warning">Синхронизация выполняется в обе стороны. Если один файл был изменён по-разному на двух устройствах, локальная версия сохраняется в папке Tarkastus_Sync/Conflicts на Google Диске. Не закрывайте приложение во время синхронизации.</string>
+    <string name="cloud_sync_warning">Синхронизация выполняется в обе стороны. Если один файл был изменён по-разному на двух устройствах, локальная версия сохраняется в папке TarkastusPro_Building_Sync/Conflicts на Google Диске. Не закрывайте приложение во время синхронизации.</string>
     <string name="cloud_restore_confirm_details">Восстановить копию от %1$s (%2$s)? Перед восстановлением текущие данные будут автоматически сохранены в новую резервную копию на Google Диске.</string>
     <string name="cloud_restore_error">Ошибка восстановления: %1$s</string>
     <string name="cloud_unknown_error">Неизвестная ошибка</string>

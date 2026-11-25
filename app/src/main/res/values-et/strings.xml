@@ -152,7 +152,7 @@
     <string name="cloud_folder_selected">Salvestuskaust valitud.</string>
     <string name="cloud_choose_folder">Vali Google Drive\'i kaust</string>
     <string name="cloud_sync">Sünkrooni nüüd</string>
-    <string name="cloud_sync_hint">Sünkroonimine edastab aruanded, fotod, mallid, seaded ja PDF-id kaustast Documents/Tarkastus/Raportit/PDF. Kasuta kõigis seadmetes sama Drive\'i kausta. Sünkroonimine on käsitsi.</string>
+    <string name="cloud_sync_hint">Sünkroonimine edastab aruanded, fotod, mallid, seaded ja PDF-id kaustast Documents/TarkastusPro/Raportit/PDF. Kasuta kõigis seadmetes sama Drive\'i kausta. Sünkroonimine on käsitsi.</string>
     <string name="cloud_backup">Loo eraldi varukoopia</string>
     <string name="cloud_backups">Salvestatud varukoopiad</string>
     <string name="cloud_empty">Varukoopiaid pole. Loo eraldi varukoopia.</string>
@@ -195,7 +195,7 @@
     <string name="cloud_backup_saved">Varukoopia salvestatud. %1$s</string>
     <string name="cloud_backup_error">Varundamine ebaõnnestus: %1$s</string>
     <string name="cloud_size_label">Suurus: %1$s</string>
-    <string name="cloud_sync_warning">Sünkroonimine töötab mõlemas suunas. Kui faili on kahes seadmes erinevalt muudetud, salvestatakse kohalik versioon Google Drive\'i kausta Tarkastus_Sync/Conflicts ning konfliktist teatatakse. Ära sulge rakendust sünkroonimise ajal.</string>
+    <string name="cloud_sync_warning">Sünkroonimine töötab mõlemas suunas. Kui faili on kahes seadmes erinevalt muudetud, salvestatakse kohalik versioon Google Drive\'i kausta TarkastusPro_Building_Sync/Conflicts ning konfliktist teatatakse. Ära sulge rakendust sünkroonimise ajal.</string>
     <string name="cloud_restore_confirm_details">Kas taastada varukoopia kuupäevast %1$s (%2$s)? Enne taastamist luuakse Google Drive\'i automaatselt uus varukoopia praegustest andmetest.</string>
     <string name="cloud_restore_error">Taastamine ebaõnnestus: %1$s</string>
     <string name="cloud_unknown_error">Tundmatu viga</string>

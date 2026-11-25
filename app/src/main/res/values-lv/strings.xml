@@ -152,7 +152,7 @@
     <string name="cloud_folder_selected">Glabāšanas mape izvēlēta.</string>
     <string name="cloud_choose_folder">Izvēlēties Google Drive mapi</string>
     <string name="cloud_sync">Sinhronizēt tagad</string>
-    <string name="cloud_sync_hint">Sinhronizācija pārsūta pārskatus, fotoattēlus, veidnes, iestatījumus un PDF no Documents/Tarkastus/Raportit/PDF. Visās ierīcēs izmantojiet to pašu Drive mapi. Sinhronizācija ir manuāla.</string>
+    <string name="cloud_sync_hint">Sinhronizācija pārsūta pārskatus, fotoattēlus, veidnes, iestatījumus un PDF no Documents/TarkastusPro/Raportit/PDF. Visās ierīcēs izmantojiet to pašu Drive mapi. Sinhronizācija ir manuāla.</string>
     <string name="cloud_backup">Izveidot atsevišķu dublējumu</string>
     <string name="cloud_backups">Saglabātie dublējumi</string>
     <string name="cloud_empty">Nav dublējumu. Izveidojiet atsevišķu dublējumu.</string>
@@ -195,7 +195,7 @@
     <string name="cloud_backup_saved">Dublējums saglabāts. %1$s</string>
     <string name="cloud_backup_error">Dublēšana neizdevās: %1$s</string>
     <string name="cloud_size_label">Izmērs: %1$s</string>
-    <string name="cloud_sync_warning">Sinhronizācija darbojas abos virzienos. Ja fails divās ierīcēs mainīts atšķirīgi, vietējā versija tiek saglabāta Google Drive mapē Tarkastus_Sync/Conflicts un tiek ziņots par konfliktu. Sinhronizācijas laikā neaizveriet lietotni.</string>
+    <string name="cloud_sync_warning">Sinhronizācija darbojas abos virzienos. Ja fails divās ierīcēs mainīts atšķirīgi, vietējā versija tiek saglabāta Google Drive mapē TarkastusPro_Building_Sync/Conflicts un tiek ziņots par konfliktu. Sinhronizācijas laikā neaizveriet lietotni.</string>
     <string name="cloud_restore_confirm_details">Vai atjaunot dublējumu no %1$s (%2$s)? Pirms atjaunošanas Google Drive automātiski tiks izveidots jauns pašreizējo datu dublējums.</string>
     <string name="cloud_restore_error">Atjaunošana neizdevās: %1$s</string>
     <string name="cloud_unknown_error">Nezināma kļūda</string>

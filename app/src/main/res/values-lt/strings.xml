@@ -152,7 +152,7 @@
     <string name="cloud_folder_selected">Saugojimo aplankas pasirinktas.</string>
     <string name="cloud_choose_folder">Pasirinkti Google Drive aplanką</string>
     <string name="cloud_sync">Sinchronizuoti dabar</string>
-    <string name="cloud_sync_hint">Sinchronizavimas perkelia ataskaitas, nuotraukas, šablonus, nustatymus ir PDF iš Documents/Tarkastus/Raportit/PDF. Visuose įrenginiuose naudokite tą patį Drive aplanką. Sinchronizavimas vykdomas rankiniu būdu.</string>
+    <string name="cloud_sync_hint">Sinchronizavimas perkelia ataskaitas, nuotraukas, šablonus, nustatymus ir PDF iš Documents/TarkastusPro/Raportit/PDF. Visuose įrenginiuose naudokite tą patį Drive aplanką. Sinchronizavimas vykdomas rankiniu būdu.</string>
     <string name="cloud_backup">Sukurti atskirą atsarginę kopiją</string>
     <string name="cloud_backups">Išsaugotos atsarginės kopijos</string>
     <string name="cloud_empty">Atsarginių kopijų nėra. Sukurkite atskirą kopiją.</string>
@@ -195,7 +195,7 @@
     <string name="cloud_backup_saved">Atsarginė kopija išsaugota. %1$s</string>
     <string name="cloud_backup_error">Atsarginės kopijos kūrimas nepavyko: %1$s</string>
     <string name="cloud_size_label">Dydis: %1$s</string>
-    <string name="cloud_sync_warning">Sinchronizavimas vyksta abiem kryptimis. Jei failas dviejuose įrenginiuose pakeistas skirtingai, vietinė versija išsaugoma Google Drive aplanke Tarkastus_Sync/Conflicts ir pranešama apie konfliktą. Sinchronizavimo metu neuždarykite programos.</string>
+    <string name="cloud_sync_warning">Sinchronizavimas vyksta abiem kryptimis. Jei failas dviejuose įrenginiuose pakeistas skirtingai, vietinė versija išsaugoma Google Drive aplanke TarkastusPro_Building_Sync/Conflicts ir pranešama apie konfliktą. Sinchronizavimo metu neuždarykite programos.</string>
     <string name="cloud_restore_confirm_details">Atkurti atsarginę kopiją iš %1$s (%2$s)? Prieš atkūrimą dabartinių duomenų kopija automatiškai išsaugoma Google Drive.</string>
     <string name="cloud_restore_error">Atkūrimas nepavyko: %1$s</string>
     <string name="cloud_unknown_error">Nežinoma klaida</string>

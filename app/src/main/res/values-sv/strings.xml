@@ -152,7 +152,7 @@
     <string name="cloud_folder_selected">Lagringsmapp vald.</string>
     <string name="cloud_choose_folder">Välj Google Drive-mapp</string>
     <string name="cloud_sync">Synkronisera nu</string>
-    <string name="cloud_sync_hint">Synkronisering överför rapporter, bilder, mallar, inställningar och PDF-filer från Documents/Tarkastus/Raportit/PDF. Använd samma Drive-mapp på båda enheterna. Synkronisering startas manuellt.</string>
+    <string name="cloud_sync_hint">Synkronisering överför rapporter, bilder, mallar, inställningar och PDF-filer från Documents/TarkastusPro/Raportit/PDF. Använd samma Drive-mapp på båda enheterna. Synkronisering startas manuellt.</string>
     <string name="cloud_backup">Skapa separat säkerhetskopia</string>
     <string name="cloud_backups">Sparade säkerhetskopior</string>
     <string name="cloud_empty">Inga säkerhetskopior ännu. Skapa en kopia för att visa den här.</string>
@@ -195,7 +195,7 @@
     <string name="cloud_backup_saved">Säkerhetskopia sparad. %1$s</string>
     <string name="cloud_backup_error">Säkerhetskopiering misslyckades: %1$s</string>
     <string name="cloud_size_label">Storlek: %1$s</string>
-    <string name="cloud_sync_warning">Synkronisering sker i båda riktningarna. Om samma fil har ändrats på olika sätt på två enheter sparas den lokala versionen i Tarkastus_Sync/Conflicts på Google Drive och konflikten rapporteras. Stäng inte appen under synkroniseringen.</string>
+    <string name="cloud_sync_warning">Synkronisering sker i båda riktningarna. Om samma fil har ändrats på olika sätt på två enheter sparas den lokala versionen i TarkastusPro_Building_Sync/Conflicts på Google Drive och konflikten rapporteras. Stäng inte appen under synkroniseringen.</string>
     <string name="cloud_restore_confirm_details">Återställa säkerhetskopian från %1$s (%2$s)? Innan återställningen skapas automatiskt en ny säkerhetskopia av aktuella data på Google Drive.</string>
     <string name="cloud_restore_error">Återställning misslyckades: %1$s</string>
     <string name="cloud_unknown_error">Okänt fel</string>

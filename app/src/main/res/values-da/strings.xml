@@ -152,7 +152,7 @@
     <string name="cloud_folder_selected">Lagringsmappe valgt.</string>
     <string name="cloud_choose_folder">Vælg Google Drive-mappe</string>
     <string name="cloud_sync">Synkroniser nu</string>
-    <string name="cloud_sync_hint">Synkronisering overfører rapporter, fotos, skabeloner, indstillinger og PDF-filer fra Documents/Tarkastus/Raportit/PDF. Brug samme Drive-mappe på alle enheder. Synkronisering udføres manuelt.</string>
+    <string name="cloud_sync_hint">Synkronisering overfører rapporter, fotos, skabeloner, indstillinger og PDF-filer fra Documents/TarkastusPro/Raportit/PDF. Brug samme Drive-mappe på alle enheder. Synkronisering udføres manuelt.</string>
     <string name="cloud_backup">Opret separat sikkerhedskopi</string>
     <string name="cloud_backups">Gemte sikkerhedskopier</string>
     <string name="cloud_empty">Ingen sikkerhedskopier endnu. Opret en separat sikkerhedskopi.</string>
@@ -195,7 +195,7 @@
     <string name="cloud_backup_saved">Sikkerhedskopi gemt. %1$s</string>
     <string name="cloud_backup_error">Sikkerhedskopiering mislykkedes: %1$s</string>
     <string name="cloud_size_label">Størrelse: %1$s</string>
-    <string name="cloud_sync_warning">Synkronisering fungerer i begge retninger. Hvis en fil er ændret forskelligt på to enheder, gemmes den lokale version i Tarkastus_Sync/Conflicts på Google Drive, og konflikten rapporteres. Luk ikke appen under synkronisering.</string>
+    <string name="cloud_sync_warning">Synkronisering fungerer i begge retninger. Hvis en fil er ændret forskelligt på to enheder, gemmes den lokale version i TarkastusPro_Building_Sync/Conflicts på Google Drive, og konflikten rapporteres. Luk ikke appen under synkronisering.</string>
     <string name="cloud_restore_confirm_details">Gendan sikkerhedskopi fra %1$s (%2$s)? En ny kopi af aktuelle data oprettes automatisk på Google Drive før gendannelse.</string>
     <string name="cloud_restore_error">Gendannelse mislykkedes: %1$s</string>
     <string name="cloud_unknown_error">Ukendt fejl</string>

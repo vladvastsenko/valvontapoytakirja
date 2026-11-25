@@ -152,7 +152,7 @@
     <string name="cloud_folder_selected">Storage folder selected.</string>
     <string name="cloud_choose_folder">Choose Google Drive folder</string>
     <string name="cloud_sync">Sync now</string>
-    <string name="cloud_sync_hint">Sync transfers reports, photos, templates, settings and completed PDFs from Documents/Tarkastus/Raportit/PDF. Use the same Drive folder on both devices. Sync is currently manual.</string>
+    <string name="cloud_sync_hint">Sync transfers reports, photos, templates, settings and completed PDFs from Documents/TarkastusPro/Raportit/PDF. Use the same Drive folder on both devices. Sync is currently manual.</string>
     <string name="cloud_backup">Create separate backup</string>
     <string name="cloud_backups">Saved backups</string>
     <string name="cloud_empty">No backups yet. Create a separate backup to see it here.</string>
@@ -195,7 +195,7 @@
     <string name="cloud_backup_saved">Backup saved. %1$s</string>
     <string name="cloud_backup_error">Backup failed: %1$s</string>
     <string name="cloud_size_label">Size: %1$s</string>
-    <string name="cloud_sync_warning">Synchronization works in both directions. If a file was changed differently on two devices, the local version is saved to Tarkastus_Sync/Conflicts on Google Drive and the conflict is reported. Do not close the app during synchronization.</string>
+    <string name="cloud_sync_warning">Synchronization works in both directions. If a file was changed differently on two devices, the local version is saved to TarkastusPro_Building_Sync/Conflicts on Google Drive and the conflict is reported. Do not close the app during synchronization.</string>
     <string name="cloud_restore_confirm_details">Restore backup from %1$s (%2$s)? A new backup of your current data will be created automatically on Google Drive before restoring.</string>
     <string name="cloud_restore_error">Restore failed: %1$s</string>
     <string name="cloud_unknown_error">Unknown error</string>

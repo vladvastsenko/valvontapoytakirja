@@ -152,7 +152,7 @@
     <string name="cloud_folder_selected">Lagringsmappe valgt.</string>
     <string name="cloud_choose_folder">Velg Google Drive-mappe</string>
     <string name="cloud_sync">Synkroniser nå</string>
-    <string name="cloud_sync_hint">Synkronisering overfører rapporter, bilder, maler, innstillinger og PDF-filer fra Documents/Tarkastus/Raportit/PDF. Bruk samme Drive-mappe på alle enheter. Synkronisering utføres manuelt.</string>
+    <string name="cloud_sync_hint">Synkronisering overfører rapporter, bilder, maler, innstillinger og PDF-filer fra Documents/TarkastusPro/Raportit/PDF. Bruk samme Drive-mappe på alle enheter. Synkronisering utføres manuelt.</string>
     <string name="cloud_backup">Opprett separat sikkerhetskopi</string>
     <string name="cloud_backups">Lagrede sikkerhetskopier</string>
     <string name="cloud_empty">Ingen sikkerhetskopier ennå. Opprett en separat sikkerhetskopi.</string>
@@ -195,7 +195,7 @@
     <string name="cloud_backup_saved">Sikkerhetskopi lagret. %1$s</string>
     <string name="cloud_backup_error">Sikkerhetskopiering mislyktes: %1$s</string>
     <string name="cloud_size_label">Størrelse: %1$s</string>
-    <string name="cloud_sync_warning">Synkronisering går begge veier. Hvis en fil er endret forskjellig på to enheter, lagres den lokale versjonen i Tarkastus_Sync/Conflicts på Google Drive, og konflikten rapporteres. Ikke lukk appen under synkronisering.</string>
+    <string name="cloud_sync_warning">Synkronisering går begge veier. Hvis en fil er endret forskjellig på to enheter, lagres den lokale versjonen i TarkastusPro_Building_Sync/Conflicts på Google Drive, og konflikten rapporteres. Ikke lukk appen under synkronisering.</string>
     <string name="cloud_restore_confirm_details">Gjenopprette sikkerhetskopi fra %1$s (%2$s)? En ny kopi av gjeldende data opprettes automatisk på Google Drive før gjenoppretting.</string>
     <string name="cloud_restore_error">Gjenoppretting mislyktes: %1$s</string>
     <string name="cloud_unknown_error">Ukjent feil</string>
