@@ -56,8 +56,9 @@ private fun foldersOverlap(first: String?, second: String?): Boolean {
 @Composable
 fun CloudBackupScreen(onBack: () -> Unit) {
     val context = LocalContext.current
-    if (com.google.firebase.auth.FirebaseAuth.getInstance().currentUser == null) {
+    if (runCatching { com.google.firebase.auth.FirebaseAuth.getInstance().currentUser }.getOrNull() == null) {
         Column(Modifier.fillMaxSize().padding(24.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
+            LocalBackupControls()
             Text(stringResource(R.string.guest_cloud_required))
             Button(onClick = onBack) { Text(stringResource(R.string.back)) }
         }
@@ -150,6 +151,7 @@ fun CloudBackupScreen(onBack: () -> Unit) {
     Column(Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(20.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
         TextButton(onClick = onBack, enabled = !busy) { Text(stringResource(R.string.cloud_back)) }
         Text(stringResource(R.string.cloud_title), style = MaterialTheme.typography.headlineMedium)
+        LocalBackupControls()
         Text(stringResource(R.string.cloud_intro))
         Text(if (folderUri.isNullOrBlank()) context.getString(R.string.cloud_folder_missing) else context.getString(R.string.cloud_folder_selected),
             style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.primary)
@@ -316,4 +318,42 @@ private fun formatBackupSize(bytes: Long): String = when {
     bytes >= 1024L * 1024L -> String.format(Locale.getDefault(), "%.1f MB", bytes / (1024.0 * 1024.0))
     bytes >= 1024L -> String.format(Locale.getDefault(), "%.0f KB", bytes / 1024.0)
     else -> "$bytes B"
+}
+
+@Composable
+private fun LocalBackupControls() {
+    val context = LocalContext.current
+    val scope = rememberCoroutineScope()
+    var busy by remember { mutableStateOf(false) }
+    var status by remember { mutableStateOf("") }
+    var pending by remember { mutableStateOf<Uri?>(null) }
+    var reload by remember { mutableStateOf(false) }
+    val export = rememberLauncherForActivityResult(ActivityResultContracts.CreateDocument("application/zip")) { uri ->
+        if (uri != null) { busy = true; scope.launch {
+            status = runCatching { withContext(Dispatchers.IO) { CloudBackupManager.backupToDocument(context, uri) } }.fold({ "ZIP: OK" }, { it.message ?: "ZIP: error" })
+            busy = false
+        } }
+    }
+    val emergency = rememberLauncherForActivityResult(ActivityResultContracts.CreateDocument("application/zip")) { uri ->
+        if (uri != null) { busy = true; scope.launch {
+            status = runCatching { withContext(Dispatchers.IO) { CloudBackupManager.backupToDocument(context, uri, true) } }.fold({ "ZIP: OK" }, { it.message ?: "ZIP: error" })
+            busy = false
+        } }
+    }
+    val importer = rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) { pending = it }
+    OutlinedButton(enabled = !busy && !reload, onClick = { export.launch("TarkastusPro.zip") }) { Text("ZIP — " + stringResource(R.string.cloud_backup)) }
+    OutlinedButton(enabled = !busy && !reload, onClick = { importer.launch(arrayOf("application/zip", "application/octet-stream")) }) { Text("ZIP — " + stringResource(R.string.cloud_restore)) }
+    OutlinedButton(enabled = !busy && !reload && CloudBackupManager.recoveryCopies(context).isNotEmpty(), onClick = { emergency.launch("TarkastusPro-recovery.zip") }) { Text("ZIP — Recovery") }
+    if (busy) CircularProgressIndicator()
+    if (status.isNotEmpty()) Text(status)
+    if (reload) Button(onClick = { (context as? Activity)?.recreate() }) { Text(stringResource(R.string.cloud_reload)) }
+    pending?.let { uri ->
+        AlertDialog(onDismissRequest = { pending = null }, title = { Text(stringResource(R.string.cloud_confirm_title)) },
+            text = { Text(stringResource(R.string.cloud_restore_hint)) },
+            confirmButton = { TextButton(onClick = { pending = null; busy = true; scope.launch {
+                status = runCatching { withContext(Dispatchers.IO) { CloudBackupManager.restoreFromUri(context, uri) } }.fold({ reload = true; context.getString(R.string.cloud_restore_success) }, { it.message ?: "ZIP: error" })
+                busy = false
+            } }) { Text(stringResource(R.string.cloud_restore)) } },
+            dismissButton = { TextButton(onClick = { pending = null }) { Text(stringResource(R.string.cloud_cancel)) } })
+    }
 }

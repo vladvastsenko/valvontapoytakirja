@@ -44,6 +44,13 @@ object CloudBackupManager {
     }
     private const val MANIFEST = "TARKASTUSPRO_BUILDING_BACKUP_INFO.txt"
     private const val MANIFEST_CONTENT = "TARKASTUSPRO_BUILDING_BACKUP_V1"
+    private const val CHECKSUMS = "SHA256.json"
+    private const val V2 = "TARKASTUSPRO_BUILDING_BACKUP_V2"
+    private fun digest(file: File): String {
+        val d = java.security.MessageDigest.getInstance("SHA-256")
+        file.inputStream().use { input -> val buf = ByteArray(8192); while (true) { val n = input.read(buf); if (n < 0) break; d.update(buf, 0, n) } }
+        return d.digest().joinToString("") { "%02x".format(it) }
+    }
     private const val MAX_ENTRIES = 20_000
     private const val MAX_UNPACKED_BYTES = 2L * 1024L * 1024L * 1024L
 
@@ -52,16 +59,18 @@ object CloudBackupManager {
         root.walkTopDown().filter { it.isFile && it.name.endsWith(".json.bak") }.toList().forEach {
             AtomicRecords.read(File(it.parentFile, it.name.removeSuffix(".bak")))
         }
-        var count = 1
+        val hashes = org.json.JSONObject()
+        var count = 2
         var total = 0L
         ZipOutputStream(BufferedOutputStream(FileOutputStream(target))).use { zip ->
             zip.putNextEntry(ZipEntry(MANIFEST))
-            zip.write((MANIFEST_CONTENT + "\n").toByteArray(Charsets.UTF_8))
+            zip.write((V2 + "\n").toByteArray(Charsets.UTF_8))
             zip.closeEntry()
             root.walkTopDown().filter { it.isFile && !it.name.endsWith(".json.new") && !it.name.endsWith(".json.bak") }.forEach { file ->
                 require(file.canonicalPath.startsWith(root.canonicalPath + File.separator))
                 val relative = file.relativeTo(root).invariantSeparatorsPath
                 require(++count <= MAX_ENTRIES)
+                val hash = java.security.MessageDigest.getInstance("SHA-256")
                 zip.putNextEntry(ZipEntry("files/$relative"))
                 file.inputStream().buffered().use { input ->
                     val buffer = ByteArray(DEFAULT_BUFFER_SIZE)
@@ -70,18 +79,24 @@ object CloudBackupManager {
                         if (n < 0) break
                         total += n
                         require(total <= MAX_UNPACKED_BYTES)
+                        hash.update(buffer, 0, n)
                         zip.write(buffer, 0, n)
                     }
                 }
                 zip.closeEntry()
+                hashes.put(relative, hash.digest().joinToString("") { "%02x".format(it) })
             }
+            zip.putNextEntry(ZipEntry(CHECKSUMS))
+            zip.write(hashes.toString().toByteArray(Charsets.UTF_8))
+            zip.closeEntry()
         }
     }
 
-    fun backupToDocument(context: Context, uri: Uri) {
+    fun backupToDocument(context: Context, uri: Uri, emergency: Boolean = false) {
         val temp = File.createTempFile("pro-backup-", ".zip", context.cacheDir)
         try {
-            writeArchive(context.filesDir, temp)
+            val root = if (emergency) recoveryCopies(context).firstOrNull() ?: error("No recovery copy") else context.filesDir
+            writeArchive(root, temp)
             context.contentResolver.openOutputStream(uri, "wt")?.use { output ->
                 temp.inputStream().use { it.copyTo(output) }
             } ?: error("Unable to open backup destination")
@@ -139,7 +154,7 @@ object CloudBackupManager {
                 val displayName = cursor.getString(nameColumn) ?: continue
                 val relativePath = cursor.getString(pathColumn) ?: continue
                 val subPath = relativePath.removePrefix(basePath).trim('/')
-                if (subPath.isBlank() || subPath.split('/').any { it == ".." || it.isBlank() }) continue
+                if (subPath.isBlank() || subPath.split('/').any { it == ".." || it == "." || it.isBlank() }) continue
                 var folder = destinationRoot
                 subPath.split('/').forEach { segment ->
                     folder = folder.findFile(segment) ?: folder.createDirectory(segment) ?: error("Drive-kansiota ei voitu luoda.")
@@ -165,6 +180,23 @@ object CloudBackupManager {
         return copied
     }
 
+    fun recoveryCopies(context: Context): List<File> = File(context.applicationInfo.dataDir).listFiles().orEmpty().filter { it.isDirectory && (it.name.startsWith("tarkastus_restore_retained_") || it.name == "tarkastus_restore_previous") }.sortedByDescending { it.lastModified() }
+
+    fun recoverInterrupted(context: Context) = AtomicRecords.exclusive {
+        val parent = File(context.applicationInfo.dataDir)
+        val current = File(parent, "files")
+        val previous = File(parent, "tarkastus_restore_previous")
+        if (previous.exists()) {
+            if (!current.exists() || current.listFiles()?.isEmpty() == true) {
+                if (current.exists()) check(current.delete())
+                check(previous.renameTo(current))
+            } else {
+                check(previous.renameTo(File(parent, "tarkastus_restore_retained_" + java.util.UUID.randomUUID())))
+            }
+        }
+        File(parent, "tarkastus_restore_staging").deleteRecursively()
+    }
+
     fun restoreFromUri(context: Context, archiveUri: Uri): String = AtomicRecords.exclusive { restoreLocked(context, archiveUri) }
 
     private fun restoreLocked(context: Context, archiveUri: Uri): String {
@@ -186,6 +218,8 @@ object CloudBackupManager {
             check(mkdirs()) { "Palautuksen väliaikaista kansiota ei voitu luoda." }
         }
         var manifestFound = false
+        var v2 = false
+        var hashes: org.json.JSONObject? = null
         val seenEntries = hashSetOf<String>()
         var entryCount = 0
         var totalBytes = 0L
@@ -215,8 +249,14 @@ object CloudBackupManager {
                         }
                         require(count in 1..127 && zip.read() == -1) { "Varmuuskopion tunnistetiedot ovat virheelliset." }
                         val text = String(manifestBytes, 0, count, Charsets.UTF_8).trim()
-                        require(text == MANIFEST_CONTENT) { "Tiedosto ei ole Tarkastus-varmuuskopio." }
+                        require(text == MANIFEST_CONTENT || text == V2) { "Tiedosto ei ole Tarkastus-varmuuskopio." }
                         manifestFound = true
+                        v2 = text == V2
+                    } else if (name == CHECKSUMS) {
+                        val bytes = java.io.ByteArrayOutputStream()
+                        val buffer = ByteArray(8192)
+                        while (true) { val n = zip.read(buffer); if (n < 0) break; require(bytes.size() + n <= 16 * 1024 * 1024); bytes.write(buffer, 0, n) }
+                        hashes = org.json.JSONObject(bytes.toString("UTF-8"))
                     } else if (name.startsWith("files/") && name.length > 6) {
                         val relative = name.removePrefix("files/")
                         val destination = File(staging, relative)
@@ -249,7 +289,13 @@ object CloudBackupManager {
                 }
             }
             check(manifestFound) { "Varmuuskopion tunnistetietoja ei löytynyt." }
-            check(seenEntries.size > 1) { "Varmuuskopio ei sisällä palautettavia tiedostoja." }
+            if (v2 || hashes != null) {
+                val expected = requireNotNull(hashes)
+                val actual = staging.walkTopDown().filter { it.isFile }.toList()
+                require(actual.size == expected.length()) { "Backup file count mismatch" }
+                actual.forEach { require(expected.optString(it.relativeTo(staging).invariantSeparatorsPath) == digest(it)) { "Backup checksum mismatch" } }
+            }
+            check(staging.walkTopDown().any { it.isFile }) { "Varmuuskopio ei sisällä palautettavia tiedostoja." }
 
             // Keep the current local data until the complete archive has been extracted and validated.
             val current = context.filesDir
