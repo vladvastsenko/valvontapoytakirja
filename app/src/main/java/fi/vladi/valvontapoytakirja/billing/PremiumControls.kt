@@ -19,8 +19,13 @@ fun PremiumControls() {
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     var registered by remember { mutableStateOf(false) }
-    var recoveryCode by remember { mutableStateOf("") }
-    var recoveryOwner by remember { mutableStateOf<String?>(null) }
+    val recoveryStore = remember(context) { RecoveryStore(context) }
+    val initialRecovery = remember(recoveryStore) { recoveryStore.read(FirebaseAuth.getInstance().currentUser?.uid) }
+    var recoveryCode by remember { mutableStateOf(initialRecovery.orEmpty()) }
+    var recoveryOwner by remember { mutableStateOf<String?>(if (initialRecovery != null) FirebaseAuth.getInstance().currentUser?.uid else null) }
+    LaunchedEffect(recoveryCode, recoveryOwner) {
+        if (recoveryCode.isNotBlank() && recoveryOwner != null) recoveryStore.write(recoveryOwner!!, recoveryCode)
+    }
     var recoveryInput by remember { mutableStateOf("") }
     var savedCode by remember { mutableStateOf(false) }
     var recovering by remember { mutableStateOf(false) }
@@ -123,7 +128,7 @@ fun PremiumControls() {
                             if (recoveryCode.isNotBlank() && recoveryOwner == task.result?.user?.uid) {
                                 val finishingCode = recoveryCode
                                 PremiumVerification.finishRecovery(finishingCode) { confirmed ->
-                                    if (confirmed && recoveryCode == finishingCode) { recoveryCode = ""; recoveryInput = "" }
+                                    if (confirmed && recoveryCode == finishingCode) { recoveryStore.clear(recoveryOwner); recoveryCode = ""; recoveryInput = "" }
                                     else if (!confirmed) status = R.string.premium_unavailable
                                 }
                             }
@@ -138,7 +143,7 @@ fun PremiumControls() {
             busy = true
             PremiumVerification.finishRecovery(recoveryCode) { confirmed ->
                 busy = false
-                if (confirmed) { recoveryCode = ""; recoveryInput = ""; status = null }
+                if (confirmed) { recoveryStore.clear(recoveryOwner); recoveryCode = ""; recoveryInput = ""; status = null }
                 else status = R.string.premium_unavailable
             }
         }) { Text(stringResource(R.string.premium_restore)) }
