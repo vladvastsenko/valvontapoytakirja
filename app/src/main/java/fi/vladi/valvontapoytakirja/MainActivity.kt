@@ -294,7 +294,15 @@ private fun UnifiedStartScreen(
 
 @Composable
 private fun TestAdMobBanner() {
-    if (fi.vladi.valvontapoytakirja.billing.PremiumAccess.allowed()) return
+    val entitlement by fi.vladi.valvontapoytakirja.billing.PremiumAccess.changes.collectAsState()
+    var premium by remember { mutableStateOf(false) }
+    LaunchedEffect(entitlement) {
+        while (true) {
+            premium = fi.vladi.valvontapoytakirja.billing.PremiumAccess.allowed()
+            kotlinx.coroutines.delay(1000)
+        }
+    }
+    if (premium) return
     val context = LocalContext.current
     val adView = remember(context) {
         AdView(context).apply {

@@ -9,10 +9,11 @@ data class VerifiedSubscription(val uid: String, val state: SubscriptionState, v
 
 object PremiumAccess {
     // Never infer an active entitlement from a local purchase callback.
-    @Volatile private var verified: VerifiedSubscription? = null
-    fun clear() { verified = null }
-    internal fun acceptServerResult(result: VerifiedSubscription) { verified = result }
-    fun allowed(): Boolean = verified?.permits(
+    private val verified = kotlinx.coroutines.flow.MutableStateFlow<VerifiedSubscription?>(null)
+    val changes: kotlinx.coroutines.flow.StateFlow<VerifiedSubscription?> = verified
+    fun clear() { verified.value = null }
+    internal fun acceptServerResult(result: VerifiedSubscription) { verified.value = result }
+    fun allowed(): Boolean = verified.value?.permits(
         runCatching { com.google.firebase.auth.FirebaseAuth.getInstance().currentUser?.uid }.getOrNull(),
         System.currentTimeMillis()
     ) == true
