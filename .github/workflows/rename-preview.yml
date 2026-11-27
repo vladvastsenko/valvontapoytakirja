@@ -30,6 +30,17 @@ jobs:
           fi
           printf '%s' "$PRO_GOOGLE_SERVICES_JSON" > app/google-services.json
           python3 -c 'import json; d=json.load(open("app/google-services.json")); assert any(c["client_info"]["android_client_info"]["package_name"] == "fi.vladi.tarkastuspro" for c in d["client"]), "Firebase package mismatch"'
+      - name: Check Google sign-in configuration without exposing credentials
+        run: |
+          python3 - <<'PY'
+          import json
+          data = json.load(open("app/google-services.json"))
+          client = next(c for c in data["client"] if c["client_info"]["android_client_info"]["package_name"] == "fi.vladi.tarkastuspro")
+          if not any(c.get("client_type") == 3 and c.get("client_id") for c in client.get("oauth_client", [])):
+              print("::warning::Pro Firebase configuration has no Web OAuth client; Google sign-in will be unavailable")
+          else:
+              print("Pro Web OAuth client is configured")
+          PY
       - name: Prepare persistent Cloud signing key
         env:
           CLOUD_KEYSTORE_BASE64: ${{ secrets.CLOUD_KEYSTORE_BASE64 }}

@@ -75,7 +75,7 @@ internal fun CloudAuthGate(content: @Composable (onSignOut: () -> Unit) -> Unit)
         auth.addAuthStateListener(listener)
         onDispose { auth.removeAuthStateListener(listener) }
     }
-    var loginRequested by remember { mutableStateOf(false) }
+    var loginRequested by androidx.compose.runtime.saveable.rememberSaveable { mutableStateOf(false) }
     var busy by remember { mutableStateOf(false) }
     var error by remember { mutableStateOf<String?>(null) }
     var email by remember { mutableStateOf("") }
@@ -104,6 +104,8 @@ internal fun CloudAuthGate(content: @Composable (onSignOut: () -> Unit) -> Unit)
                         guest = false
                         guestPrefs.edit().putBoolean("enabled", false).apply()
                         signedIn = true
+                        loginRequested = false
+                        password = ""
                         error = null
                     } else {
                         error = localizedAuthError(context, task.exception, R.string.google_failed)
@@ -182,6 +184,7 @@ internal fun CloudAuthGate(content: @Composable (onSignOut: () -> Unit) -> Unit)
             ) {
                 Text(stringResource(R.string.sign_in))
             }
+            if (webClientId.isBlank()) Text(stringResource(R.string.google_failed), color = MaterialTheme.colorScheme.error)
             Text(stringResource(R.string.auth_title))
             OutlinedTextField(value = email, onValueChange = { email = it }, label = { Text(stringResource(R.string.email)) }, singleLine = true, modifier = Modifier.fillMaxWidth())
             OutlinedTextField(
@@ -217,6 +220,8 @@ internal fun CloudAuthGate(content: @Composable (onSignOut: () -> Unit) -> Unit)
                             guest = false
                             guestPrefs.edit().putBoolean("enabled", false).apply()
                             signedIn = true
+                            loginRequested = false
+                            password = ""
                         } else error = localizedAuthError(context, result.exception, R.string.auth_failed)
                     }
                 }
