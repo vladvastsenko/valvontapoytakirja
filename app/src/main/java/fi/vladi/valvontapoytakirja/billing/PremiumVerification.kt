@@ -54,8 +54,14 @@ internal object PremiumVerification {
         } else onComplete(false)
     }
 
-    fun finishRecovery(secret: String) {
-        if (secret.isNotBlank()) functions.getHttpsCallable("finishTarkastusProRecovery").call(mapOf("secret" to secret))
+    fun finishRecovery(secret: String, onComplete: (Boolean) -> Unit = {}) {
+        val owner = auth.currentUser?.uid
+        if (secret.isBlank() || owner == null) { onComplete(false); return }
+        functions.getHttpsCallable("finishTarkastusProRecovery").call(mapOf("secret" to secret))
+            .addOnCompleteListener { task ->
+                val confirmed = (task.resultOrNull()?.data as? Map<*, *>)?.get("ok") == true
+                onComplete(confirmed && auth.currentUser?.uid == owner)
+            }
     }
 
     private val verificationGeneration = java.util.concurrent.atomic.AtomicLong()
