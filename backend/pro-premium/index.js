@@ -94,6 +94,7 @@ exports.recoverTarkastusProAccount=onCall({region:"europe-west1"},async request=
 
 exports.finishTarkastusProRecovery=onCall({region:"europe-west1"},async request=>{
  if(!request.auth) throw new HttpsError("unauthenticated","Sign in required");
+ await throttle(request.auth.uid,"finish");
  const secret=request.data?.secret;
  if(typeof secret!=="string"||!/^[A-Za-z0-9_-]{43}$/.test(secret)) throw new HttpsError("invalid-argument","Invalid recovery credentials");
  const user=await getAuth().getUser(request.auth.uid);
