@@ -85,7 +85,9 @@ exports.recoverTarkastusProAccount=onCall({region:"europe-west1"},async request=
  await db.runTransaction(async tx=>{
   const current=(await tx.get(ref)).data();
   if(!current || current.used || current.uid!==record.uid) throw new HttpsError("permission-denied","Recovery unavailable");
-  tx.update(ref,{lastIssuedAt:Date.now()});
+  const now=Date.now();
+  if(typeof current.lastIssuedAt==="number" && now-current.lastIssuedAt<60000) throw new HttpsError("resource-exhausted","Try again later");
+  tx.update(ref,{lastIssuedAt:now});
  });
  return {customToken:await getAuth().createCustomToken(record.uid)};
 });
