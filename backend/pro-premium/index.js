@@ -17,8 +17,16 @@ async function throttle(uid,operation){
  });
 }
 const {evaluate}=require("./policy");
-const {registrationAllowed}=require("./registration-policy");
+const {registrationAllowed,legacyPurchaseAllowed}=require("./registration-policy");
 initializeApp();
+async function approvedRegistration(uid){
+ const db=getFirestore(),ref=db.collection("proRegistration").doc(uid);
+ if(registrationAllowed(uid,(await ref.get()).data())) return true;
+ const previous=await db.collection("proPurchaseOwners").where("uid","==",uid).get();
+ if(!previous.docs.some(doc=>legacyPurchaseAllowed(uid,doc.data(),product.value()))) return false;
+ await ref.set({uid,paid:true},{merge:true});
+ return true;
+}
 const product=defineString("PRO_SUBSCRIPTION_PRODUCT");
 exports.verifyTarkastusProSubscription=onCall({region:"europe-west1"},async request=>{
  if(!request.auth) throw new HttpsError("unauthenticated","Sign in required");
@@ -133,7 +141,7 @@ exports.blockUnpaidProRegistration=beforeUserCreated({region:"europe-west1"},eve
    const payload=ticket.getPayload();
    if(!payload?.sub || payload.email_verified!==true) throw new Error("Invalid identity");
    const user=await getAuth().getUserByProviderUid("google.com",payload.sub);
-   if(user.disabled || !registrationAllowed(user.uid,(await getFirestore().collection("proRegistration").doc(user.uid).get()).data())) throw new Error("Unapproved account");
+   if(user.disabled || !await approvedRegistration(user.uid)) throw new Error("Unapproved account");
    await throttle(user.uid,"google-login");
    return {customToken:await getAuth().createCustomToken(user.uid)};
   } catch(error) {
@@ -145,6 +153,5 @@ exports.blockUnpaidProRegistration=beforeUserCreated({region:"europe-west1"},eve
 exports.blockUnpaidProSignIn=beforeUserSignedIn({region:"europe-west1"},async event=>{
  const user=event.data;
  if(!user?.uid) throw new HttpsError("permission-denied","Invalid account");
- const record=(await getFirestore().collection("proRegistration").doc(user.uid).get()).data();
- if(!registrationAllowed(user.uid,record)) throw new HttpsError("permission-denied","Verified purchase required");
+ if(!await approvedRegistration(user.uid)) throw new HttpsError("permission-denied","Verified purchase required");
 });
