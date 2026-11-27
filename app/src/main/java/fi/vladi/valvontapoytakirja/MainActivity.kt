@@ -45,6 +45,7 @@ import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.rememberCoroutineScope
@@ -201,8 +202,23 @@ private fun UnifiedLauncher(onSignOut: () -> Unit) {
     var showCloudBackup by remember { mutableStateOf(false) }
     var showUserGuide by remember { mutableStateOf(false) }
     var showPremium by remember { mutableStateOf(false) }
+    var showLocalBackup by remember { mutableStateOf(false) }
+    androidx.activity.compose.BackHandler(enabled = showPremium || showLocalBackup || showCloudBackup || showUserGuide || showManagement) {
+        when {
+            showPremium -> showPremium = false
+            showLocalBackup -> showLocalBackup = false
+            showCloudBackup -> showCloudBackup = false
+            showUserGuide -> showUserGuide = false
+            else -> showManagement = false
+        }
+    }
 
-    if (showPremium) {
+    if (showLocalBackup) {
+        Column(Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(24.dp), verticalArrangement = Arrangement.spacedBy(16.dp)) {
+            fi.vladi.valvontapoytakirja.cloud.LocalBackupControls()
+            TextButton(onClick = { showLocalBackup = false }) { Text(stringResource(R.string.back)) }
+        }
+    } else if (showPremium) {
         Column(Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(24.dp), verticalArrangement = Arrangement.spacedBy(16.dp)) {
             fi.vladi.valvontapoytakirja.billing.PremiumControls()
             TextButton(onClick = { showPremium = false }) { Text(stringResource(R.string.back)) }
@@ -239,6 +255,7 @@ private fun UnifiedLauncher(onSignOut: () -> Unit) {
             },
             onCloudBackup = { showCloudBackup = true },
             onPremium = { showPremium = true },
+            onLocalBackup = { showLocalBackup = true },
             onUserGuide = { showUserGuide = true },
             onBack = { showManagement = false },
             onSignOut = onSignOut,
@@ -332,6 +349,7 @@ private fun ManagementScreen(
     onSettings: () -> Unit,
     onCloudBackup: () -> Unit,
     onPremium: () -> Unit,
+    onLocalBackup: () -> Unit,
     onUserGuide: () -> Unit,
     onBack: () -> Unit,
     onSignOut: () -> Unit,
@@ -374,6 +392,7 @@ private fun ManagementScreen(
                 }
             }
         }
+        OutlinedButton(onClick = onLocalBackup, modifier = Modifier.fillMaxWidth()) { Text(stringResource(R.string.local_backup_title)) }
         Text(stringResource(R.string.pdf_language_default), fontWeight = FontWeight.Bold)
         Text(when (AppLanguage.selected(context)) {
             "ru" -> "Русский"; "sv" -> "Svenska"; "en" -> "English"; "et" -> "Eesti"; "lt" -> "Lietuvių"; "lv" -> "Latviešu"; "nb" -> "Norsk"; "da" -> "Dansk"; else -> "Suomi"

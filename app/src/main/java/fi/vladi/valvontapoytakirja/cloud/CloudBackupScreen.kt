@@ -321,7 +321,7 @@ private fun formatBackupSize(bytes: Long): String = when {
 }
 
 @Composable
-private fun LocalBackupControls() {
+internal fun LocalBackupControls() {
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
     var busy by remember { mutableStateOf(false) }
