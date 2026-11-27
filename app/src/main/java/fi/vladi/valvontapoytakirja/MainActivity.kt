@@ -333,7 +333,15 @@ private fun TestAdMobBanner() {
             kotlinx.coroutines.delay(1000)
         }
     }
-    if (premium) return
+    val auth = remember { com.google.firebase.auth.FirebaseAuth.getInstance() }
+    var owner by remember { mutableStateOf(auth.currentUser?.uid) }
+    var authReady by remember { mutableStateOf(false) }
+    DisposableEffect(auth) {
+        val listener = com.google.firebase.auth.FirebaseAuth.AuthStateListener { owner = it.currentUser?.uid; authReady = true }
+        auth.addAuthStateListener(listener)
+        onDispose { auth.removeAuthStateListener(listener) }
+    }
+    if (!authReady || premium || (owner != null && entitlement?.uid != owner)) return
     val context = LocalContext.current
     val adView = remember(context) {
         AdView(context).apply {

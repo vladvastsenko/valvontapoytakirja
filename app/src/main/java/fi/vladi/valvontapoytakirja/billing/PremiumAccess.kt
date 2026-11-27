@@ -11,6 +11,7 @@ object PremiumAccess {
     // Never infer an active entitlement from a local purchase callback.
     private val verified = kotlinx.coroutines.flow.MutableStateFlow<VerifiedSubscription?>(null)
     val changes: kotlinx.coroutines.flow.StateFlow<VerifiedSubscription?> = verified
+    internal fun markFree(uid: String) { PremiumVerification.invalidatePending(); verified.value = VerifiedSubscription(uid, SubscriptionState.FREE, 0) }
     fun clear() { PremiumVerification.invalidatePending(); verified.value = null }
     internal fun acceptServerResult(result: VerifiedSubscription) { verified.value = result }
     fun allowed(): Boolean = verified.value?.permits(

@@ -32,7 +32,7 @@ internal fun PremiumRefresh(context: Context) {
                     } else {
                     val purchase = purchases.firstOrNull { it.purchaseState == Purchase.PurchaseState.PURCHASED && !it.isSuspended &&
                         it.accountIdentifiers?.obfuscatedAccountId == PremiumVerification.accountId(owner) }
-                    if (purchase == null) PremiumAccess.clear()
+                    if (purchase == null) PremiumAccess.markFree(owner)
                     else PremiumVerification.verify(purchase.purchaseToken) {}
                     }
                 }
