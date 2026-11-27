@@ -6,6 +6,16 @@ const {getFirestore}=require("firebase-admin/firestore");
 const {claimToken}=require("./ownership");
 const {getAuth}=require("firebase-admin/auth");
 const {createHash,randomBytes}=require("node:crypto");
+const {nextAttempt}=require("./recovery-policy");
+async function throttle(uid,operation){
+ const db=getFirestore(),ref=db.collection("proRecoveryLimits").doc(createHash("sha256").update(operation+":"+uid).digest("hex"));
+ await db.runTransaction(async tx=>{
+  const previous=(await tx.get(ref)).data();
+  const next=nextAttempt(previous,Date.now());
+  if(!next) throw new HttpsError("resource-exhausted","Try again later");
+  tx.set(ref,next);
+ });
+}
 const {evaluate}=require("./policy");
 initializeApp();
 const product=defineString("PRO_SUBSCRIPTION_PRODUCT");
@@ -43,6 +53,7 @@ exports.getTarkastusProCheckoutConfig=onCall({region:"europe-west1"},async reque
 exports.prepareTarkastusProRecovery=onCall({region:"europe-west1"},async request=>{
  if(!request.auth || request.auth.token.firebase?.sign_in_provider!=="anonymous") throw new HttpsError("permission-denied","Anonymous checkout required");
  const uid=request.auth.uid;
+ await throttle(uid,"prepare");
  const secret=randomBytes(32).toString("base64url");
  const hash=createHash("sha256").update(secret).digest("hex");
  const ref=getFirestore().collection("proRecovery").doc(hash);
@@ -51,6 +62,7 @@ exports.prepareTarkastusProRecovery=onCall({region:"europe-west1"},async request
 });
 exports.recoverTarkastusProAccount=onCall({region:"europe-west1"},async request=>{
  if(!request.auth || request.auth.token.firebase?.sign_in_provider!=="anonymous") throw new HttpsError("permission-denied","Anonymous session required");
+ await throttle(request.auth.uid,"recover");
  const secret=request.data?.secret, token=request.data?.token;
  if(typeof secret!=="string"||!/^[A-Za-z0-9_-]{43}$/.test(secret)||typeof token!=="string"||token.length<10||token.length>4096) throw new HttpsError("invalid-argument","Invalid recovery credentials");
  const db=getFirestore(), ref=db.collection("proRecovery").doc(createHash("sha256").update(secret).digest("hex"));
@@ -67,7 +79,22 @@ exports.recoverTarkastusProAccount=onCall({region:"europe-west1"},async request=
  await db.runTransaction(async tx=>{
   const current=(await tx.get(ref)).data();
   if(!current || current.used || current.uid!==record.uid) throw new HttpsError("permission-denied","Recovery unavailable");
-  tx.update(ref,{used:true});
+  tx.update(ref,{lastIssuedAt:Date.now()});
  });
  return {customToken:await getAuth().createCustomToken(record.uid)};
+});
+
+exports.finishTarkastusProRecovery=onCall({region:"europe-west1"},async request=>{
+ if(!request.auth) throw new HttpsError("unauthenticated","Sign in required");
+ const secret=request.data?.secret;
+ if(typeof secret!=="string"||!/^[A-Za-z0-9_-]{43}$/.test(secret)) throw new HttpsError("invalid-argument","Invalid recovery credentials");
+ const user=await getAuth().getUser(request.auth.uid);
+ if(!user.providerData.some(p=>p.providerId==="password"||p.providerId==="google.com")) throw new HttpsError("failed-precondition","Complete registration first");
+ const db=getFirestore(),ref=db.collection("proRecovery").doc(createHash("sha256").update(secret).digest("hex"));
+ await db.runTransaction(async tx=>{
+  const record=(await tx.get(ref)).data();
+  if(!record||record.uid!==request.auth.uid) throw new HttpsError("permission-denied","Recovery unavailable");
+  tx.update(ref,{used:true});
+ });
+ return {ok:true};
 });

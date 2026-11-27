@@ -11,6 +11,6 @@
     "googleapis": "^144.0.0"
   },
   "scripts": {
-    "test": "node --test policy.test.js ownership.test.js"
+    "test": "node --test policy.test.js ownership.test.js recovery-policy.test.js"
   }
 }
