@@ -1,0 +1,7 @@
+<resources>
+    <string name="zip_recovery">Ekspordi taaste ZIP</string>
+    <string name="zip_delete">Kustuta taastekoopia</string>
+    <string name="zip_delete_confirm">Kustutada taastekoopia jäädavalt?</string>
+    <string name="zip_ok">ZIP: õnnestus</string>
+    <string name="zip_error">ZIP: viga</string>
+</resources>

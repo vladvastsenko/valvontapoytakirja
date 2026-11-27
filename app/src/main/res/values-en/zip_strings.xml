@@ -1,0 +1,7 @@
+<resources>
+    <string name="zip_recovery">Export recovery ZIP</string>
+    <string name="zip_delete">Delete recovery copy</string>
+    <string name="zip_delete_confirm">Permanently delete recovery copy?</string>
+    <string name="zip_ok">ZIP: success</string>
+    <string name="zip_error">ZIP: error</string>
+</resources>

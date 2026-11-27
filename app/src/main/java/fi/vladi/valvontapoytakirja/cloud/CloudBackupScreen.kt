@@ -328,22 +328,33 @@ private fun LocalBackupControls() {
     var status by remember { mutableStateOf("") }
     var pending by remember { mutableStateOf<Uri?>(null) }
     var reload by remember { mutableStateOf(false) }
+    var copies by remember { mutableStateOf(CloudBackupManager.recoveryCopies(context)) }
+    var selected by remember { mutableStateOf<String?>(null) }
+    var deletePending by remember { mutableStateOf<String?>(null) }
     val export = rememberLauncherForActivityResult(ActivityResultContracts.CreateDocument("application/zip")) { uri ->
         if (uri != null) { busy = true; scope.launch {
-            status = runCatching { withContext(Dispatchers.IO) { CloudBackupManager.backupToDocument(context, uri) } }.fold({ "ZIP: OK" }, { it.message ?: "ZIP: error" })
+            status = runCatching { withContext(Dispatchers.IO) { CloudBackupManager.backupToDocument(context, uri) } }.fold({ context.getString(R.string.zip_ok) }, { it.message ?: context.getString(R.string.zip_error) })
             busy = false
         } }
     }
     val emergency = rememberLauncherForActivityResult(ActivityResultContracts.CreateDocument("application/zip")) { uri ->
         if (uri != null) { busy = true; scope.launch {
-            status = runCatching { withContext(Dispatchers.IO) { CloudBackupManager.backupToDocument(context, uri, true) } }.fold({ "ZIP: OK" }, { it.message ?: "ZIP: error" })
+            status = runCatching { withContext(Dispatchers.IO) { CloudBackupManager.backupToDocument(context, uri, true, selected) } }.fold({ context.getString(R.string.zip_ok) }, { it.message ?: context.getString(R.string.zip_error) })
             busy = false
         } }
     }
     val importer = rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) { pending = it }
     OutlinedButton(enabled = !busy && !reload, onClick = { export.launch("TarkastusPro.zip") }) { Text("ZIP — " + stringResource(R.string.cloud_backup)) }
     OutlinedButton(enabled = !busy && !reload, onClick = { importer.launch(arrayOf("application/zip", "application/octet-stream")) }) { Text("ZIP — " + stringResource(R.string.cloud_restore)) }
-    OutlinedButton(enabled = !busy && !reload && CloudBackupManager.recoveryCopies(context).isNotEmpty(), onClick = { emergency.launch("TarkastusPro-recovery.zip") }) { Text("ZIP — Recovery") }
+    OutlinedButton(enabled = !busy && !reload && CloudBackupManager.recoveryCopies(context).isNotEmpty(), onClick = { selected = null; emergency.launch("TarkastusPro-recovery.zip") }) { Text(stringResource(R.string.zip_recovery)) }
+    copies.forEach { copy ->
+        Text(java.text.DateFormat.getDateTimeInstance().format(java.util.Date(copy.lastModified())))
+        Row {
+            TextButton(enabled = !busy, onClick = { selected = copy.name; emergency.launch("TarkastusPro-recovery.zip") }) { Text(stringResource(R.string.zip_recovery)) }
+            if (copy.name.startsWith("tarkastus_restore_retained_")) TextButton(enabled = !busy, onClick = { deletePending = copy.name }) { Text(stringResource(R.string.zip_delete)) }
+        }
+    }
+    deletePending?.let { name -> AlertDialog(onDismissRequest = { deletePending = null }, title = { Text(stringResource(R.string.zip_delete_confirm)) }, confirmButton = { TextButton(onClick = { deletePending = null; busy = true; scope.launch { status = runCatching { withContext(Dispatchers.IO) { CloudBackupManager.deleteRecovery(context, name) } }.fold({ context.getString(R.string.zip_ok) }, { context.getString(R.string.zip_error) }); copies = CloudBackupManager.recoveryCopies(context); busy = false } }) { Text(stringResource(R.string.zip_delete)) } }, dismissButton = { TextButton(onClick = { deletePending = null }) { Text(stringResource(R.string.cloud_cancel)) } }) }
     if (busy) CircularProgressIndicator()
     if (status.isNotEmpty()) Text(status)
     if (reload) Button(onClick = { (context as? Activity)?.recreate() }) { Text(stringResource(R.string.cloud_reload)) }
@@ -351,7 +362,7 @@ private fun LocalBackupControls() {
         AlertDialog(onDismissRequest = { pending = null }, title = { Text(stringResource(R.string.cloud_confirm_title)) },
             text = { Text(stringResource(R.string.cloud_restore_hint)) },
             confirmButton = { TextButton(onClick = { pending = null; busy = true; scope.launch {
-                status = runCatching { withContext(Dispatchers.IO) { CloudBackupManager.restoreFromUri(context, uri) } }.fold({ reload = true; context.getString(R.string.cloud_restore_success) }, { it.message ?: "ZIP: error" })
+                status = runCatching { withContext(Dispatchers.IO) { CloudBackupManager.restoreFromUri(context, uri) } }.fold({ reload = true; context.getString(R.string.cloud_restore_success) }, { it.message ?: context.getString(R.string.zip_error) })
                 busy = false
             } }) { Text(stringResource(R.string.cloud_restore)) } },
             dismissButton = { TextButton(onClick = { pending = null }) { Text(stringResource(R.string.cloud_cancel)) } })

@@ -1,0 +1,7 @@
+<resources>
+    <string name="zip_recovery">Exportera återställnings-ZIP</string>
+    <string name="zip_delete">Ta bort återställningskopia</string>
+    <string name="zip_delete_confirm">Ta bort återställningskopian permanent?</string>
+    <string name="zip_ok">ZIP: klart</string>
+    <string name="zip_error">ZIP: fel</string>
+</resources>

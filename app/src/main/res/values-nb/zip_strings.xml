@@ -1,0 +1,7 @@
+<resources>
+    <string name="zip_recovery">Eksporter gjenopprettings-ZIP</string>
+    <string name="zip_delete">Slett gjenopprettingskopi</string>
+    <string name="zip_delete_confirm">Slette gjenopprettingskopien permanent?</string>
+    <string name="zip_ok">ZIP: fullført</string>
+    <string name="zip_error">ZIP: feil</string>
+</resources>

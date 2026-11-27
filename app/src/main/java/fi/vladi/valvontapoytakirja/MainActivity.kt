@@ -364,11 +364,10 @@ private fun ManagementScreen(
         Button(onClick = onSettings, modifier = Modifier.fillMaxWidth()) {
             Text(stringResource(R.string.shared_settings))
         }
-        run {
-            Button(onClick = onCloudBackup, modifier = Modifier.fillMaxWidth()) {
-                Text(stringResource(R.string.cloud_sync))
-            }
-        } else {
+        Button(onClick = onCloudBackup, modifier = Modifier.fillMaxWidth()) {
+            Text(stringResource(R.string.cloud_sync))
+        }
+        if (guestMode) {
             Text(stringResource(R.string.guest_local_notice))
         }
         OutlinedButton(onClick = onBack, modifier = Modifier.fillMaxWidth()) {

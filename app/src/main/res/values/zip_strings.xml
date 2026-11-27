@@ -1,0 +1,7 @@
+<resources>
+    <string name="zip_recovery">Vie turvakopio ZIP</string>
+    <string name="zip_delete">Poista turvakopio</string>
+    <string name="zip_delete_confirm">Poistetaanko turvakopio pysyvästi?</string>
+    <string name="zip_ok">ZIP: onnistui</string>
+    <string name="zip_error">ZIP: virhe</string>
+</resources>

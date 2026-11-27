@@ -1,0 +1,7 @@
+<resources>
+    <string name="zip_recovery">Eksportēt atkopšanas ZIP</string>
+    <string name="zip_delete">Dzēst atkopšanas kopiju</string>
+    <string name="zip_delete_confirm">Neatgriezeniski dzēst atkopšanas kopiju?</string>
+    <string name="zip_ok">ZIP: izdevās</string>
+    <string name="zip_error">ZIP: kļūda</string>
+</resources>

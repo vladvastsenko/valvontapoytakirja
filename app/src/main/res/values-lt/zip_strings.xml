@@ -1,0 +1,7 @@
+<resources>
+    <string name="zip_recovery">Eksportuoti atkūrimo ZIP</string>
+    <string name="zip_delete">Ištrinti atkūrimo kopiją</string>
+    <string name="zip_delete_confirm">Visam laikui ištrinti atkūrimo kopiją?</string>
+    <string name="zip_ok">ZIP: pavyko</string>
+    <string name="zip_error">ZIP: klaida</string>
+</resources>

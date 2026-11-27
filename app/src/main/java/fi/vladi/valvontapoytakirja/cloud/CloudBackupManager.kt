@@ -92,10 +92,10 @@ object CloudBackupManager {
         }
     }
 
-    fun backupToDocument(context: Context, uri: Uri, emergency: Boolean = false) {
+    fun backupToDocument(context: Context, uri: Uri, emergency: Boolean = false, recoveryName: String? = null) {
         val temp = File.createTempFile("pro-backup-", ".zip", context.cacheDir)
         try {
-            val root = if (emergency) recoveryCopies(context).firstOrNull() ?: error("No recovery copy") else context.filesDir
+            val root = if (emergency) recoveryCopies(context).firstOrNull { recoveryName == null || it.name == recoveryName } ?: error("No recovery copy") else context.filesDir
             writeArchive(root, temp)
             context.contentResolver.openOutputStream(uri, "wt")?.use { output ->
                 temp.inputStream().use { it.copyTo(output) }
@@ -206,6 +206,11 @@ object CloudBackupManager {
     }
 
     fun recoveryCopies(context: Context): List<File> = File(context.applicationInfo.dataDir).listFiles().orEmpty().filter { it.isDirectory && (it.name.startsWith("tarkastus_restore_retained_") || it.name == "tarkastus_restore_previous") }.sortedByDescending { it.lastModified() }
+
+    fun deleteRecovery(context: Context, name: String) = AtomicRecords.exclusive {
+        val copy = recoveryCopies(context).singleOrNull { it.name == name && it.name.startsWith("tarkastus_restore_retained_") } ?: error("Recovery copy unavailable")
+        check(copy.deleteRecursively())
+    }
 
     fun recoverInterrupted(context: Context) = AtomicRecords.exclusive {
         val parent = File(context.applicationInfo.dataDir)

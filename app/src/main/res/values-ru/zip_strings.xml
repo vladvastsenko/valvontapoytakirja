@@ -1,0 +1,7 @@
+<resources>
+    <string name="zip_recovery">Экспорт аварийного ZIP</string>
+    <string name="zip_delete">Удалить аварийную копию</string>
+    <string name="zip_delete_confirm">Удалить аварийную копию навсегда?</string>
+    <string name="zip_ok">ZIP: успешно</string>
+    <string name="zip_error">ZIP: ошибка</string>
+</resources>

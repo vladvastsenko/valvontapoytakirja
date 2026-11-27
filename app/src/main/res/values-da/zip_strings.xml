@@ -1,0 +1,7 @@
+<resources>
+    <string name="zip_recovery">Eksportér gendannelses-ZIP</string>
+    <string name="zip_delete">Slet gendannelseskopi</string>
+    <string name="zip_delete_confirm">Slet gendannelseskopien permanent?</string>
+    <string name="zip_ok">ZIP: gennemført</string>
+    <string name="zip_error">ZIP: fejl</string>
+</resources>
