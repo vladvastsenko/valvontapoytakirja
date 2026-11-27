@@ -79,7 +79,7 @@ fun PremiumControls() {
             singleLine = true, visualTransformation = androidx.compose.ui.text.input.PasswordVisualTransformation())
         Button(enabled = !busy && email.isNotBlank() && password.length >= 6, onClick = {
             val user = FirebaseAuth.getInstance().currentUser
-            if (user != null && user.isAnonymous && PremiumAccess.allowed()) {
+            if (user != null && user.isAnonymous && PremiumAccess.allowed() && !busy) {
                 busy = true
                 user.linkWithCredential(EmailAuthProvider.getCredential(email.trim(), password))
                     .addOnCompleteListener { task ->
