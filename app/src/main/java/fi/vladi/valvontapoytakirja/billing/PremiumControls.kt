@@ -38,16 +38,17 @@ fun PremiumControls() {
                     } == true }
                 if (recovering) {
                     recovering = false
+                    val requestedCode = recoveryInput.trim()
                     val candidate = purchases.singleOrNull { it.purchaseState == Purchase.PurchaseState.PURCHASED }
                     if (candidate == null) status = R.string.premium_unverified
                     else {
                         busy = true
-                        PremiumVerification.recover(recoveryInput.trim(), candidate.purchaseToken) { active ->
+                        PremiumVerification.recover(requestedCode, candidate.purchaseToken) { active ->
                             busy = false
                             status = if (active) null else R.string.premium_unverified
                             if (active) {
                                 val owner = FirebaseAuth.getInstance().currentUser?.uid
-                                val code = recoveryInput.trim()
+                                val code = requestedCode
                                 if (owner != null && recoveryStore.write(owner, code)) { recoveryCode = code; recoveryOwner = owner }
                                 else status = R.string.premium_unavailable
                             }
@@ -92,7 +93,7 @@ fun PremiumControls() {
         }
         offers.forEach { details ->
             details.subscriptionOfferDetails.orEmpty().forEach { offer ->
-                OutlinedButton(enabled = !busy && (recoveryCode.isBlank() || savedCode), onClick = {
+                OutlinedButton(enabled = !busy && (FirebaseAuth.getInstance().currentUser.hasPermanentIdentity() || (recoveryOwner == uid && recoveryCode.isNotBlank() && savedCode)), onClick = {
                     val activity = context as? android.app.Activity
                     val owner = uid
                     if (activity != null && owner != null &&

@@ -30,7 +30,7 @@ internal fun PremiumRefresh(context: Context) {
                     if (result.responseCode != BillingClient.BillingResponseCode.OK) {
                         PremiumAccess.clear()
                     } else {
-                    val purchase = purchases.firstOrNull { it.purchaseState == Purchase.PurchaseState.PURCHASED &&
+                    val purchase = purchases.firstOrNull { it.purchaseState == Purchase.PurchaseState.PURCHASED && !it.isSuspended &&
                         it.accountIdentifiers?.obfuscatedAccountId == PremiumVerification.accountId(owner) }
                     if (purchase == null) PremiumAccess.clear()
                     else PremiumVerification.verify(purchase.purchaseToken) {}
