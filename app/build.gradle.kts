@@ -62,6 +62,7 @@ dependencies {
     implementation(project(":tarkastus"))
     implementation(platform("com.google.firebase:firebase-bom:33.12.0"))
     implementation("com.google.firebase:firebase-auth")
+    implementation("com.google.firebase:firebase-functions")
     implementation("com.google.android.gms:play-services-auth:21.3.0")
     implementation("com.google.android.gms:play-services-ads:24.7.0")
     implementation("com.google.android.ump:user-messaging-platform:3.2.0")

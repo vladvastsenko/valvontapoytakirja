@@ -23,3 +23,10 @@ exports.verifyTarkastusProSubscription=onCall({region:"europe-west1"},async requ
   throw new HttpsError("unavailable","Subscription verification unavailable");
  }
 });
+
+exports.getTarkastusProCheckoutConfig=onCall({region:"europe-west1"},async request=>{
+ if(!request.auth) throw new HttpsError("unauthenticated","Authentication required");
+ const productId=product.value();
+ if(!productId) throw new HttpsError("failed-precondition","Checkout not configured");
+ return {productId};
+});

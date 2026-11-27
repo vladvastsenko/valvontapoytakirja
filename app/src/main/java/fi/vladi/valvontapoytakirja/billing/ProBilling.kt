@@ -20,6 +20,33 @@ class ProBilling(context: Context, private val onResult: (BillingResult, List<Pu
         })
     }
 
+    fun loadOffers(productId: String, onOffers: (List<ProductDetails>) -> Unit) {
+        val action = {
+            val params = QueryProductDetailsParams.newBuilder().setProductList(listOf(
+                QueryProductDetailsParams.Product.newBuilder().setProductId(productId)
+                    .setProductType(BillingClient.ProductType.SUBS).build()
+            )).build()
+            client.queryProductDetailsAsync(params) { result, details ->
+                onOffers(if (result.responseCode == BillingClient.BillingResponseCode.OK) details.productDetailsList else emptyList())
+            }
+        }
+        if (client.isReady) action() else client.startConnection(object : BillingClientStateListener {
+            override fun onBillingSetupFinished(result: BillingResult) {
+                if (result.responseCode == BillingClient.BillingResponseCode.OK) action() else onOffers(emptyList())
+            }
+            override fun onBillingServiceDisconnected() { PremiumAccess.clear() }
+        })
+    }
+
+    fun launchPurchase(activity: android.app.Activity, details: ProductDetails, offerToken: String, uid: String): BillingResult {
+        require(com.google.firebase.auth.FirebaseAuth.getInstance().currentUser?.uid == uid)
+        val item = BillingFlowParams.ProductDetailsParams.newBuilder()
+            .setProductDetails(details).setOfferToken(offerToken).build()
+        return client.launchBillingFlow(activity, BillingFlowParams.newBuilder()
+            .setProductDetailsParamsList(listOf(item))
+            .setObfuscatedAccountId(PremiumVerification.accountId(uid)).build())
+    }
+
     private fun query() {
         client.queryPurchasesAsync(QueryPurchasesParams.newBuilder()
             .setProductType(BillingClient.ProductType.SUBS)
