@@ -77,7 +77,7 @@ internal object PremiumVerification {
                 val state = runCatching { SubscriptionState.valueOf(data?.get("state") as? String ?: "") }.getOrNull()
                 val expiry = (data?.get("expiresAtMillis") as? Number)?.toLong()
                 if (auth.currentUser?.uid != uid) { onComplete(false); return@addOnCompleteListener }
-                if (verificationGeneration.get() != generation) { onComplete(PremiumAccess.allowed()); return@addOnCompleteListener }
+                if (verificationGeneration.get() != generation) { onComplete(false); return@addOnCompleteListener }
                 if (data?.get("uid") != uid || state == null || expiry == null) {
                     PremiumAccess.clear()
                     onComplete(false)
