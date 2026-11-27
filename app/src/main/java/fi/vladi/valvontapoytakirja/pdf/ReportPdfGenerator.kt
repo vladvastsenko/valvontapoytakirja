@@ -2,7 +2,6 @@ package fi.vladi.valvontapoytakirja.pdf
 
 import android.content.Context
 import android.graphics.Bitmap
-import android.graphics.BitmapFactory
 import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.Paint
@@ -210,7 +209,7 @@ object ReportPdfGenerator {
 
         private fun drawFirstPageLogo() {
             if (logoPath.isBlank()) return
-            val bitmap = BitmapFactory.decodeFile(logoPath) ?: return
+            val bitmap = PdfBitmap.decode(logoPath) ?: return
             val maxWidth = 170f
             val maxHeight = 58f
             val scale = minOf(maxWidth / bitmap.width, maxHeight / bitmap.height)
@@ -415,7 +414,7 @@ object ReportPdfGenerator {
             // Reserve identical caption space for every cell so image areas stay equal-sized.
             val captionSpace = 25f
             val imageRect = RectF(left, top, left + cellWidth, top + cellHeight - captionSpace)
-            val bitmap = BitmapFactory.decodeFile(photo.filePath)
+            val bitmap = PdfBitmap.decode(photo.filePath)
             if (bitmap != null) {
                 val ratio = minOf(imageRect.width() / bitmap.width, imageRect.height() / bitmap.height)
                 val drawWidth = bitmap.width * ratio

@@ -1,17 +1,17 @@
 package fi.vladi.valvontapoytakirja.pdf
 
 import android.graphics.Bitmap
-import android.graphics.BitmapFactory
 import android.graphics.Color
 
 /** Removes pale pink/white scanner backgrounds from imported signatures, without altering the source file. */
 internal object SignatureImage {
     fun prepare(path: String): Bitmap? {
-        val original = BitmapFactory.decodeFile(path) ?: return null
+        val original = PdfBitmap.decode(path, 2400) ?: return null
         val width = original.width
         val height = original.height
         val bitmap = original.copy(Bitmap.Config.ARGB_8888, true)
         original.recycle()
+        if (bitmap == null) return null
         if (width <= 0 || height <= 0) return bitmap
         val pixels = IntArray(width * height)
         bitmap.getPixels(pixels, 0, width, 0, 0, width, height)
