@@ -29,6 +29,33 @@ internal object PremiumVerification {
         }
     }
 
+    fun recoveryCode(onComplete: (String?) -> Unit) {
+        functions.getHttpsCallable("prepareTarkastusProRecovery").call().addOnCompleteListener {
+            onComplete((it.resultOrNull()?.data as? Map<*, *>)?.get("secret") as? String)
+        }
+    }
+
+    fun recover(secret: String, token: String, onComplete: (Boolean) -> Unit) {
+        fun request() {
+            functions.getHttpsCallable("recoverTarkastusProAccount")
+                .call(mapOf("secret" to secret, "token" to token)).addOnCompleteListener {
+                    val custom = (it.resultOrNull()?.data as? Map<*, *>)?.get("customToken") as? String
+                    if (custom.isNullOrBlank()) onComplete(false)
+                    else auth.signInWithCustomToken(custom).addOnCompleteListener { signIn ->
+                        if (signIn.isSuccessful) verify(token, onComplete) else onComplete(false)
+                    }
+                }
+        }
+        if (auth.currentUser?.isAnonymous == true) request()
+        else if (auth.currentUser == null) auth.signInAnonymously().addOnCompleteListener {
+            if (it.isSuccessful) request() else onComplete(false)
+        } else onComplete(false)
+    }
+
+    fun finishRecovery(secret: String) {
+        if (secret.isNotBlank()) functions.getHttpsCallable("finishTarkastusProRecovery").call(mapOf("secret" to secret))
+    }
+
     fun verify(token: String, onComplete: (Boolean) -> Unit) {
         val uid = auth.currentUser?.uid ?: run { PremiumAccess.clear(); onComplete(false); return }
         functions.getHttpsCallable("verifyTarkastusProSubscription")

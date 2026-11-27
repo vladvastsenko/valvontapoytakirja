@@ -19,6 +19,10 @@ fun PremiumControls() {
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     var registered by remember { mutableStateOf(false) }
+    var recoveryCode by remember { mutableStateOf("") }
+    var recoveryInput by remember { mutableStateOf("") }
+    var savedCode by remember { mutableStateOf(false) }
+    var recovering by remember { mutableStateOf(false) }
     val entitlement by PremiumAccess.changes.collectAsState()
     val billing = remember(context) {
         ProBilling(context) { result, purchases ->
@@ -28,7 +32,19 @@ fun PremiumControls() {
                     FirebaseAuth.getInstance().currentUser?.uid?.let { owner ->
                         it.accountIdentifiers?.obfuscatedAccountId == PremiumVerification.accountId(owner)
                     } == true }
-                if (purchase == null) {
+                if (recovering) {
+                    recovering = false
+                    val candidate = purchases.singleOrNull { it.purchaseState == Purchase.PurchaseState.PURCHASED }
+                    if (candidate == null) status = R.string.premium_unverified
+                    else {
+                        busy = true
+                        PremiumVerification.recover(recoveryInput.trim(), candidate.purchaseToken) { active ->
+                            busy = false
+                            status = if (active) null else R.string.premium_unverified
+                            if (active) recoveryCode = recoveryInput.trim()
+                        }
+                    }
+                } else if (purchase == null) {
                     status = if (purchases.isEmpty()) R.string.premium_none else R.string.premium_unverified
                 } else {
                     busy = true
@@ -47,16 +63,26 @@ fun PremiumControls() {
             busy = true
             PremiumVerification.prepareCheckout({ owner, product ->
                 uid = owner
-                billing.loadOffers(product) {
+                fun load() { billing.loadOffers(product) {
                     offers = it
                     busy = false
                     status = if (it.isEmpty()) R.string.premium_unavailable else null
-                }
+                } }
+                if (FirebaseAuth.getInstance().currentUser?.isAnonymous == true && recoveryCode.isBlank()) {
+                    PremiumVerification.recoveryCode { code ->
+                        if (code == null) { busy = false; status = R.string.premium_unavailable }
+                        else { recoveryCode = code; savedCode = false; load() }
+                    }
+                } else load()
             }, { busy = false; status = R.string.premium_unavailable })
         }) { Text("Premium") }
+        if (recoveryCode.isNotBlank()) {
+            androidx.compose.foundation.text.selection.SelectionContainer { Text(recoveryCode) }
+            RowRecoveryConfirmation(savedCode) { savedCode = it }
+        }
         offers.forEach { details ->
             details.subscriptionOfferDetails.orEmpty().forEach { offer ->
-                OutlinedButton(enabled = !busy, onClick = {
+                OutlinedButton(enabled = !busy && (recoveryCode.isBlank() || savedCode), onClick = {
                     val activity = context as? android.app.Activity
                     val owner = uid
                     if (activity != null && owner != null &&
@@ -72,14 +98,19 @@ fun PremiumControls() {
     OutlinedButton(enabled = !busy, onClick = { busy = true; billing.restorePurchases() }) {
         Text(stringResource(R.string.premium_restore))
     }
+    OutlinedTextField(recoveryInput, { recoveryInput = it }, label = { Text("Recovery code") },
+        singleLine = true, visualTransformation = androidx.compose.ui.text.input.PasswordVisualTransformation())
+    OutlinedButton(enabled = !busy && recoveryInput.trim().matches(Regex("[A-Za-z0-9_-]{43}")), onClick = {
+        recovering = true; busy = true; billing.restorePurchases()
+    }) { Text(stringResource(R.string.premium_restore)) }
     if (entitlement != null && PremiumAccess.allowed() && !registered &&
-        FirebaseAuth.getInstance().currentUser?.isAnonymous == true) {
+        FirebaseAuth.getInstance().currentUser?.providerData?.none { it.providerId == "password" || it.providerId == "google.com" } == true) {
         OutlinedTextField(email, { email = it }, label = { Text(stringResource(R.string.email)) }, singleLine = true)
         OutlinedTextField(password, { password = it }, label = { Text(stringResource(R.string.password)) },
             singleLine = true, visualTransformation = androidx.compose.ui.text.input.PasswordVisualTransformation())
         Button(enabled = !busy && email.isNotBlank() && password.length >= 6, onClick = {
             val user = FirebaseAuth.getInstance().currentUser
-            if (user != null && user.isAnonymous && PremiumAccess.allowed() && !busy) {
+            if (user != null && user.providerData.none { it.providerId == "password" || it.providerId == "google.com" } && PremiumAccess.allowed() && !busy) {
                 busy = true
                 user.linkWithCredential(EmailAuthProvider.getCredential(email.trim(), password))
                     .addOnCompleteListener { task ->
@@ -87,6 +118,9 @@ fun PremiumControls() {
                         if (task.isSuccessful) {
                             registered = true
                             password = ""
+                            PremiumVerification.finishRecovery(recoveryCode)
+                            recoveryCode = ""
+                            recoveryInput = ""
                             task.result?.user?.sendEmailVerification()
                         } else status = R.string.auth_failed
                     }
@@ -95,4 +129,12 @@ fun PremiumControls() {
     }
     if (busy) CircularProgressIndicator()
     status?.let { Text(stringResource(it)) }
+}
+
+@Composable
+private fun RowRecoveryConfirmation(checked: Boolean, onChange: (Boolean) -> Unit) {
+    androidx.compose.foundation.layout.Row {
+        Checkbox(checked, onCheckedChange = onChange)
+        Text("I saved the recovery code securely")
+    }
 }
