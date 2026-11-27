@@ -14,6 +14,7 @@ import fi.vladi.valvontapoytakirja.model.CustomerProfile
 import fi.vladi.valvontapoytakirja.model.CustomerSite
 import fi.vladi.tarkastuspoytakirja.storage.SharedDocumentsArchive
 import kotlinx.serialization.json.Json
+import fi.vladi.tarkastuspoytakirja.storage.AtomicRecords
 import java.io.File
 import java.time.Instant
 
@@ -27,7 +28,7 @@ class ReportRepository(private val context: Context) {
     private fun settingsFile(): File = File(context.filesDir, "app_settings.json")
 
     fun loadSettings(): AppSettings =
-        runCatching { json.decodeFromString(AppSettings.serializer(), settingsFile().readText()) }
+        runCatching { json.decodeFromString(AppSettings.serializer(), AtomicRecords.read(settingsFile())) }
             .getOrDefault(AppSettings())
 
     fun saveSettings(settings: AppSettings) {
@@ -45,9 +46,9 @@ class ReportRepository(private val context: Context) {
         File(context.filesDir, "inspectors").apply { mkdirs() }
 
     fun listInspectors(): List<InspectorProfile> =
-        inspectorsDirectory().listFiles { it.extension == "json" }
+        AtomicRecords.list(inspectorsDirectory())
             ?.mapNotNull { file ->
-                runCatching { json.decodeFromString(InspectorProfile.serializer(), file.readText()) }.getOrNull()
+                runCatching { json.decodeFromString(InspectorProfile.serializer(), AtomicRecords.read(file)) }.getOrNull()
             }
             ?.sortedBy { it.name.lowercase() }
             ?: emptyList()
@@ -65,16 +66,16 @@ class ReportRepository(private val context: Context) {
 
     fun deleteInspector(inspectorId: String) {
         require(inspectorId.matches(Regex("[a-zA-Z0-9-]{1,64}")))
-        File(inspectorsDirectory(), "${inspectorId}.json").delete()
+        AtomicRecords.delete(File(inspectorsDirectory(), "${inspectorId}.json"))
     }
 
     private fun customersDirectory(): File =
         File(context.filesDir, "customers").apply { mkdirs() }
 
     fun listCustomers(): List<CustomerProfile> =
-        customersDirectory().listFiles { it.extension == "json" }
+        AtomicRecords.list(customersDirectory())
             ?.mapNotNull { file ->
-                runCatching { json.decodeFromString(CustomerProfile.serializer(), file.readText()) }.getOrNull()
+                runCatching { json.decodeFromString(CustomerProfile.serializer(), AtomicRecords.read(file)) }.getOrNull()
             }
             ?.sortedBy { it.name.lowercase() }
             ?: emptyList()
@@ -88,7 +89,7 @@ class ReportRepository(private val context: Context) {
 
     fun deleteCustomer(customerId: String) {
         requireSafeId(customerId)
-        File(customersDirectory(), "${customerId}.json").delete()
+        AtomicRecords.delete(File(customersDirectory(), "${customerId}.json"))
         listSites().filter { it.customerId == customerId }.forEach { deleteSite(it.id) }
     }
 
@@ -96,9 +97,9 @@ class ReportRepository(private val context: Context) {
         File(context.filesDir, "customer_sites").apply { mkdirs() }
 
     fun listSites(customerId: String? = null): List<CustomerSite> =
-        sitesDirectory().listFiles { it.extension == "json" }
+        AtomicRecords.list(sitesDirectory())
             ?.mapNotNull { file ->
-                runCatching { json.decodeFromString(CustomerSite.serializer(), file.readText()) }.getOrNull()
+                runCatching { json.decodeFromString(CustomerSite.serializer(), AtomicRecords.read(file)) }.getOrNull()
             }
             ?.filter { customerId == null || it.customerId == customerId }
             ?.sortedBy { it.name.lowercase() }
@@ -113,7 +114,7 @@ class ReportRepository(private val context: Context) {
 
     fun deleteSite(siteId: String) {
         requireSafeId(siteId)
-        File(sitesDirectory(), "${siteId}.json").delete()
+        AtomicRecords.delete(File(sitesDirectory(), "${siteId}.json"))
     }
 
     fun importInspectorSignature(inspectorId: String, uri: Uri): File? = runCatching {
@@ -176,10 +177,10 @@ class ReportRepository(private val context: Context) {
         customersDirectory().listFiles()?.forEach { archive(it, "Asetukset/Asiakkaat") }
         sitesDirectory().listFiles()?.forEach { archive(it, "Asetukset/Kohteet") }
 
-        reportsDirectory().listFiles { it.extension == "json" }?.forEach { file ->
+        AtomicRecords.list(reportsDirectory())?.forEach { file ->
             archive(file, "Raportit/Data/Valvontapoytakirja")
         }
-        templatesDirectory().listFiles { it.extension == "json" }?.forEach {
+        AtomicRecords.list(templatesDirectory())?.forEach {
             archive(it, "Raportit/Mallit/Valvontapoytakirja")
         }
         if (complete) preferences.edit().putBoolean(migrationKey, true).apply()
@@ -189,9 +190,9 @@ class ReportRepository(private val context: Context) {
         File(context.filesDir, "reports").apply { mkdirs() }
 
     fun listReports(): List<InspectionReport> =
-        reportsDirectory().listFiles { file -> file.extension == "json" }
+        AtomicRecords.list(reportsDirectory())
             ?.mapNotNull { file ->
-                runCatching { json.decodeFromString(InspectionReport.serializer(), file.readText()) }.getOrNull()
+                runCatching { json.decodeFromString(InspectionReport.serializer(), AtomicRecords.read(file)) }.getOrNull()
             }
             ?.sortedByDescending { it.createdAt }
             ?: emptyList()
@@ -200,9 +201,9 @@ class ReportRepository(private val context: Context) {
         File(context.filesDir, "templates").apply { mkdirs() }
 
     fun listTemplates(): List<InspectionReport> =
-        templatesDirectory().listFiles { file -> file.extension == "json" }
+        AtomicRecords.list(templatesDirectory())
             ?.mapNotNull { file ->
-                runCatching { json.decodeFromString(InspectionReport.serializer(), file.readText()) }.getOrNull()
+                runCatching { json.decodeFromString(InspectionReport.serializer(), AtomicRecords.read(file)) }.getOrNull()
             }
             ?.sortedBy { it.templateName.lowercase() }
             ?: emptyList()
@@ -220,7 +221,7 @@ class ReportRepository(private val context: Context) {
     }
     fun deleteReport(reportId: String) {
         requireSafeId(reportId)
-        File(reportsDirectory(), "$reportId.json").delete()
+        AtomicRecords.delete(File(reportsDirectory(), "$reportId.json"))
         File(reportsDirectory(), reportId).deleteRecursively()
     }
 
@@ -316,18 +317,4 @@ private fun requireSafeId(id: String) {
     require(id.matches(Regex("[a-zA-Z0-9_-]{1,128}"))) { "Invalid record identifier" }
 }
 
-private fun File.writeAtomicText(value: String) {
-    synchronized(atomicWriteLock) {
-        val atomic = android.util.AtomicFile(this)
-        val stream = atomic.startWrite()
-        try {
-            stream.write(value.toByteArray(Charsets.UTF_8))
-            atomic.finishWrite(stream)
-        } catch (failure: Throwable) {
-            atomic.failWrite(stream)
-            throw failure
-        }
-    }
-}
-
-private val atomicWriteLock = Any()
+private fun File.writeAtomicText(value: String) = AtomicRecords.write(this, value)

@@ -20,6 +20,7 @@ android {
     defaultConfig {
         applicationId = "fi.vladi.tarkastuspro"
         minSdk = 26
+        testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         targetSdk = 35
         versionCode = 46
         versionName = if (preview) "0.6.24-rename-preview" else "0.6.24-test"
@@ -55,6 +56,8 @@ android {
 }
 
 dependencies {
+    androidTestImplementation("androidx.test:runner:1.6.2")
+    androidTestImplementation("androidx.test.ext:junit:1.2.1")
     implementation(project(":tarkastus"))
     implementation(platform("com.google.firebase:firebase-bom:33.12.0"))
     implementation("com.google.firebase:firebase-auth")
