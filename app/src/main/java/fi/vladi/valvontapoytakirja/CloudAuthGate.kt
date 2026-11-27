@@ -48,24 +48,28 @@ import com.google.firebase.FirebaseNetworkException
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.GoogleAuthProvider
 import fi.vladi.tarkastuspoytakirja.AppLanguage
+import fi.vladi.valvontapoytakirja.billing.hasPermanentIdentity
 
 @Composable
 internal fun CloudAuthGate(content: @Composable (onSignOut: () -> Unit) -> Unit) {
     val context = LocalContext.current
     val auth = remember { FirebaseAuth.getInstance() }
     fi.vladi.valvontapoytakirja.billing.PremiumRefresh(context)
-    var signedIn by remember { mutableStateOf(auth.currentUser?.isAnonymous == false) }
+    var signedIn by remember { mutableStateOf(auth.currentUser.hasPermanentIdentity()) }
     val guestPrefs = remember { context.getSharedPreferences("tarkastus_guest_mode", android.content.Context.MODE_PRIVATE) }
-    var guest by remember { mutableStateOf(auth.currentUser?.isAnonymous == true || (auth.currentUser == null && guestPrefs.getBoolean("enabled", true))) }
+    var guest by remember { mutableStateOf((auth.currentUser != null && !auth.currentUser.hasPermanentIdentity()) || (auth.currentUser == null && guestPrefs.getBoolean("enabled", true))) }
     androidx.compose.runtime.DisposableEffect(auth) {
         val listener = FirebaseAuth.AuthStateListener {
             val user = it.currentUser
-            if (user?.isAnonymous == true) {
+            if (user != null && !user.hasPermanentIdentity()) {
                 signedIn = false
                 guest = true
             } else if (user != null) {
                 signedIn = true
                 guest = false
+            } else {
+                signedIn = false
+                guest = guestPrefs.getBoolean("enabled", true)
             }
         }
         auth.addAuthStateListener(listener)
@@ -110,8 +114,8 @@ internal fun CloudAuthGate(content: @Composable (onSignOut: () -> Unit) -> Unit)
             }
         }
     }
-    if (auth.currentUser?.isAnonymous == true || (guest && !signedIn)) {
-        content({ if (auth.currentUser?.isAnonymous != true) { guest = false; guestPrefs.edit().putBoolean("enabled", false).apply() } })
+    if ((auth.currentUser != null && !auth.currentUser.hasPermanentIdentity()) || (guest && !signedIn)) {
+        content({ if (auth.currentUser == null) { guest = false; guestPrefs.edit().putBoolean("enabled", false).apply() } })
     } else if (signedIn) {
         BiometricSessionGate { content({
             fi.vladi.valvontapoytakirja.billing.PremiumAccess.clear()

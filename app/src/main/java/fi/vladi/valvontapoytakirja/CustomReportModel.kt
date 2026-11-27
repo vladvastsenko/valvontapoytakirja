@@ -122,6 +122,6 @@ internal class CustomStore(private val root: File) {
     }
     fun image(name: String): File {
         require(name.matches(Regex("[0-9a-fA-F-]{36}\\.(image|png)"))) { "Invalid attachment name" }
-        return File(root,name).also { require(it.canonicalFile.parentFile == root.canonicalFile && it.canonicalFile == it.absoluteFile) { "Unsafe attachment path" } }
+        return File(root,name).also { require(it.canonicalFile.parentFile == root.canonicalFile && it.canonicalFile == File(root.canonicalFile, name)) { "Unsafe attachment path" } }
     }
 }

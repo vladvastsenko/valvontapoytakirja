@@ -126,7 +126,7 @@ internal fun exportCustomPdf(context: Context, store: CustomStore, report: Custo
             }
         }
         if (report.useSharedSettings && settings.headerText.isNotBlank()) line(settings.headerText)
-        line(report.template.title,true)
+        if (report.template.title.isNotBlank()) line(report.template.title,true)
         if (report.useSharedSettings) {
             listOf(report.customerText, report.siteText, report.inspectorText.ifBlank { listOf(settings.inspectorName, settings.inspectorCertificateNumber, settings.inspectorPhone, settings.inspectorEmail).filter { it.isNotBlank() }.joinToString("\n") }).filter { it.isNotBlank() }.forEach { line(it) }
         }
@@ -134,7 +134,7 @@ internal fun exportCustomPdf(context: Context, store: CustomStore, report: Custo
             val fields = s.fields.filter { f ->
                 val value = report.values[f.id] ?: f.defaultValue
                 when (f.kind) {
-                    CustomKind.HEADING -> true
+                    CustomKind.HEADING -> f.label.isNotBlank()
                     CustomKind.PHOTOS, CustomKind.SIGNATURE -> !report.attachments[f.id].isNullOrEmpty()
                     CustomKind.TABLE -> customRows(value,customColumns(f).size).any { row -> row.any { it.isNotBlank() } }
                     else -> value.isNotBlank()
@@ -150,7 +150,7 @@ internal fun exportCustomPdf(context: Context, store: CustomStore, report: Custo
                 line(f.label.ifBlank { labels[25+f.kind.ordinal] },true)
                 val value = report.values[f.id] ?: f.defaultValue
                 if (f.kind == CustomKind.TABLE) table(f,value) else if (f.kind != CustomKind.HEADING && value.isNotBlank()) line(if (f.kind == CustomKind.CHECKBOX) (if (value == "true") "☑" else "☐") else value)
-                for (name in report.attachments[f.id].orEmpty()) {
+                for (name in if (f.kind == CustomKind.SIGNATURE) report.attachments[f.id].orEmpty() else emptyList()) {
                     val file = store.image(name)
                     val bitmap = decodeCustomImage(file,1600) ?: error("Unreadable image")
                     try { val scale = minOf(510f/bitmap.width,300f/bitmap.height,1f); val w = bitmap.width*scale; val height = bitmap.height*scale; space(height+16); page.canvas.drawBitmap(bitmap,null,RectF(42f,y,42f+w,y+height),paint); y += height+16 } finally { bitmap.recycle() }

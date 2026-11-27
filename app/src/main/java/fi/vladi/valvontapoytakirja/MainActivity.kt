@@ -1,5 +1,7 @@
 package fi.vladi.valvontapoytakirja
 
+import fi.vladi.valvontapoytakirja.billing.hasPermanentIdentity
+
 import android.content.Context
 import android.content.Intent
 import android.graphics.BitmapFactory
@@ -324,7 +326,7 @@ private fun UnifiedStartScreen(
 @Composable
 private fun TestAdMobBanner() {
     val entitlement by fi.vladi.valvontapoytakirja.billing.PremiumAccess.changes.collectAsState()
-    var premium by remember { mutableStateOf(false) }
+    var premium by remember { mutableStateOf(fi.vladi.valvontapoytakirja.billing.PremiumAccess.allowed()) }
     LaunchedEffect(entitlement) {
         while (true) {
             premium = fi.vladi.valvontapoytakirja.billing.PremiumAccess.allowed()
@@ -360,7 +362,7 @@ private fun ManagementScreen(
     consent: AdConsentManager?
 ) {
     val context = LocalContext.current
-    val guestMode = BuildConfig.OFFLINE_PREVIEW || com.google.firebase.auth.FirebaseAuth.getInstance().currentUser?.isAnonymous != false
+    val guestMode = BuildConfig.OFFLINE_PREVIEW || !com.google.firebase.auth.FirebaseAuth.getInstance().currentUser.hasPermanentIdentity()
     var languageMenu by remember { mutableStateOf(false) }
     var confirmSignOut by remember { mutableStateOf(false) }
     if (confirmSignOut) {

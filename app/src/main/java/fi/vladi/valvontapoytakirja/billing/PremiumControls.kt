@@ -53,7 +53,7 @@ fun PremiumControls() {
                         status = if (active) null else R.string.premium_unverified
                     }
                 }
-            } else status = R.string.premium_unavailable
+            } else { recovering = false; status = R.string.premium_unavailable }
         }
     }
     DisposableEffect(billing) { onDispose { billing.close() } }
@@ -68,7 +68,7 @@ fun PremiumControls() {
                     busy = false
                     status = if (it.isEmpty()) R.string.premium_unavailable else null
                 } }
-                if (FirebaseAuth.getInstance().currentUser?.isAnonymous == true && recoveryCode.isBlank()) {
+                if (!FirebaseAuth.getInstance().currentUser.hasPermanentIdentity() && recoveryCode.isBlank()) {
                     PremiumVerification.recoveryCode { code ->
                         if (code == null) { busy = false; status = R.string.premium_unavailable }
                         else { recoveryCode = code; savedCode = false; load() }

@@ -27,7 +27,7 @@ class CustomPdfExportTest {
         val report = CustomDocument(
             template = CustomTemplate(title = "Export test", sections = listOf(CustomSection(fields = listOf(photo, signature)))),
             attachments = mapOf(photo.id to listOf(image), signature.id to listOf(image)),
-            customerText = "Customer", siteText = "Site", pdfLanguage = "en"
+            customerText = "Customer", siteText = "Site", pdfLanguage = "en", useSharedSettings = true
         )
         store.saveDocument(report)
         val first = exportCustomPdf(context, store, report)
@@ -37,6 +37,7 @@ class CustomPdfExportTest {
         assertEquals("%PDF-", bytes.copyOfRange(0,5).decodeToString())
         val second = exportCustomPdf(context, store, report.copy(useSharedSettings = false))
         assertNotEquals(first, second)
+        assertFalse(bytes.contentEquals(read(second)))
         assertArrayEquals(bytes, read(first))
         assertEquals("%PDF-", read(second).copyOfRange(0,5).decodeToString())
     }
