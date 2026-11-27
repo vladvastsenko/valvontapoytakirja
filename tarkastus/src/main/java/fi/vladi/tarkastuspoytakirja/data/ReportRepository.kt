@@ -31,7 +31,7 @@ class ReportRepository(private val context: Context) {
             .getOrDefault(AppSettings())
 
     fun saveSettings(settings: AppSettings) {
-        settingsFile().writeText(json.encodeToString(AppSettings.serializer(), settings))
+        settingsFile().writeAtomicText(json.encodeToString(AppSettings.serializer(), settings))
         SharedDocumentsArchive.archiveText(context, json.encodeToString(AppSettings.serializer(), settings), "Asetukset", "app_settings.json")
         File(settings.logoPath).takeIf { it.isFile }?.let { logo ->
             SharedDocumentsArchive.archiveFile(context, logo, "Asetukset", logo.name)
@@ -64,12 +64,14 @@ class ReportRepository(private val context: Context) {
             ?: emptyList()
 
     fun saveCustomer(customer: CustomerProfile) {
+        requireSafeId(customer.id)
         val file = File(customersDirectory(), "${customer.id}.json")
-        file.writeText(json.encodeToString(CustomerProfile.serializer(), customer))
+        file.writeAtomicText(json.encodeToString(CustomerProfile.serializer(), customer))
         SharedDocumentsArchive.archiveFile(context, file, "Asetukset/Asiakkaat", file.name, "application/json")
     }
 
     fun deleteCustomer(customerId: String) {
+        requireSafeId(customerId)
         File(customersDirectory(), "${customerId}.json").delete()
         listSites().filter { it.customerId == customerId }.forEach { deleteSite(it.id) }
     }
@@ -87,12 +89,14 @@ class ReportRepository(private val context: Context) {
             ?: emptyList()
 
     fun saveSite(site: CustomerSite) {
+        requireSafeId(site.id)
         val file = File(sitesDirectory(), "${site.id}.json")
-        file.writeText(json.encodeToString(CustomerSite.serializer(), site))
+        file.writeAtomicText(json.encodeToString(CustomerSite.serializer(), site))
         SharedDocumentsArchive.archiveFile(context, file, "Asetukset/Kohteet", file.name, "application/json")
     }
 
     fun deleteSite(siteId: String) {
+        requireSafeId(siteId)
         File(sitesDirectory(), "${siteId}.json").delete()
     }
 
@@ -183,20 +187,23 @@ class ReportRepository(private val context: Context) {
             signatureStrokes = emptyList()
         )
         File(templatesDirectory(), template.id + ".json")
-            .writeText(json.encodeToString(InspectionReport.serializer(), template))
+            .writeAtomicText(json.encodeToString(InspectionReport.serializer(), template))
     }
     fun deleteReport(reportId: String) {
+        requireSafeId(reportId)
         File(reportsDirectory(), "$reportId.json").delete()
         File(reportsDirectory(), reportId).deleteRecursively()
     }
 
     fun save(report: InspectionReport) {
+        requireSafeId(report.id)
         val file = File(reportsDirectory(), "${report.id}.json")
-        file.writeText(json.encodeToString(InspectionReport.serializer(), report))
+        file.writeAtomicText(json.encodeToString(InspectionReport.serializer(), report))
         SharedDocumentsArchive.archiveFile(context, file, "Raportit/Data/Tarkastuspoytakirja", file.name, "application/json")
     }
 
     fun createCameraPhotoFile(reportId: String): File {
+        requireSafeId(reportId)
         val directory = File(reportsDirectory(), "$reportId/photos").apply { mkdirs() }
         return File(directory, "photo_${java.util.UUID.randomUUID()}.jpg")
     }
@@ -205,6 +212,7 @@ class ReportRepository(private val context: Context) {
         FileProvider.getUriForFile(context, "${context.packageName}.fileprovider", file)
 
     fun importPhoto(reportId: String, uri: Uri): File? {
+        requireSafeId(reportId)
         return runCatching {
             val directory = File(reportsDirectory(), "$reportId/photos").apply { mkdirs() }
             val destination = File(directory, "photo_${java.util.UUID.randomUUID()}.jpg")
@@ -248,6 +256,7 @@ class ReportRepository(private val context: Context) {
     }
 
     fun importLogo(reportId: String, uri: Uri): File? {
+        requireSafeId(reportId)
         return runCatching {
             val directory = File(reportsDirectory(), reportId).apply { mkdirs() }
             val extension = when (context.contentResolver.getType(uri)) {
@@ -265,6 +274,31 @@ class ReportRepository(private val context: Context) {
     }
 
     fun deletePhoto(path: String) {
-        runCatching { File(path).delete() }
+        runCatching {
+            val file = File(path).canonicalFile
+            val root = reportsDirectory().canonicalFile
+            require(file.path.startsWith(root.path + File.separator) && file.parentFile?.name == "photos")
+            file.delete()
+        }
     }
 }
+
+private fun requireSafeId(id: String) {
+    require(id.matches(Regex("[a-zA-Z0-9_-]{1,128}"))) { "Invalid record identifier" }
+}
+
+private fun File.writeAtomicText(value: String) {
+    synchronized(atomicWriteLock) {
+        val atomic = android.util.AtomicFile(this)
+        val stream = atomic.startWrite()
+        try {
+            stream.write(value.toByteArray(Charsets.UTF_8))
+            atomic.finishWrite(stream)
+        } catch (failure: Throwable) {
+            atomic.failWrite(stream)
+            throw failure
+        }
+    }
+}
+
+private val atomicWriteLock = Any()
