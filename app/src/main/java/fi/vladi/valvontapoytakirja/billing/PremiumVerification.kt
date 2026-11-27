@@ -30,17 +30,19 @@ internal object PremiumVerification {
     }
 
     fun recoveryCode(onComplete: (String?) -> Unit) {
+        val owner = auth.currentUser?.uid ?: run { onComplete(null); return }
         functions.getHttpsCallable("prepareTarkastusProRecovery").call().addOnCompleteListener {
-            onComplete((it.resultOrNull()?.data as? Map<*, *>)?.get("secret") as? String)
+            onComplete(if (auth.currentUser?.uid == owner) (it.resultOrNull()?.data as? Map<*, *>)?.get("secret") as? String else null)
         }
     }
 
     fun recover(secret: String, token: String, onComplete: (Boolean) -> Unit) {
         fun request() {
+            val requester = auth.currentUser?.uid ?: run { onComplete(false); return }
             functions.getHttpsCallable("recoverTarkastusProAccount")
                 .call(mapOf("secret" to secret, "token" to token)).addOnCompleteListener {
                     val custom = (it.resultOrNull()?.data as? Map<*, *>)?.get("customToken") as? String
-                    if (custom.isNullOrBlank()) onComplete(false)
+                    if (custom.isNullOrBlank() || auth.currentUser?.uid != requester || auth.currentUser.hasPermanentIdentity()) onComplete(false)
                     else auth.signInWithCustomToken(custom).addOnCompleteListener { signIn ->
                         if (signIn.isSuccessful) verify(token, onComplete) else onComplete(false)
                     }
