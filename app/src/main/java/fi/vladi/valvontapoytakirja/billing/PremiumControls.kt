@@ -10,7 +10,7 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.EmailAuthProvider
 
 @Composable
-fun PremiumControls() {
+fun PremiumControls(onSignIn: () -> Unit = {}) {
     val context = LocalContext.current
     var status by remember { mutableStateOf<Int?>(null) }
     var busy by remember { mutableStateOf(false) }
@@ -69,6 +69,9 @@ fun PremiumControls() {
     }
     DisposableEffect(billing) { onDispose { billing.close() } }
     Text("Premium")
+    if (!FirebaseAuth.getInstance().currentUser.hasPermanentIdentity()) {
+        OutlinedButton(enabled = !busy, onClick = onSignIn) { Text(stringResource(R.string.guest_sign_in)) }
+    }
     if (!PremiumAccess.allowed()) {
         Button(enabled = !busy, onClick = {
             busy = true

@@ -75,6 +75,7 @@ internal fun CloudAuthGate(content: @Composable (onSignOut: () -> Unit) -> Unit)
         auth.addAuthStateListener(listener)
         onDispose { auth.removeAuthStateListener(listener) }
     }
+    var loginRequested by remember { mutableStateOf(false) }
     var busy by remember { mutableStateOf(false) }
     var error by remember { mutableStateOf<String?>(null) }
     var email by remember { mutableStateOf("") }
@@ -85,7 +86,7 @@ internal fun CloudAuthGate(content: @Composable (onSignOut: () -> Unit) -> Unit)
     val webClientId = context.resources.getIdentifier("default_web_client_id", "string", context.packageName).let { if (it != 0) context.getString(it) else "" }
     val options = remember(webClientId) {
         GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
-            .requestIdToken(webClientId)
+            .apply { if (webClientId.isNotBlank()) requestIdToken(webClientId) }
             .requestEmail()
             .build()
     }
@@ -114,8 +115,8 @@ internal fun CloudAuthGate(content: @Composable (onSignOut: () -> Unit) -> Unit)
             }
         }
     }
-    if ((auth.currentUser != null && !auth.currentUser.hasPermanentIdentity()) || (guest && !signedIn)) {
-        content({ if (auth.currentUser == null) { guest = false; guestPrefs.edit().putBoolean("enabled", false).apply() } })
+    if (!loginRequested && ((auth.currentUser != null && !auth.currentUser.hasPermanentIdentity()) || (guest && !signedIn))) {
+        content({ loginRequested = true })
     } else if (signedIn) {
         BiometricSessionGate { content({
             fi.vladi.valvontapoytakirja.billing.PremiumAccess.clear()
@@ -124,6 +125,7 @@ internal fun CloudAuthGate(content: @Composable (onSignOut: () -> Unit) -> Unit)
             auth.signOut()
             GoogleSignIn.getClient(context, options).signOut()
             signedIn = false
+            loginRequested = false
             password = ""
             error = null
             message = null
@@ -164,6 +166,7 @@ internal fun CloudAuthGate(content: @Composable (onSignOut: () -> Unit) -> Unit)
             OutlinedButton(onClick = {
                 guestPrefs.edit().putBoolean("enabled", true).apply()
                 guest = true
+                loginRequested = false
             }, enabled = !busy, modifier = Modifier.fillMaxWidth()) {
                 Text(stringResource(R.string.guest_continue))
             }
@@ -174,7 +177,7 @@ internal fun CloudAuthGate(content: @Composable (onSignOut: () -> Unit) -> Unit)
                     error = null
                     launcher.launch(GoogleSignIn.getClient(context, options).signInIntent)
                 },
-                enabled = !busy,
+                enabled = !busy && webClientId.isNotBlank(),
                 modifier = Modifier.fillMaxWidth()
             ) {
                 Text(stringResource(R.string.sign_in))

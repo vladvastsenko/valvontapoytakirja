@@ -221,7 +221,7 @@ private fun UnifiedLauncher(onSignOut: () -> Unit) {
         }
     } else if (showPremium) {
         Column(Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(24.dp), verticalArrangement = Arrangement.spacedBy(16.dp)) {
-            fi.vladi.valvontapoytakirja.billing.PremiumControls()
+            fi.vladi.valvontapoytakirja.billing.PremiumControls(onSignIn = onSignOut)
             TextButton(onClick = { showPremium = false }) { Text(stringResource(R.string.back)) }
         }
     } else if (showUserGuide) {
@@ -423,7 +423,7 @@ private fun ManagementScreen(
         OutlinedButton(onClick = onBack, modifier = Modifier.fillMaxWidth()) {
             Text("← " + stringResource(R.string.back))
         }
-        if (!BuildConfig.OFFLINE_PREVIEW && !guestMode) OutlinedButton(onClick = { confirmSignOut = true }, modifier = Modifier.fillMaxWidth()) {
+        if (!BuildConfig.OFFLINE_PREVIEW) OutlinedButton(onClick = { if (guestMode) onSignOut() else confirmSignOut = true }, modifier = Modifier.fillMaxWidth()) {
             Text(if (guestMode) stringResource(R.string.guest_sign_in) else stringResource(R.string.sign_out))
         }
         Spacer(Modifier.height(8.dp))
