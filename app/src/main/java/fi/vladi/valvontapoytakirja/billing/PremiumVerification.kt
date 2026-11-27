@@ -58,6 +58,8 @@ internal object PremiumVerification {
 
     private val verificationGeneration = java.util.concurrent.atomic.AtomicLong()
 
+    internal fun invalidatePending() { verificationGeneration.incrementAndGet() }
+
     fun verify(token: String, onComplete: (Boolean) -> Unit) {
         val uid = auth.currentUser?.uid ?: run { PremiumAccess.clear(); onComplete(false); return }
         val generation = verificationGeneration.incrementAndGet()
