@@ -13,6 +13,11 @@ internal object PdfFileNames {
                 "lv" -> "Hidroizolācijas_pārbaudes_akts"
                 "nb" -> "Våtromskontroll"
                 "da" -> "Vådrumskontrol"
+                "fr" -> "Contrôle_étanchéité"
+                "es" -> "Inspección_impermeabilización"
+                "it" -> "Controllo_impermeabilizzazione"
+                "de" -> "Abdichtungsprüfung"
+                "pl" -> "Kontrola_hydroizolacji"
                 else -> "Valvontapöytäkirja"
             }
             else -> when (language) {
@@ -24,13 +29,18 @@ internal object PdfFileNames {
                 "lv" -> "Pārbaudes_akts"
                 "nb" -> "Befaringsrapport"
                 "da" -> "Inspektionsrapport"
+                "fr" -> "Rapport_inspection"
+                "es" -> "Informe_inspección"
+                "it" -> "Verbale_ispezione"
+                "de" -> "Prüfbericht"
+                "pl" -> "Protokół_kontroli"
                 else -> "Tarkastuspöytäkirja"
             }
         }
         val detail = site.replace(Regex("[\\\\/:*?\"<>|\\p{Cntrl}]+"), "_")
             .trim().trim('_', '.', ' ')
             .replace(Regex("\\s+"), "_")
-            .take(100).ifBlank { when(language) { "ru" -> "объект"; "en" -> "site"; "sv" -> "objekt"; "et" -> "objekt"; "lt" -> "objektas"; "lv" -> "objekts"; "nb" -> "objekt"; "da" -> "objekt"; else -> "kohde" } }
+            .take(100).ifBlank { when(language) { "ru" -> "объект"; "en" -> "site"; "sv" -> "objekt"; "et" -> "objekt"; "lt" -> "objektas"; "lv" -> "objekts"; "nb" -> "objekt"; "da" -> "objekt"; "fr" -> "chantier"; "es" -> "obra"; "it" -> "cantiere"; "de" -> "Objekt"; "pl" -> "obiekt"; else -> "kohde" } }
         return "${prefix}_${detail}.pdf"
     }
 }
