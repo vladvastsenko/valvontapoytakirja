@@ -17,6 +17,7 @@ async function throttle(uid,operation){
  });
 }
 const {evaluate}=require("./policy");
+const {registrationAllowed}=require("./registration-policy");
 initializeApp();
 const product=defineString("PRO_SUBSCRIPTION_PRODUCT");
 exports.verifyTarkastusProSubscription=onCall({region:"europe-west1"},async request=>{
@@ -35,6 +36,10 @@ exports.verifyTarkastusProSubscription=onCall({region:"europe-west1"},async requ
    const db=getFirestore();
    const accepted=await claimToken(db,packageName,token,uid,productId);
    if(!accepted) throw new HttpsError("permission-denied","Purchase already bound");
+  }
+  if(result.state === "ACTIVE") {
+   const ref=getFirestore().collection("proRegistration").doc(uid);
+   await ref.set({uid,paid:true},{merge:true});
   }
   if(result.acknowledge) await api.purchases.subscriptions.acknowledge({packageName,subscriptionId:productId,token,requestBody:{}});
   return {uid:result.uid,state:result.state,expiresAtMillis:result.expiresAtMillis};
@@ -109,7 +114,7 @@ exports.finishTarkastusProRecovery=onCall({region:"europe-west1"},async request=
 });
 
 // Requires Firebase Authentication with Identity Platform. Anonymous checkout remains free.
-const {beforeUserCreated}=require("firebase-functions/v2/identity");
+const {beforeUserCreated,beforeUserSignedIn}=require("firebase-functions/v2/identity");
 exports.blockUnpaidProRegistration=beforeUserCreated({region:"europe-west1"},event=>{
  const user=event.data;
  if(!user || user.email || user.phoneNumber || (user.providerData||[]).length) {
@@ -128,7 +133,7 @@ exports.blockUnpaidProRegistration=beforeUserCreated({region:"europe-west1"},eve
    const payload=ticket.getPayload();
    if(!payload?.sub || payload.email_verified!==true) throw new Error("Invalid identity");
    const user=await getAuth().getUserByProviderUid("google.com",payload.sub);
-   if(user.disabled) throw new Error("Disabled account");
+   if(user.disabled || !registrationAllowed(user.uid,(await getFirestore().collection("proRegistration").doc(user.uid).get()).data())) throw new Error("Unapproved account");
    await throttle(user.uid,"google-login");
    return {customToken:await getAuth().createCustomToken(user.uid)};
   } catch(error) {
@@ -136,3 +141,10 @@ exports.blockUnpaidProRegistration=beforeUserCreated({region:"europe-west1"},eve
   }
  });
  const defineGoogleAudience=defineString("PRO_GOOGLE_WEB_CLIENT_ID");
+
+exports.blockUnpaidProSignIn=beforeUserSignedIn({region:"europe-west1"},async event=>{
+ const user=event.data;
+ if(!user?.uid) throw new HttpsError("permission-denied","Invalid account");
+ const record=(await getFirestore().collection("proRegistration").doc(user.uid).get()).data();
+ if(!registrationAllowed(user.uid,record)) throw new HttpsError("permission-denied","Verified purchase required");
+});
