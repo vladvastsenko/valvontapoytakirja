@@ -4,8 +4,9 @@ import android.content.Context
 import com.android.billingclient.api.*
 
 class ProBilling(context: Context, private val onResult: (BillingResult, List<Purchase>) -> Unit) : AutoCloseable {
+    @Volatile private var closed = false
     private val client = BillingClient.newBuilder(context.applicationContext)
-        .setListener { result, purchases -> onResult(result, purchases.orEmpty()) }
+        .setListener { result, purchases -> if (!closed) onResult(result, purchases.orEmpty()) }
         .enablePendingPurchases(PendingPurchasesParams.newBuilder().enableOneTimeProducts().enablePrepaidPlans().build())
         .enableAutoServiceReconnection()
         .build()
@@ -13,10 +14,11 @@ class ProBilling(context: Context, private val onResult: (BillingResult, List<Pu
     fun restorePurchases() {
         if (client.isReady) query() else client.startConnection(object : BillingClientStateListener {
             override fun onBillingSetupFinished(result: BillingResult) {
+                if (closed) return
                 if (result.responseCode == BillingClient.BillingResponseCode.OK) query()
                 else onResult(result, emptyList())
             }
-            override fun onBillingServiceDisconnected() { PremiumAccess.clear() }
+            override fun onBillingServiceDisconnected() { if (!closed) PremiumAccess.clear() }
         })
     }
 
@@ -27,14 +29,15 @@ class ProBilling(context: Context, private val onResult: (BillingResult, List<Pu
                     .setProductType(BillingClient.ProductType.SUBS).build()
             )).build()
             client.queryProductDetailsAsync(params) { result, details ->
-                onOffers(if (result.responseCode == BillingClient.BillingResponseCode.OK) details.productDetailsList else emptyList())
+                if (!closed) onOffers(if (result.responseCode == BillingClient.BillingResponseCode.OK) details.productDetailsList else emptyList())
             }
         }
         if (client.isReady) action() else client.startConnection(object : BillingClientStateListener {
             override fun onBillingSetupFinished(result: BillingResult) {
+                if (closed) return
                 if (result.responseCode == BillingClient.BillingResponseCode.OK) action() else onOffers(emptyList())
             }
-            override fun onBillingServiceDisconnected() { PremiumAccess.clear() }
+            override fun onBillingServiceDisconnected() { if (!closed) PremiumAccess.clear() }
         })
     }
 
@@ -51,8 +54,8 @@ class ProBilling(context: Context, private val onResult: (BillingResult, List<Pu
         client.queryPurchasesAsync(QueryPurchasesParams.newBuilder()
             .setProductType(BillingClient.ProductType.SUBS)
             .includeSuspendedSubscriptions(true)
-            .build()) { result, purchases -> onResult(result, purchases) }
+            .build()) { result, purchases -> if (!closed) onResult(result, purchases) }
     }
 
-    override fun close() { client.endConnection() }
+    override fun close() { closed = true; client.endConnection() }
 }
