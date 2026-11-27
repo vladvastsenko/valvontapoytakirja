@@ -33,14 +33,14 @@ fun PremiumControls() {
         ProBilling(context) { result, purchases ->
             busy = false
             if (result.responseCode == BillingClient.BillingResponseCode.OK) {
-                val purchase = purchases.firstOrNull { it.purchaseState == Purchase.PurchaseState.PURCHASED &&
+                val purchase = purchases.firstOrNull { it.purchaseState == Purchase.PurchaseState.PURCHASED && !it.isSuspended &&
                     FirebaseAuth.getInstance().currentUser?.uid?.let { owner ->
                         it.accountIdentifiers?.obfuscatedAccountId == PremiumVerification.accountId(owner)
                     } == true }
                 if (recovering) {
                     recovering = false
                     val requestedCode = requestedRecoveryCode
-                    val candidate = purchases.singleOrNull { it.purchaseState == Purchase.PurchaseState.PURCHASED }
+                    val candidate = purchases.singleOrNull { it.purchaseState == Purchase.PurchaseState.PURCHASED && !it.isSuspended }
                     if (candidate == null) status = R.string.premium_unverified
                     else {
                         busy = true
