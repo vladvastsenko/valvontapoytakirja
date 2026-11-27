@@ -364,7 +364,7 @@ private fun ManagementScreen(
         Button(onClick = onSettings, modifier = Modifier.fillMaxWidth()) {
             Text(stringResource(R.string.shared_settings))
         }
-        if (!guestMode) {
+        run {
             Button(onClick = onCloudBackup, modifier = Modifier.fillMaxWidth()) {
                 Text(stringResource(R.string.cloud_sync))
             }

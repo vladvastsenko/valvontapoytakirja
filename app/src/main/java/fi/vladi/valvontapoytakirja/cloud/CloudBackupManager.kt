@@ -180,6 +180,31 @@ object CloudBackupManager {
         return copied
     }
 
+    private fun rebaseAttachments(staging: File, current: File) {
+        val keys = setOf("filePath", "annotatedPath", "logoPath", "signatureImagePath")
+        val roots = setOf("reports", "tarkastus_reports", "settings", "inspectors")
+        fun visit(element: kotlinx.serialization.json.JsonElement): kotlinx.serialization.json.JsonElement = when (element) {
+            is kotlinx.serialization.json.JsonObject -> kotlinx.serialization.json.JsonObject(element.mapValues { (key, value) ->
+                if (key in keys && value is kotlinx.serialization.json.JsonPrimitive && value.isString && value.content.isNotBlank()) {
+                    val original = value.content
+                    val relative = original.substringAfterLast("/files/", original)
+                    val parts = relative.split("/")
+                    val candidate = File(staging, relative)
+                    if (parts.firstOrNull() in roots && parts.none { it == ".." || it == "." || it.isBlank() } && candidate.canonicalPath.startsWith(staging.canonicalPath + File.separator) && candidate.isFile)
+                        kotlinx.serialization.json.JsonPrimitive(File(current, relative).absolutePath)
+                    else value
+                } else visit(value)
+            })
+            is kotlinx.serialization.json.JsonArray -> kotlinx.serialization.json.JsonArray(element.map { visit(it) })
+            else -> element
+        }
+        val recordRoots = setOf("reports", "tarkastus_reports", "templates", "tarkastus_templates", "inspectors")
+        staging.walkTopDown().filter { it.isFile && it.extension == "json" && (it.name == "app_settings.json" || it.relativeTo(staging).invariantSeparatorsPath.substringBefore("/") in recordRoots) }.forEach { file ->
+            val parsed = kotlinx.serialization.json.Json.parseToJsonElement(file.readText())
+            AtomicRecords.write(file, visit(parsed).toString())
+        }
+    }
+
     fun recoveryCopies(context: Context): List<File> = File(context.applicationInfo.dataDir).listFiles().orEmpty().filter { it.isDirectory && (it.name.startsWith("tarkastus_restore_retained_") || it.name == "tarkastus_restore_previous") }.sortedByDescending { it.lastModified() }
 
     fun recoverInterrupted(context: Context) = AtomicRecords.exclusive {
@@ -297,6 +322,7 @@ object CloudBackupManager {
             }
             check(staging.walkTopDown().any { it.isFile }) { "Varmuuskopio ei sisällä palautettavia tiedostoja." }
 
+            rebaseAttachments(staging, context.filesDir)
             // Keep the current local data until the complete archive has been extracted and validated.
             val current = context.filesDir
             val previous = File(current.parentFile, "tarkastus_restore_previous")
