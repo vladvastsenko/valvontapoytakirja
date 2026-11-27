@@ -56,6 +56,7 @@ android {
 }
 
 dependencies {
+    implementation("com.android.billingclient:billing:8.1.0")
     androidTestImplementation("androidx.test:runner:1.6.2")
     androidTestImplementation("androidx.test.ext:junit:1.2.1")
     implementation(project(":tarkastus"))

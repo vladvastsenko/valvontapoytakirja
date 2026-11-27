@@ -64,7 +64,10 @@ class BackupRoundTripTest {
         fun attachment(relative: String): String {
             val file = File(context.filesDir, relative)
             file.parentFile?.mkdirs()
-            file.writeText(relative)
+            val bitmap = android.graphics.Bitmap.createBitmap(64, 64, android.graphics.Bitmap.Config.ARGB_8888)
+            bitmap.eraseColor(android.graphics.Color.MAGENTA)
+            file.outputStream().use { assertTrue(bitmap.compress(android.graphics.Bitmap.CompressFormat.PNG, 100, it)) }
+            bitmap.recycle()
             attachments.add(file)
             return "/data/user/99/fi.vladi.tarkastuspro/files/$relative"
         }
@@ -88,7 +91,38 @@ class BackupRoundTripTest {
             val gr = general.listReports().single { it.id == g.id }
             val paths = listOf(wr.logoPath, wr.signatureImagePath, wr.photos.single().filePath, gr.logoPath, gr.signatureImagePath, gr.observations.single().photos.single().filePath, gr.observations.single().photos.single().annotatedPath)
             assertEquals(attachments.map { it.absolutePath }, paths)
-            paths.forEach { assertTrue(File(it).isFile) }
+            paths.forEach {
+                val bitmap = android.graphics.BitmapFactory.decodeFile(it)
+                assertNotNull(bitmap)
+                assertEquals(android.graphics.Color.MAGENTA, bitmap.getPixel(0, 0))
+                bitmap.recycle()
+            }
+            val pdfs = listOf(
+                fi.vladi.valvontapoytakirja.pdf.ReportPdfGenerator.generate(context, wr, wet.loadSettings()),
+                fi.vladi.tarkastuspoytakirja.pdf.ReportPdfGenerator.generate(context, gr, general.loadSettings())
+            )
+            pdfs.forEach { pdf ->
+                try {
+                    android.os.ParcelFileDescriptor.open(pdf, android.os.ParcelFileDescriptor.MODE_READ_ONLY).use { fd ->
+                        android.graphics.pdf.PdfRenderer(fd).use { renderer ->
+                            assertTrue(renderer.pageCount > 0)
+                            var found = false
+                            for (i in 0 until renderer.pageCount) {
+                                renderer.openPage(i).use { page ->
+                                    val bitmap = android.graphics.Bitmap.createBitmap(page.width, page.height, android.graphics.Bitmap.Config.ARGB_8888)
+                                    bitmap.eraseColor(android.graphics.Color.WHITE)
+                                    page.render(bitmap, null, null, android.graphics.pdf.PdfRenderer.Page.RENDER_MODE_FOR_DISPLAY)
+                                    val pixels = IntArray(bitmap.width * bitmap.height)
+                                    bitmap.getPixels(pixels, 0, bitmap.width, 0, 0, bitmap.width, bitmap.height)
+                                    found = found || pixels.any { android.graphics.Color.red(it) > 200 && android.graphics.Color.blue(it) > 200 && android.graphics.Color.green(it) < 60 }
+                                    bitmap.recycle()
+                                }
+                            }
+                            assertTrue("Restored image not visible in PDF", found)
+                        }
+                    }
+                } finally { pdf.delete() }
+            }
         } finally { wet.deleteReport(w.id); general.deleteReport(g.id); archive.delete() }
     }
 
