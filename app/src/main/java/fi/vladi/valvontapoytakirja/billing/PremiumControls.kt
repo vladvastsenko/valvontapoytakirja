@@ -20,6 +20,7 @@ fun PremiumControls() {
     var password by remember { mutableStateOf("") }
     var registered by remember { mutableStateOf(false) }
     var recoveryCode by remember { mutableStateOf("") }
+    var recoveryOwner by remember { mutableStateOf<String?>(null) }
     var recoveryInput by remember { mutableStateOf("") }
     var savedCode by remember { mutableStateOf(false) }
     var recovering by remember { mutableStateOf(false) }
@@ -41,7 +42,7 @@ fun PremiumControls() {
                         PremiumVerification.recover(recoveryInput.trim(), candidate.purchaseToken) { active ->
                             busy = false
                             status = if (active) null else R.string.premium_unverified
-                            if (active) recoveryCode = recoveryInput.trim()
+                            if (active) { recoveryCode = recoveryInput.trim(); recoveryOwner = FirebaseAuth.getInstance().currentUser?.uid }
                         }
                     }
                 } else if (purchase == null) {
@@ -68,10 +69,11 @@ fun PremiumControls() {
                     busy = false
                     status = if (it.isEmpty()) R.string.premium_unavailable else null
                 } }
-                if (!FirebaseAuth.getInstance().currentUser.hasPermanentIdentity() && recoveryCode.isBlank()) {
+                if (!FirebaseAuth.getInstance().currentUser.hasPermanentIdentity() && (recoveryCode.isBlank() || recoveryOwner != owner)) {
                     PremiumVerification.recoveryCode { code ->
                         if (code == null) { busy = false; status = R.string.premium_unavailable }
-                        else { recoveryCode = code; savedCode = false; load() }
+                        else if (FirebaseAuth.getInstance().currentUser?.uid == owner) { recoveryCode = code; recoveryOwner = owner; savedCode = false; load() }
+                        else { busy = false; status = R.string.premium_unavailable }
                     }
                 } else load()
             }, { busy = false; status = R.string.premium_unavailable })

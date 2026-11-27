@@ -51,8 +51,10 @@ exports.getTarkastusProCheckoutConfig=onCall({region:"europe-west1"},async reque
 });
 
 exports.prepareTarkastusProRecovery=onCall({region:"europe-west1"},async request=>{
- if(!request.auth || request.auth.token.firebase?.sign_in_provider!=="anonymous") throw new HttpsError("permission-denied","Anonymous checkout required");
+ if(!request.auth || !["anonymous","custom"].includes(request.auth.token.firebase?.sign_in_provider)) throw new HttpsError("permission-denied","Anonymous checkout required");
  const uid=request.auth.uid;
+ const user=await getAuth().getUser(uid);
+ if(user.disabled || user.providerData.length || user.email || user.phoneNumber) throw new HttpsError("permission-denied","Existing account");
  await throttle(uid,"prepare");
  const secret=randomBytes(32).toString("base64url");
  const hash=createHash("sha256").update(secret).digest("hex");
@@ -61,11 +63,14 @@ exports.prepareTarkastusProRecovery=onCall({region:"europe-west1"},async request
  return {secret};
 });
 exports.recoverTarkastusProAccount=onCall({region:"europe-west1"},async request=>{
- if(!request.auth || request.auth.token.firebase?.sign_in_provider!=="anonymous") throw new HttpsError("permission-denied","Anonymous session required");
+ if(!request.auth || !["anonymous","custom"].includes(request.auth.token.firebase?.sign_in_provider)) throw new HttpsError("permission-denied","Anonymous session required");
+ const requester=await getAuth().getUser(request.auth.uid);
+ if(requester.disabled || requester.providerData.length || requester.email || requester.phoneNumber) throw new HttpsError("permission-denied","Existing account");
  await throttle(request.auth.uid,"recover");
  const secret=request.data?.secret, token=request.data?.token;
  if(typeof secret!=="string"||!/^[A-Za-z0-9_-]{43}$/.test(secret)||typeof token!=="string"||token.length<10||token.length>4096) throw new HttpsError("invalid-argument","Invalid recovery credentials");
  const db=getFirestore(), ref=db.collection("proRecovery").doc(createHash("sha256").update(secret).digest("hex"));
+ await throttle(createHash("sha256").update(secret).digest("hex"),"recover-code");
  const snap=await ref.get(), record=snap.data();
  if(!record || record.used) throw new HttpsError("permission-denied","Recovery unavailable");
  const user=await getAuth().getUser(record.uid);

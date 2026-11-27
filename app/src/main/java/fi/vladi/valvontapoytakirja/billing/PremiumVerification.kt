@@ -46,7 +46,7 @@ internal object PremiumVerification {
                     }
                 }
         }
-        if (auth.currentUser?.isAnonymous == true) request()
+        if (auth.currentUser != null && !auth.currentUser.hasPermanentIdentity()) request()
         else if (auth.currentUser == null) auth.signInAnonymously().addOnCompleteListener {
             if (it.isSuccessful) request() else onComplete(false)
         } else onComplete(false)
