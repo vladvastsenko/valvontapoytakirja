@@ -14,7 +14,6 @@ import fi.vladi.tarkastuspoytakirja.model.InspectionReport
 import fi.vladi.tarkastuspoytakirja.model.ReportPhoto
 import fi.vladi.tarkastuspoytakirja.model.SignatureStroke
 import java.io.File
-import java.io.FileOutputStream
 
 object ReportPdfGenerator {
     fun generate(context: Context, report: InspectionReport, settings: AppSettings = AppSettings()): File {
@@ -26,8 +25,11 @@ object ReportPdfGenerator {
         val finalPass = render(report, settings, totalPages, language = selectedLanguage)
         val exportDirectory = File(context.cacheDir, "exports").apply { mkdirs() }
         val output = File(exportDirectory, PdfFileNames.name(report.pdfLanguage.ifBlank { selectedLanguage }, "tarkastus", report.siteAddress))
-        FileOutputStream(output).use { finalPass.first.writeTo(it) }
-        finalPass.first.close()
+        try {
+            AtomicPdfOutput.write(output) { finalPass.first.writeTo(it) }
+        } finally {
+            finalPass.first.close()
+        }
         return output
     }
 

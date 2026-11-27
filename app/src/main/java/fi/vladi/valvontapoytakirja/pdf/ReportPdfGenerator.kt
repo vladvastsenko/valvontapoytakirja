@@ -13,7 +13,6 @@ import fi.vladi.valvontapoytakirja.model.InspectionReport
 import fi.vladi.valvontapoytakirja.model.ReportPhoto
 import fi.vladi.valvontapoytakirja.model.SignatureStroke
 import java.io.File
-import java.io.FileOutputStream
 
 object ReportPdfGenerator {
     fun generate(context: Context, report: InspectionReport, settings: AppSettings): File {
@@ -27,7 +26,7 @@ object ReportPdfGenerator {
         val exportDirectory = File(context.cacheDir, "exports").apply { mkdirs() }
         val output = File(exportDirectory, PdfFileNames.name(report.pdfLanguage.ifBlank { selectedLanguage }, "valvonta", report.siteAddress))
         try {
-            FileOutputStream(output).use { document.writeTo(it) }
+            AtomicPdfOutput.write(output) { document.writeTo(it) }
         } finally {
             document.close()
         }
