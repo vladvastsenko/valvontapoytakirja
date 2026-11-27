@@ -294,6 +294,7 @@ private fun UnifiedStartScreen(
 
 @Composable
 private fun TestAdMobBanner() {
+    if (fi.vladi.valvontapoytakirja.billing.PremiumAccess.allowed()) return
     val context = LocalContext.current
     val adView = remember(context) {
         AdView(context).apply {
@@ -364,6 +365,7 @@ private fun ManagementScreen(
         Button(onClick = onSettings, modifier = Modifier.fillMaxWidth()) {
             Text(stringResource(R.string.shared_settings))
         }
+        fi.vladi.valvontapoytakirja.billing.PremiumControls()
         Button(onClick = onCloudBackup, modifier = Modifier.fillMaxWidth()) {
             Text(stringResource(R.string.cloud_sync))
         }

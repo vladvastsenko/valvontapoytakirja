@@ -1,0 +1,6 @@
+<resources>
+<string name="premium_unavailable">Premium is not available yet</string>
+<string name="premium_restore">Restore purchases</string>
+<string name="premium_none">No subscriptions found</string>
+<string name="premium_unverified">Subscription requires server verification</string>
+</resources>

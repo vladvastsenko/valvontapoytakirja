@@ -1,0 +1,6 @@
+<resources>
+<string name="premium_unavailable">Premium er endnu ikke tilgængelig</string>
+<string name="premium_restore">Gendan køb</string>
+<string name="premium_none">Ingen abonnementer fundet</string>
+<string name="premium_unverified">Abonnementet kræver serverbekræftelse</string>
+</resources>

@@ -192,7 +192,7 @@ object CloudBackupManager {
                     val candidate = File(staging, relative)
                     if (parts.firstOrNull() in roots && parts.none { it == ".." || it == "." || it.isBlank() } && candidate.canonicalPath.startsWith(staging.canonicalPath + File.separator) && candidate.isFile)
                         kotlinx.serialization.json.JsonPrimitive(File(current, relative).absolutePath)
-                    else value
+                    else kotlinx.serialization.json.JsonPrimitive("")
                 } else visit(value)
             })
             is kotlinx.serialization.json.JsonArray -> kotlinx.serialization.json.JsonArray(element.map { visit(it) })

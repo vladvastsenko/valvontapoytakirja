@@ -1,0 +1,6 @@
+<resources>
+<string name="premium_unavailable">Premium är ännu inte tillgängligt</string>
+<string name="premium_restore">Återställ köp</string>
+<string name="premium_none">Inga prenumerationer hittades</string>
+<string name="premium_unverified">Prenumerationen kräver serververifiering</string>
+</resources>
