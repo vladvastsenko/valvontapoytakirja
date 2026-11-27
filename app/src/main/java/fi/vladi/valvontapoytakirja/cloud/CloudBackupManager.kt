@@ -54,7 +54,7 @@ object CloudBackupManager {
     private const val MAX_ENTRIES = 20_000
     private const val MAX_UNPACKED_BYTES = 2L * 1024L * 1024L * 1024L
 
-    private fun writeArchive(root: File, target: File) = AtomicRecords.exclusive {
+    private fun writeArchive(root: File, target: File) = fi.vladi.valvontapoytakirja.CustomStore.withStorageLock { AtomicRecords.exclusive {
         // Recover legacy AtomicFile backups before taking the snapshot.
         root.walkTopDown().filter { it.isFile && it.name.endsWith(".json.bak") }.toList().forEach {
             AtomicRecords.read(File(it.parentFile, it.name.removeSuffix(".bak")))
@@ -90,6 +90,8 @@ object CloudBackupManager {
             zip.write(hashes.toString().toByteArray(Charsets.UTF_8))
             zip.closeEntry()
         }
+    }
+
     }
 
     fun backupToDocument(context: Context, uri: Uri, emergency: Boolean = false, recoveryName: String? = null) {
@@ -227,7 +229,7 @@ object CloudBackupManager {
         File(parent, "tarkastus_restore_staging").deleteRecursively()
     }
 
-    fun restoreFromUri(context: Context, archiveUri: Uri): String = AtomicRecords.exclusive { restoreLocked(context, archiveUri) }
+    fun restoreFromUri(context: Context, archiveUri: Uri): String = fi.vladi.valvontapoytakirja.CustomStore.withStorageLock { AtomicRecords.exclusive { restoreLocked(context, archiveUri) } }
 
     private fun restoreLocked(context: Context, archiveUri: Uri): String {
         // Recover the original directory before preparing a new restore.
@@ -265,7 +267,7 @@ object CloudBackupManager {
 
                     val name = entry.name.replace('\\', '/')
                     require(seenEntries.add(name)) { "Varmuuskopiossa on päällekkäinen tiedostopolku." }
-                    require(!name.startsWith("/") && name.split('/').none { it == ".." || it.isBlank() }) {
+                    require(!name.startsWith("/") && name.split('/').none { it == ".." || it == "." || it.isBlank() }) {
                         "Varmuuskopiossa on virheellinen tiedostopolku."
                     }
 
