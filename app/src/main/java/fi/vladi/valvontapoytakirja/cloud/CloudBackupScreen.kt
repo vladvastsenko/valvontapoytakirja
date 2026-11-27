@@ -87,7 +87,7 @@ fun CloudBackupScreen(onBack: () -> Unit) {
                     selectedBackupUri = found.firstOrNull()?.uri?.toString()
                     status = if (found.isEmpty()) context.getString(R.string.cloud_no_found)
                         else context.getString(R.string.cloud_found_backups, found.size)
-                }.onFailure { error -> status = context.getString(R.string.cloud_read_error, error.message ?: context.getString(R.string.cloud_unknown_error)) }
+                }.onFailure { error -> status = context.getString(R.string.cloud_read_error, context.getString(R.string.cloud_unknown_error)) }
         } else {
             backups = emptyList()
             selectedBackupUri = null
@@ -190,7 +190,7 @@ fun CloudBackupScreen(onBack: () -> Unit) {
                             backups = refreshed
                             selectedBackupUri = refreshed.firstOrNull()?.uri?.toString()
                             context.getString(R.string.cloud_backup_saved, result).also { preferences.edit().putString("last_backup_status", it).apply() }
-                        } catch (error: Throwable) { context.getString(R.string.cloud_backup_error, error.message ?: context.getString(R.string.cloud_unknown_error)) }
+                        } catch (error: Throwable) { context.getString(R.string.cloud_backup_error, context.getString(R.string.cloud_unknown_error)) }
                         finally { busy = false }
                     }
                 }
@@ -267,7 +267,7 @@ fun CloudBackupScreen(onBack: () -> Unit) {
                                 context.getString(R.string.cloud_sync_complete, result.uploaded, result.downloaded, result.deleted, result.conflicts, result.pdfFoundLocal, result.pdfFoundDrive, result.pdfUploaded, result.pdfDownloaded, result.pdfDeleted, result.pdfConflicts)
                             }
                         } catch (error: Throwable) {
-                            context.getString(R.string.cloud_sync_error, error.message ?: context.getString(R.string.cloud_unknown_error))
+                            context.getString(R.string.cloud_sync_error, context.getString(R.string.cloud_unknown_error))
                         } finally { busy = false }
                     }
                 }) { Text(stringResource(R.string.cloud_sync_now)) }
@@ -296,7 +296,7 @@ fun CloudBackupScreen(onBack: () -> Unit) {
                             restoreCompleted = true
                             context.getString(R.string.cloud_restore_safety_copy, context.getString(R.string.cloud_restore_success), safetyCopy)
                         } catch (error: Throwable) {
-                            context.getString(R.string.cloud_restore_error, error.message ?: context.getString(R.string.cloud_unknown_error))
+                            context.getString(R.string.cloud_restore_error, context.getString(R.string.cloud_unknown_error))
                         } finally { busy = false }
                     }
                 }) { Text(stringResource(R.string.cloud_restore)) }
@@ -333,13 +333,13 @@ private fun LocalBackupControls() {
     var deletePending by remember { mutableStateOf<String?>(null) }
     val export = rememberLauncherForActivityResult(ActivityResultContracts.CreateDocument("application/zip")) { uri ->
         if (uri != null) { busy = true; scope.launch {
-            status = runCatching { withContext(Dispatchers.IO) { CloudBackupManager.backupToDocument(context, uri) } }.fold({ context.getString(R.string.zip_ok) }, { it.message ?: context.getString(R.string.zip_error) })
+            status = runCatching { withContext(Dispatchers.IO) { CloudBackupManager.backupToDocument(context, uri) } }.fold({ context.getString(R.string.zip_ok) }, { context.getString(R.string.zip_error) })
             busy = false
         } }
     }
     val emergency = rememberLauncherForActivityResult(ActivityResultContracts.CreateDocument("application/zip")) { uri ->
         if (uri != null) { busy = true; scope.launch {
-            status = runCatching { withContext(Dispatchers.IO) { CloudBackupManager.backupToDocument(context, uri, true, selected) } }.fold({ context.getString(R.string.zip_ok) }, { it.message ?: context.getString(R.string.zip_error) })
+            status = runCatching { withContext(Dispatchers.IO) { CloudBackupManager.backupToDocument(context, uri, true, selected) } }.fold({ context.getString(R.string.zip_ok) }, { context.getString(R.string.zip_error) })
             busy = false
         } }
     }
@@ -362,7 +362,7 @@ private fun LocalBackupControls() {
         AlertDialog(onDismissRequest = { pending = null }, title = { Text(stringResource(R.string.cloud_confirm_title)) },
             text = { Text(stringResource(R.string.cloud_restore_hint)) },
             confirmButton = { TextButton(onClick = { pending = null; busy = true; scope.launch {
-                status = runCatching { withContext(Dispatchers.IO) { CloudBackupManager.restoreFromUri(context, uri) } }.fold({ reload = true; context.getString(R.string.cloud_restore_success) }, { it.message ?: context.getString(R.string.zip_error) })
+                status = runCatching { withContext(Dispatchers.IO) { CloudBackupManager.restoreFromUri(context, uri) } }.fold({ reload = true; context.getString(R.string.cloud_restore_success) }, { context.getString(R.string.zip_error) })
                 busy = false
             } }) { Text(stringResource(R.string.cloud_restore)) } },
             dismissButton = { TextButton(onClick = { pending = null }) { Text(stringResource(R.string.cloud_cancel)) } })
