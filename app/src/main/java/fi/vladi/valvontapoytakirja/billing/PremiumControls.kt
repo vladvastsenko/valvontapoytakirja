@@ -23,9 +23,7 @@ fun PremiumControls() {
     val initialRecovery = remember(recoveryStore) { recoveryStore.read(FirebaseAuth.getInstance().currentUser?.uid) }
     var recoveryCode by remember { mutableStateOf(initialRecovery.orEmpty()) }
     var recoveryOwner by remember { mutableStateOf<String?>(if (initialRecovery != null) FirebaseAuth.getInstance().currentUser?.uid else null) }
-    LaunchedEffect(recoveryCode, recoveryOwner) {
-        if (recoveryCode.isNotBlank() && recoveryOwner != null) recoveryStore.write(recoveryOwner!!, recoveryCode)
-    }
+
     var recoveryInput by remember { mutableStateOf("") }
     var savedCode by remember { mutableStateOf(false) }
     var recovering by remember { mutableStateOf(false) }
@@ -47,7 +45,12 @@ fun PremiumControls() {
                         PremiumVerification.recover(recoveryInput.trim(), candidate.purchaseToken) { active ->
                             busy = false
                             status = if (active) null else R.string.premium_unverified
-                            if (active) { recoveryCode = recoveryInput.trim(); recoveryOwner = FirebaseAuth.getInstance().currentUser?.uid }
+                            if (active) {
+                                val owner = FirebaseAuth.getInstance().currentUser?.uid
+                                val code = recoveryInput.trim()
+                                if (owner != null && recoveryStore.write(owner, code)) { recoveryCode = code; recoveryOwner = owner }
+                                else status = R.string.premium_unavailable
+                            }
                         }
                     }
                 } else if (purchase == null) {
