@@ -1,27 +1,25 @@
 const {onCall,HttpsError}=require("firebase-functions/v2/https");
 const {defineString}=require("firebase-functions/params");
 const {initializeApp}=require("firebase-admin/app");
-const {getFirestore}=require("firebase-admin/firestore");
 const {google}=require("googleapis");
-const crypto=require("node:crypto");
+const {evaluate}=require("./policy");
 initializeApp();
 const product=defineString("PRO_SUBSCRIPTION_PRODUCT");
 exports.verifyTarkastusProSubscription=onCall({region:"europe-west1"},async request=>{
  if(!request.auth) throw new HttpsError("unauthenticated","Sign in required");
  const uid=request.auth.uid, token=request.data?.token;
  if(typeof token!=="string"||token.length<10||token.length>4096) throw new HttpsError("invalid-argument","Invalid token");
- const account=crypto.createHash("sha256").update(uid).digest("hex");
  const auth=new google.auth.GoogleAuth({scopes:["https://www.googleapis.com/auth/androidpublisher"]});
  const api=google.androidpublisher({version:"v3",auth});
- const packageName="fi.vladi.tarkastuspro";
- const {data}=await api.purchases.subscriptionsv2.get({packageName,token});
- if(data.externalAccountIdentifiers?.obfuscatedExternalAccountId!==account) throw new HttpsError("permission-denied","Account mismatch");
- const items=(data.lineItems||[]).filter(x=>x.productId===product.value());
- if(!items.length) throw new HttpsError("permission-denied","Product mismatch");
- const expiry=Math.max(...items.map(x=>Date.parse(x.expiryTime)||0));
- const states={SUBSCRIPTION_STATE_ACTIVE:"ACTIVE",SUBSCRIPTION_STATE_IN_GRACE_PERIOD:"ACTIVE",SUBSCRIPTION_STATE_CANCELED:"ACTIVE",SUBSCRIPTION_STATE_PENDING:"PENDING",SUBSCRIPTION_STATE_ON_HOLD:"SUSPENDED",SUBSCRIPTION_STATE_PAUSED:"SUSPENDED",SUBSCRIPTION_STATE_EXPIRED:"EXPIRED"};
- let state=states[data.subscriptionState]||"UNKNOWN";
- if(state==="ACTIVE"&&expiry<=Date.now()) state="EXPIRED";
- if(state==="ACTIVE"&&data.acknowledgementState==="ACKNOWLEDGEMENT_STATE_PENDING") await api.purchases.subscriptions.acknowledge({packageName,subscriptionId:product.value(),token,requestBody:{}});
- return {uid,state,expiresAtMillis:Math.min(expiry,Date.now()+300000)};
+ const packageName="fi.vladi.tarkastuspro", productId=product.value();
+ try {
+  const {data}=await api.purchases.subscriptionsv2.get({packageName,token});
+  const result=evaluate(data,uid,productId,Date.now());
+  if(result.error) throw new HttpsError("permission-denied",result.error);
+  if(result.acknowledge) await api.purchases.subscriptions.acknowledge({packageName,subscriptionId:productId,token,requestBody:{}});
+  return {uid:result.uid,state:result.state,expiresAtMillis:result.expiresAtMillis};
+ } catch(error) {
+  if(error instanceof HttpsError) throw error;
+  throw new HttpsError("unavailable","Subscription verification unavailable");
+ }
 });
