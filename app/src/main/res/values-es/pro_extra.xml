@@ -1,0 +1,12 @@
+<resources>
+<string name="local_backup_title">Copia de seguridad local</string>
+<string name="zip_recovery">Exportar ZIP de recuperación</string>
+<string name="zip_delete">Eliminar copia de recuperación</string>
+<string name="zip_delete_confirm">¿Eliminar definitivamente la copia de recuperación?</string>
+<string name="zip_ok">ZIP: correcto</string>
+<string name="zip_error">ZIP: error</string>
+<string name="premium_unavailable">Premium aún no está disponible</string>
+<string name="premium_restore">Restaurar compras</string>
+<string name="premium_none">No se encontraron suscripciones</string>
+<string name="premium_unverified">Se requiere verificación del servidor</string>
+</resources>

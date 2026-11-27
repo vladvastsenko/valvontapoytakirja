@@ -1,0 +1,12 @@
+<resources>
+<string name="local_backup_title">Lokale Sicherung</string>
+<string name="zip_recovery">Wiederherstellungs-ZIP exportieren</string>
+<string name="zip_delete">Wiederherstellungskopie löschen</string>
+<string name="zip_delete_confirm">Wiederherstellungskopie endgültig löschen?</string>
+<string name="zip_ok">ZIP: erfolgreich</string>
+<string name="zip_error">ZIP: Fehler</string>
+<string name="premium_unavailable">Premium ist noch nicht verfügbar</string>
+<string name="premium_restore">Käufe wiederherstellen</string>
+<string name="premium_none">Keine Abonnements gefunden</string>
+<string name="premium_unverified">Serverprüfung erforderlich</string>
+</resources>

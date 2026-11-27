@@ -135,11 +135,7 @@ class MainActivity : androidx.fragment.app.FragmentActivity() {
 
 @Composable
 private fun FirstLaunchLanguageScreen(onContinue: (String) -> Unit) {
-    val languages = listOf(
-        "en" to "English", "fi" to "Suomi", "sv" to "Svenska",
-        "nb" to "Norsk", "da" to "Dansk", "et" to "Eesti",
-        "lv" to "Latviešu", "lt" to "Lietuvių", "ru" to "Русский"
-    )
+    val languages = AppLanguage.options
     var selected by remember { mutableStateOf("en") }
     var expanded by remember { mutableStateOf(false) }
     androidx.compose.foundation.layout.BoxWithConstraints(
@@ -169,7 +165,7 @@ private fun FirstLaunchLanguageScreen(onContinue: (String) -> Unit) {
                             containerColor = androidx.compose.ui.graphics.Color.White
                         )
                     ) {
-                        Text(languages.first { it.first == selected }.second + " ▾")
+                        Text(AppLanguage.flaggedLabel(selected) + " ▾")
                     }
                     DropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
                         languages.forEach { (code, label) ->
@@ -376,10 +372,10 @@ private fun ManagementScreen(
         Text(stringResource(R.string.language), fontWeight = FontWeight.Bold)
         Box {
             OutlinedButton(onClick = { languageMenu = true }, modifier = Modifier.fillMaxWidth()) {
-                Text(when (AppLanguage.selected(context)) { "ru" -> "Русский"; "sv" -> "Svenska"; "en" -> "English"; "et" -> "Eesti"; "lt" -> "Lietuvių"; "lv" -> "Latviešu"; "nb" -> "Norsk"; "da" -> "Dansk"; else -> "Suomi" } + " ▾")
+                Text(AppLanguage.flaggedLabel(AppLanguage.selected(context)) + " ▾")
             }
             DropdownMenu(expanded = languageMenu, onDismissRequest = { languageMenu = false }) {
-                listOf("en" to "English", "fi" to "Suomi", "sv" to "Svenska", "nb" to "Norsk", "da" to "Dansk", "et" to "Eesti", "lv" to "Latviešu", "lt" to "Lietuvių", "ru" to "Русский").forEach { (code, label) ->
+                AppLanguage.options.forEach { (code, label) ->
                     DropdownMenuItem(text = { Text(label) }, onClick = {
                         languageMenu = false
                         if (AppLanguage.selected(context) != code) {
@@ -394,9 +390,7 @@ private fun ManagementScreen(
         }
         OutlinedButton(onClick = onLocalBackup, modifier = Modifier.fillMaxWidth()) { Text(stringResource(R.string.local_backup_title)) }
         Text(stringResource(R.string.pdf_language_default), fontWeight = FontWeight.Bold)
-        Text(when (AppLanguage.selected(context)) {
-            "ru" -> "Русский"; "sv" -> "Svenska"; "en" -> "English"; "et" -> "Eesti"; "lt" -> "Lietuvių"; "lv" -> "Latviešu"; "nb" -> "Norsk"; "da" -> "Dansk"; else -> "Suomi"
-        })
+        Text(AppLanguage.flaggedLabel(AppLanguage.selected(context)))
         if (!guestMode) BiometricSettingsControl()
         Button(onClick = onSettings, modifier = Modifier.fillMaxWidth()) {
             Text(stringResource(R.string.shared_settings))
@@ -823,10 +817,10 @@ private fun EditorScreen(
         Text(stringResource(R.string.report_pdf_language), fontWeight = FontWeight.SemiBold)
         Box {
             OutlinedButton(onClick = { reportLanguageMenu = true }, modifier = Modifier.fillMaxWidth()) {
-                Text(when (reportLanguage) { "ru" -> "Русский"; "sv" -> "Svenska"; "en" -> "English"; "et" -> "Eesti"; "lt" -> "Lietuvių"; "lv" -> "Latviešu"; "nb" -> "Norsk"; "da" -> "Dansk"; else -> "Suomi" } + " ▾")
+                Text(AppLanguage.flaggedLabel(reportLanguage) + " ▾")
             }
             DropdownMenu(expanded = reportLanguageMenu, onDismissRequest = { reportLanguageMenu = false }) {
-                listOf("en" to "English", "fi" to "Suomi", "sv" to "Svenska", "nb" to "Norsk", "da" to "Dansk", "et" to "Eesti", "lv" to "Latviešu", "lt" to "Lietuvių", "ru" to "Русский").forEach { (code, label) ->
+                AppLanguage.options.forEach { (code, label) ->
                     DropdownMenuItem(text = { Text(label) }, onClick = {
                         reportLanguageMenu = false
                         onChange(report.copy(pdfLanguage = code))

@@ -1,0 +1,11 @@
+name: Pro localization coverage
+on:
+  push:
+    branches: [rename-staging]
+  workflow_dispatch:
+jobs:
+  strings:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: python3 scripts/check_localization.py
