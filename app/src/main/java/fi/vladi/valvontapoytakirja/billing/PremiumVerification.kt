@@ -56,14 +56,17 @@ internal object PremiumVerification {
         if (secret.isNotBlank()) functions.getHttpsCallable("finishTarkastusProRecovery").call(mapOf("secret" to secret))
     }
 
+    private val verificationGeneration = java.util.concurrent.atomic.AtomicLong()
+
     fun verify(token: String, onComplete: (Boolean) -> Unit) {
         val uid = auth.currentUser?.uid ?: run { PremiumAccess.clear(); onComplete(false); return }
+        val generation = verificationGeneration.incrementAndGet()
         functions.getHttpsCallable("verifyTarkastusProSubscription")
             .call(mapOf("token" to token)).addOnCompleteListener { task ->
                 val data = task.resultOrNull()?.data as? Map<*, *>
                 val state = runCatching { SubscriptionState.valueOf(data?.get("state") as? String ?: "") }.getOrNull()
                 val expiry = (data?.get("expiresAtMillis") as? Number)?.toLong()
-                if (auth.currentUser?.uid != uid) { onComplete(false); return@addOnCompleteListener }
+                if (auth.currentUser?.uid != uid || verificationGeneration.get() != generation) { onComplete(false); return@addOnCompleteListener }
                 if (data?.get("uid") != uid || state == null || expiry == null) {
                     PremiumAccess.clear()
                     onComplete(false)
