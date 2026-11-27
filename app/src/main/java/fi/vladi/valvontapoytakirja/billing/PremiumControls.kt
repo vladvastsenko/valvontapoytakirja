@@ -77,7 +77,7 @@ fun PremiumControls() {
                 if (!FirebaseAuth.getInstance().currentUser.hasPermanentIdentity() && (recoveryCode.isBlank() || recoveryOwner != owner)) {
                     PremiumVerification.recoveryCode { code ->
                         if (code == null) { busy = false; status = R.string.premium_unavailable }
-                        else if (FirebaseAuth.getInstance().currentUser?.uid == owner) { recoveryCode = code; recoveryOwner = owner; savedCode = false; load() }
+                        else if (FirebaseAuth.getInstance().currentUser?.uid == owner && recoveryStore.write(owner, code)) { recoveryCode = code; recoveryOwner = owner; savedCode = false; load() }
                         else { busy = false; status = R.string.premium_unavailable }
                     }
                 } else load()
