@@ -8,3 +8,11 @@ test("five requests per window",()=>{
  assert.equal(nextAttempt(state,2000),null);
  assert.deepEqual(nextAttempt(state,601000),{start:601000,count:1});
 });
+
+test("verification budget allows thirty requests and resets at window boundary",()=>{
+ let state;
+ for(let i=0;i<30;i++) state=nextAttempt(state,1000+i,30);
+ assert.equal(state.count,30);
+ assert.equal(nextAttempt(state,600999,30),null);
+ assert.deepEqual(nextAttempt(state,601000,30),{start:601000,count:1});
+});
