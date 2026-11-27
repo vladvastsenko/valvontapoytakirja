@@ -97,8 +97,14 @@ internal fun CloudAuthGate(content: @Composable (onSignOut: () -> Unit) -> Unit)
             try {
                 val account = GoogleSignIn.getSignedInAccountFromIntent(result.data)
                     .getResult(ApiException::class.java)
-                val credential = GoogleAuthProvider.getCredential(account.idToken, null)
-                auth.signInWithCredential(credential).addOnCompleteListener { task ->
+                val token = account.idToken ?: error("Missing Google token")
+                com.google.firebase.functions.FirebaseFunctions.getInstance("europe-west1")
+                    .getHttpsCallable("signInExistingTarkastusProGoogle").call(mapOf("idToken" to token))
+                    .continueWithTask { response ->
+                        val custom = (response.result.data as? Map<*, *>)?.get("customToken") as? String
+                        require(!custom.isNullOrBlank())
+                        auth.signInWithCustomToken(custom)
+                    }.addOnCompleteListener { task ->
                     busy = false
                     if (task.isSuccessful) {
                         guest = false

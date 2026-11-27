@@ -116,3 +116,23 @@ exports.blockUnpaidProRegistration=beforeUserCreated({region:"europe-west1"},eve
   throw new HttpsError("permission-denied","Complete verified checkout before linking an account");
  }
 });
+
+ // Existing Google accounts only. Never create or link an identity in this endpoint.
+ exports.signInExistingTarkastusProGoogle=onCall({region:"europe-west1"},async request=>{
+  const token=request.data?.idToken;
+  if(typeof token!=="string"||token.length<100||token.length>8192) throw new HttpsError("invalid-argument","Invalid credential");
+  const audience=defineGoogleAudience.value();
+  if(!audience) throw new HttpsError("failed-precondition","Google sign-in not configured");
+  try {
+   const ticket=await new google.auth.OAuth2().verifyIdToken({idToken:token,audience});
+   const payload=ticket.getPayload();
+   if(!payload?.sub || payload.email_verified!==true) throw new Error("Invalid identity");
+   const user=await getAuth().getUserByProviderUid("google.com",payload.sub);
+   if(user.disabled) throw new Error("Disabled account");
+   await throttle(user.uid,"google-login");
+   return {customToken:await getAuth().createCustomToken(user.uid)};
+  } catch(error) {
+   throw new HttpsError("permission-denied","Existing Google account required");
+  }
+ });
+ const defineGoogleAudience=defineString("PRO_GOOGLE_WEB_CLIENT_ID");
