@@ -106,3 +106,12 @@ exports.finishTarkastusProRecovery=onCall({region:"europe-west1"},async request=
  });
  return {ok:true};
 });
+
+// Requires Firebase Authentication with Identity Platform. Anonymous checkout remains free.
+const {beforeUserCreated}=require("firebase-functions/v2/identity");
+exports.blockUnpaidProRegistration=beforeUserCreated({region:"europe-west1"},event=>{
+ const user=event.data;
+ if(!user || user.email || user.phoneNumber || (user.providerData||[]).length) {
+  throw new HttpsError("permission-denied","Complete verified checkout before linking an account");
+ }
+});
