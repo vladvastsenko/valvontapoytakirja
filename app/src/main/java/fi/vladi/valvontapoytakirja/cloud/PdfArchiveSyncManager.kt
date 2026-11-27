@@ -37,6 +37,7 @@ internal object PdfArchiveSyncManager {
     private data class LocalPdf(val uri: Uri)
 
     fun sync(context: Context, selectedRoot: DocumentFile, syncRoot: DocumentFile, conflictRoot: DocumentFile): Result {
+        check(fi.vladi.valvontapoytakirja.billing.PremiumAccess.allowed()) { "Premium required" }
         // MediaStore RELATIVE_PATH is available from Android 10 (API 29).
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) return Result()
 

@@ -24,7 +24,10 @@ fun PremiumControls() {
         ProBilling(context) { result, purchases ->
             busy = false
             if (result.responseCode == BillingClient.BillingResponseCode.OK) {
-                val purchase = purchases.firstOrNull { it.purchaseState == Purchase.PurchaseState.PURCHASED }
+                val purchase = purchases.firstOrNull { it.purchaseState == Purchase.PurchaseState.PURCHASED &&
+                    FirebaseAuth.getInstance().currentUser?.uid?.let { owner ->
+                        it.accountIdentifiers?.obfuscatedAccountId == PremiumVerification.accountId(owner)
+                    } == true }
                 if (purchase == null) {
                     status = if (purchases.isEmpty()) R.string.premium_none else R.string.premium_unverified
                 } else {

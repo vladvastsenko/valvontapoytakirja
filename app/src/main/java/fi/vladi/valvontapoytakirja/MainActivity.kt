@@ -352,7 +352,7 @@ private fun ManagementScreen(
     consent: AdConsentManager?
 ) {
     val context = LocalContext.current
-    val guestMode = BuildConfig.OFFLINE_PREVIEW || com.google.firebase.auth.FirebaseAuth.getInstance().currentUser == null
+    val guestMode = BuildConfig.OFFLINE_PREVIEW || com.google.firebase.auth.FirebaseAuth.getInstance().currentUser?.isAnonymous != false
     var languageMenu by remember { mutableStateOf(false) }
     var confirmSignOut by remember { mutableStateOf(false) }
     if (confirmSignOut) {
