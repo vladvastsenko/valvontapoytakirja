@@ -34,7 +34,7 @@ fun PremiumControls(onSignIn: () -> Unit = {}) {
     var recovering by remember { mutableStateOf(false) }
     var requestedRecoveryCode by remember { mutableStateOf("") }
     val entitlement by PremiumAccess.changes.collectAsState()
-    var googleOwner by remember { mutableStateOf<String?>(null) }
+    var googleOwner by androidx.compose.runtime.saveable.rememberSaveable { mutableStateOf<String?>(null) }
     val webClientId = remember(context) {
         context.resources.getIdentifier("default_web_client_id", "string", context.packageName)
             .let { if (it != 0) context.getString(it) else "" }
@@ -58,7 +58,10 @@ fun PremiumControls(onSignIn: () -> Unit = {}) {
                         registered = true
                         val code = recoveryStore.read(owner)
                         if (code != null) PremiumVerification.finishRecovery(code) { confirmed ->
-                            if (confirmed) recoveryStore.clear(owner)
+                            if (confirmed && FirebaseAuth.getInstance().currentUser?.uid == owner) {
+                                recoveryStore.clear(owner)
+                                if (recoveryOwner == owner && recoveryCode == code) { recoveryCode = ""; recoveryInput = ""; recoveryOwner = null }
+                            } else status = R.string.premium_unavailable
                         }
                     } else status = R.string.google_failed
                 }
@@ -104,7 +107,7 @@ fun PremiumControls(onSignIn: () -> Unit = {}) {
         }
     }
     DisposableEffect(billing) { onDispose { billing.close() } }
-    Text("Premium")
+    Text("Tarkastus Pro Premium", style = MaterialTheme.typography.headlineSmall)
     if (!FirebaseAuth.getInstance().currentUser.hasPermanentIdentity()) {
         OutlinedButton(enabled = !busy, onClick = onSignIn) { Text(stringResource(R.string.guest_sign_in)) }
     }
@@ -177,7 +180,7 @@ fun PremiumControls(onSignIn: () -> Unit = {}) {
                 user.linkWithCredential(EmailAuthProvider.getCredential(email.trim(), password))
                     .addOnCompleteListener { task ->
                         busy = false
-                        if (task.isSuccessful) {
+                        if (task.isSuccessful && task.result?.user?.uid == user.uid && FirebaseAuth.getInstance().currentUser?.uid == user.uid) {
                             registered = true
                             password = ""
                             if (recoveryCode.isNotBlank() && recoveryOwner == task.result?.user?.uid) {
