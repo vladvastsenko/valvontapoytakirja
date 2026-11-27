@@ -66,7 +66,7 @@ object CloudBackupManager {
             zip.putNextEntry(ZipEntry(MANIFEST))
             zip.write((V2 + "\n").toByteArray(Charsets.UTF_8))
             zip.closeEntry()
-            root.walkTopDown().filter { it.isFile && !it.name.endsWith(".json.new") && !it.name.endsWith(".json.bak") }.forEach { file ->
+            root.walkTopDown().filter { it.isFile && !it.name.endsWith(".json.new") && !it.name.endsWith(".json.bak") && !(it.relativeTo(root).invariantSeparatorsPath.startsWith("custom_reports/") && it.name.endsWith(".pending")) }.forEach { file ->
                 require(file.canonicalPath.startsWith(root.canonicalPath + File.separator))
                 val relative = file.relativeTo(root).invariantSeparatorsPath
                 require(++count <= MAX_ENTRIES)

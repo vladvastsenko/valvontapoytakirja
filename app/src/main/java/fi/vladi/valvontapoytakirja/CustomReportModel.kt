@@ -102,7 +102,7 @@ internal class CustomStore(private val root: File) {
                 candidate.canonicalFile.parentFile == root.canonicalFile) candidate.delete()
         }
     }
-    fun importImage(context: Context, uri: android.net.Uri): String {
+    fun importImage(context: Context, uri: android.net.Uri): String = synchronized(lock) {
         val target = File(root, customId() + ".image")
         val staging = File(root, target.name + ".pending")
         try { context.contentResolver.openInputStream(uri)?.use { input -> staging.outputStream().use { val buffer = ByteArray(8192); var total = 0L; while (true) { val n = input.read(buffer); if (n < 0) break; total += n; require(total <= 50L * 1024 * 1024); it.write(buffer,0,n) }; it.fd.sync() } } ?: error("Cannot read image") }
@@ -111,17 +111,17 @@ internal class CustomStore(private val root: File) {
         android.graphics.BitmapFactory.decodeFile(staging.path,bounds)
         if (bounds.outWidth <= 0 || bounds.outHeight <= 0) { staging.delete(); error("Invalid image") }
         if (!staging.renameTo(target)) { staging.delete(); error("Cannot publish image") }
-        return target.name
+        target.name
     }
-    fun saveBitmap(bitmap: android.graphics.Bitmap): String {
+    fun saveBitmap(bitmap: android.graphics.Bitmap): String = synchronized(lock) {
         val target = File(root, customId() + ".png")
         val staging = File(root, target.name + ".pending")
         try { staging.outputStream().use { check(bitmap.compress(android.graphics.Bitmap.CompressFormat.PNG, 100, it)); it.fd.sync() }; check(staging.renameTo(target)) }
         catch (e: Exception) { staging.delete(); throw e }
-        return target.name
+        target.name
     }
     fun image(name: String): File {
         require(name.matches(Regex("[0-9a-fA-F-]{36}\\.(image|png)"))) { "Invalid attachment name" }
-        return File(root,name)
+        return File(root,name).also { require(it.canonicalFile.parentFile == root.canonicalFile && it.canonicalFile == it.absoluteFile) { "Unsafe attachment path" } }
     }
 }
