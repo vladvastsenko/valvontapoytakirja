@@ -4,6 +4,16 @@ on:
     branches: [rename-staging]
   workflow_dispatch:
 jobs:
+  premium-policy-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Run server policy tests without deployment
+        working-directory: backend/pro-premium
+        run: npm test
   repository-tests:
     runs-on: ubuntu-latest
     steps:
