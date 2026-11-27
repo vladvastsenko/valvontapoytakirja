@@ -5,6 +5,7 @@ import java.io.File
 
 object AtomicRecords {
     private val lock = Any()
+    fun <T> exclusive(block: () -> T): T = synchronized(lock) { block() }
     fun read(file: File): String = synchronized(lock) {
         AtomicFile(file).openRead().bufferedReader(Charsets.UTF_8).use { it.readText() }
     }

@@ -1,5 +1,6 @@
 package fi.vladi.valvontapoytakirja.cloud
 
+import fi.vladi.tarkastuspoytakirja.storage.AtomicRecords
 import android.content.Context
 import android.net.Uri
 import android.os.Build
@@ -46,6 +47,47 @@ object CloudBackupManager {
     private const val MAX_ENTRIES = 20_000
     private const val MAX_UNPACKED_BYTES = 2L * 1024L * 1024L * 1024L
 
+    private fun writeArchive(root: File, target: File) = AtomicRecords.exclusive {
+        // Recover legacy AtomicFile backups before taking the snapshot.
+        root.walkTopDown().filter { it.isFile && it.name.endsWith(".json.bak") }.toList().forEach {
+            AtomicRecords.read(File(it.parentFile, it.name.removeSuffix(".bak")))
+        }
+        var count = 1
+        var total = 0L
+        ZipOutputStream(BufferedOutputStream(FileOutputStream(target))).use { zip ->
+            zip.putNextEntry(ZipEntry(MANIFEST))
+            zip.write((MANIFEST_CONTENT + "\n").toByteArray(Charsets.UTF_8))
+            zip.closeEntry()
+            root.walkTopDown().filter { it.isFile && !it.name.endsWith(".json.new") && !it.name.endsWith(".json.bak") }.forEach { file ->
+                require(file.canonicalPath.startsWith(root.canonicalPath + File.separator))
+                val relative = file.relativeTo(root).invariantSeparatorsPath
+                require(++count <= MAX_ENTRIES)
+                zip.putNextEntry(ZipEntry("files/$relative"))
+                file.inputStream().buffered().use { input ->
+                    val buffer = ByteArray(DEFAULT_BUFFER_SIZE)
+                    while (true) {
+                        val n = input.read(buffer)
+                        if (n < 0) break
+                        total += n
+                        require(total <= MAX_UNPACKED_BYTES)
+                        zip.write(buffer, 0, n)
+                    }
+                }
+                zip.closeEntry()
+            }
+        }
+    }
+
+    fun backupToDocument(context: Context, uri: Uri) {
+        val temp = File.createTempFile("pro-backup-", ".zip", context.cacheDir)
+        try {
+            writeArchive(context.filesDir, temp)
+            context.contentResolver.openOutputStream(uri, "wt")?.use { output ->
+                temp.inputStream().use { it.copyTo(output) }
+            } ?: error("Unable to open backup destination")
+        } finally { temp.delete() }
+    }
+
     fun backupToFolder(context: Context, treeUri: Uri): String {
         val folder = DocumentFile.fromTreeUri(context, treeUri)
             ?: error("Valittua Google Drive -kansiota ei voi avata.")
@@ -55,24 +97,7 @@ object CloudBackupManager {
 
         val tempZip = File(context.cacheDir, "tarkastuspro_building_backup_${System.currentTimeMillis()}.zip")
         try {
-            ZipOutputStream(BufferedOutputStream(FileOutputStream(tempZip))).use { zip ->
-                zip.putNextEntry(ZipEntry(MANIFEST))
-                zip.write((MANIFEST_CONTENT + "\n").toByteArray(Charsets.UTF_8))
-                zip.closeEntry()
-
-                val root = context.filesDir
-                root.walkTopDown()
-                    .filter { it.isFile }
-                    .forEach { file ->
-                        val relative = file.relativeTo(root).invariantSeparatorsPath
-                        require(relative.isNotBlank() && !relative.startsWith("../")) {
-                            "Virheellinen tiedostopolku varmuuskopiossa."
-                        }
-                        zip.putNextEntry(ZipEntry("files/$relative"))
-                        FileInputStream(file).buffered().use { input -> input.copyTo(zip) }
-                        zip.closeEntry()
-                    }
-            }
+            writeArchive(context.filesDir, tempZip)
 
             val displayName = "TarkastusPro_building_backup_${SimpleDateFormat("yyyyMMdd_HHmmss_SSS", Locale.US).format(Date())}.zip"
             folder.findFile(displayName)?.delete()
@@ -140,7 +165,9 @@ object CloudBackupManager {
         return copied
     }
 
-    fun restoreFromUri(context: Context, archiveUri: Uri): String {
+    fun restoreFromUri(context: Context, archiveUri: Uri): String = AtomicRecords.exclusive { restoreLocked(context, archiveUri) }
+
+    private fun restoreLocked(context: Context, archiveUri: Uri): String {
         // Recover the original directory before preparing a new restore.
         val original = context.filesDir
         val previousRecovery = File(original.parentFile, "tarkastus_restore_previous")
@@ -180,7 +207,12 @@ object CloudBackupManager {
 
                     if (name == MANIFEST) {
                         val manifestBytes = ByteArray(128)
-                        val count = zip.read(manifestBytes)
+                        var count = 0
+                        while (count < manifestBytes.size) {
+                            val n = zip.read(manifestBytes, count, manifestBytes.size - count)
+                            if (n < 0) break
+                            count += n
+                        }
                         require(count in 1..127 && zip.read() == -1) { "Varmuuskopion tunnistetiedot ovat virheelliset." }
                         val text = String(manifestBytes, 0, count, Charsets.UTF_8).trim()
                         require(text == MANIFEST_CONTENT) { "Tiedosto ei ole Tarkastus-varmuuskopio." }
@@ -235,7 +267,9 @@ object CloudBackupManager {
                 check(previous.renameTo(current)) { "Palautus epäonnistui. Alkuperäiset tiedot ovat turvakansiossa." }
                 error("Varmuuskopion käyttöönotto epäonnistui. Nykyiset tiedot palautettiin.")
             }
-            previous.deleteRecursively()
+            // Keep the pre-restore snapshot for manual recovery; never overwrite it.
+            val retained = File(current.parentFile, "tarkastus_restore_retained_" + java.util.UUID.randomUUID())
+            check(previous.renameTo(retained)) { "Restored data is active; recovery copy remains in previous directory." }
             return "Varmuuskopio palautettiin onnistuneesti."
         } catch (error: Throwable) {
             staging.deleteRecursively()
