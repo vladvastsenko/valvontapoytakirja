@@ -7,6 +7,7 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.compose.setContent
+import androidx.compose.foundation.layout.safeDrawingPadding
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
@@ -114,7 +115,7 @@ class MainActivity : androidx.fragment.app.FragmentActivity() {
         fi.vladi.valvontapoytakirja.cloud.CloudBackupManager.recoverInterrupted(this)
         setContent {
             MaterialTheme(colorScheme = fi.vladi.tarkastuspoytakirja.TarkastusBlueColors) {
-                Surface(modifier = Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background) {
+                Surface(modifier = Modifier.fillMaxSize().safeDrawingPadding(), color = MaterialTheme.colorScheme.background) {
                     var languageChosen by remember { mutableStateOf(AppLanguage.hasSelection(this@MainActivity)) }
                     if (!languageChosen) {
                         FirstLaunchLanguageScreen { language ->
@@ -199,8 +200,14 @@ private fun UnifiedLauncher(onSignOut: () -> Unit) {
     var showManagement by remember { mutableStateOf(false) }
     var showCloudBackup by remember { mutableStateOf(false) }
     var showUserGuide by remember { mutableStateOf(false) }
+    var showPremium by remember { mutableStateOf(false) }
 
-    if (showUserGuide) {
+    if (showPremium) {
+        Column(Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(24.dp), verticalArrangement = Arrangement.spacedBy(16.dp)) {
+            fi.vladi.valvontapoytakirja.billing.PremiumControls()
+            TextButton(onClick = { showPremium = false }) { Text(stringResource(R.string.back)) }
+        }
+    } else if (showUserGuide) {
         Column(modifier = Modifier.fillMaxSize()) {
             Box(modifier = Modifier.weight(1f)) { UserGuideScreen(onBack = { showUserGuide = false }) }
             if ((consent?.canRequestAds == true)) TestAdMobBanner()
@@ -231,6 +238,7 @@ private fun UnifiedLauncher(onSignOut: () -> Unit) {
                 showValvoja = true
             },
             onCloudBackup = { showCloudBackup = true },
+            onPremium = { showPremium = true },
             onUserGuide = { showUserGuide = true },
             onBack = { showManagement = false },
             onSignOut = onSignOut,
@@ -270,7 +278,7 @@ private fun UnifiedStartScreen(
             verticalAlignment = Alignment.CenterVertically
         ) {
             Text(
-                "Tarkastus",
+                "Tarkastus Pro",
                 style = MaterialTheme.typography.headlineLarge,
                 fontWeight = FontWeight.Bold,
                 modifier = Modifier.weight(1f)
@@ -323,6 +331,7 @@ private fun TestAdMobBanner() {
 private fun ManagementScreen(
     onSettings: () -> Unit,
     onCloudBackup: () -> Unit,
+    onPremium: () -> Unit,
     onUserGuide: () -> Unit,
     onBack: () -> Unit,
     onSignOut: () -> Unit,
@@ -373,7 +382,7 @@ private fun ManagementScreen(
         Button(onClick = onSettings, modifier = Modifier.fillMaxWidth()) {
             Text(stringResource(R.string.shared_settings))
         }
-        fi.vladi.valvontapoytakirja.billing.PremiumControls()
+        OutlinedButton(onClick = onPremium, modifier = Modifier.fillMaxWidth()) { Text("Premium") }
         Button(onClick = onCloudBackup, modifier = Modifier.fillMaxWidth()) {
             Text(stringResource(R.string.cloud_sync))
         }
@@ -383,7 +392,7 @@ private fun ManagementScreen(
         OutlinedButton(onClick = onBack, modifier = Modifier.fillMaxWidth()) {
             Text("← " + stringResource(R.string.back))
         }
-        if (!BuildConfig.OFFLINE_PREVIEW) OutlinedButton(onClick = { if (guestMode) onSignOut() else confirmSignOut = true }, modifier = Modifier.fillMaxWidth()) {
+        if (!BuildConfig.OFFLINE_PREVIEW && !guestMode) OutlinedButton(onClick = { confirmSignOut = true }, modifier = Modifier.fillMaxWidth()) {
             Text(if (guestMode) stringResource(R.string.guest_sign_in) else stringResource(R.string.sign_out))
         }
         Spacer(Modifier.height(8.dp))

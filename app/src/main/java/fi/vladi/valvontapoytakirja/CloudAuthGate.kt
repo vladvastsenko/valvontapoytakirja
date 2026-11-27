@@ -55,7 +55,7 @@ internal fun CloudAuthGate(content: @Composable (onSignOut: () -> Unit) -> Unit)
     val auth = remember { FirebaseAuth.getInstance() }
     var signedIn by remember { mutableStateOf(auth.currentUser != null) }
     val guestPrefs = remember { context.getSharedPreferences("tarkastus_guest_mode", android.content.Context.MODE_PRIVATE) }
-    var guest by remember { mutableStateOf(auth.currentUser == null && guestPrefs.getBoolean("enabled", false)) }
+    var guest by remember { mutableStateOf(auth.currentUser == null && guestPrefs.getBoolean("enabled", true)) }
     var busy by remember { mutableStateOf(false) }
     var error by remember { mutableStateOf<String?>(null) }
     var email by remember { mutableStateOf("") }
@@ -100,6 +100,9 @@ internal fun CloudAuthGate(content: @Composable (onSignOut: () -> Unit) -> Unit)
         content({ guest = false; guestPrefs.edit().putBoolean("enabled", false).apply() })
     } else if (signedIn) {
         BiometricSessionGate { content({
+            fi.vladi.valvontapoytakirja.billing.PremiumAccess.clear()
+            guest = true
+            guestPrefs.edit().putBoolean("enabled", true).apply()
             auth.signOut()
             GoogleSignIn.getClient(context, options).signOut()
             signedIn = false
