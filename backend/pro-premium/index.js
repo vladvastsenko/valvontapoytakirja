@@ -11,7 +11,7 @@ async function throttle(uid,operation){
  const db=getFirestore(),ref=db.collection("proRecoveryLimits").doc(createHash("sha256").update(operation+":"+uid).digest("hex"));
  await db.runTransaction(async tx=>{
   const previous=(await tx.get(ref)).data();
-  const next=nextAttempt(previous,Date.now());
+  const next=nextAttempt(previous,Date.now(),operation==="verify"?30:5);
   if(!next) throw new HttpsError("resource-exhausted","Try again later");
   tx.set(ref,next);
  });
