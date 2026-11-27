@@ -120,14 +120,27 @@ fun PremiumControls() {
                         if (task.isSuccessful) {
                             registered = true
                             password = ""
-                            PremiumVerification.finishRecovery(recoveryCode)
-                            recoveryCode = ""
-                            recoveryInput = ""
+                            if (recoveryCode.isNotBlank()) {
+                                PremiumVerification.finishRecovery(recoveryCode) { confirmed ->
+                                    if (confirmed) { recoveryCode = ""; recoveryInput = "" }
+                                    else status = R.string.premium_unavailable
+                                }
+                            }
                             task.result?.user?.sendEmailVerification()
                         } else status = R.string.auth_failed
                     }
             }
         }) { Text(stringResource(R.string.create_account)) }
+    }
+    if (recoveryCode.isNotBlank() && FirebaseAuth.getInstance().currentUser.hasPermanentIdentity() && recoveryOwner == FirebaseAuth.getInstance().currentUser?.uid) {
+        OutlinedButton(enabled = !busy, onClick = {
+            busy = true
+            PremiumVerification.finishRecovery(recoveryCode) { confirmed ->
+                busy = false
+                if (confirmed) { recoveryCode = ""; recoveryInput = ""; status = null }
+                else status = R.string.premium_unavailable
+            }
+        }) { Text(stringResource(R.string.premium_restore)) }
     }
     if (busy) CircularProgressIndicator()
     status?.let { Text(stringResource(it)) }
