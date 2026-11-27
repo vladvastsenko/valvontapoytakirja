@@ -192,6 +192,7 @@ private fun UnifiedLauncher(onSignOut: () -> Unit) {
     }
     val consent = remember(context) { if (BuildConfig.OFFLINE_PREVIEW) null else AdConsentManager(context as android.app.Activity) }
     LaunchedEffect(consent) { consent?.request() }
+    var showCustom by remember { mutableStateOf(false) }
     var showValvoja by remember { mutableStateOf(false) }
     var openSettings by remember { mutableStateOf(false) }
     var showManagement by remember { mutableStateOf(false) }
@@ -209,7 +210,9 @@ private fun UnifiedLauncher(onSignOut: () -> Unit) {
         }
     }
 
-    if (showLocalBackup) {
+    if (showCustom) {
+        CustomReportScreen(onBack = { showCustom = false })
+    } else if (showLocalBackup) {
         Column(Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(24.dp), verticalArrangement = Arrangement.spacedBy(16.dp)) {
             fi.vladi.valvontapoytakirja.cloud.LocalBackupControls()
             TextButton(onClick = { showLocalBackup = false }) { Text(stringResource(R.string.back)) }
@@ -269,6 +272,7 @@ private fun UnifiedLauncher(onSignOut: () -> Unit) {
             onTarkastus = {
                 context.startActivity(Intent(context, TarkastusMainActivity::class.java))
             },
+            onCustom = { showCustom = true },
             onManagement = { showManagement = true },
             showAds = (consent?.canRequestAds == true)
         )
@@ -280,6 +284,7 @@ private fun UnifiedStartScreen(
     onValvoja: () -> Unit,
     onTarkastus: () -> Unit,
     onManagement: () -> Unit,
+    onCustom: () -> Unit,
     showAds: Boolean
 ) {
     Column(
@@ -307,6 +312,9 @@ private fun UnifiedStartScreen(
         }
         Button(onClick = onTarkastus, modifier = Modifier.fillMaxWidth()) {
             Text(stringResource(R.string.report_tarkastus))
+        }
+        Button(onClick = onCustom, modifier = Modifier.fillMaxWidth()) {
+            Text(customLabels(AppLanguage.selected(LocalContext.current))[0])
         }
         Spacer(modifier = Modifier.weight(1f))
         if (showAds) TestAdMobBanner()
