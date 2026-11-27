@@ -120,10 +120,11 @@ fun PremiumControls() {
                         if (task.isSuccessful) {
                             registered = true
                             password = ""
-                            if (recoveryCode.isNotBlank()) {
-                                PremiumVerification.finishRecovery(recoveryCode) { confirmed ->
-                                    if (confirmed) { recoveryCode = ""; recoveryInput = "" }
-                                    else status = R.string.premium_unavailable
+                            if (recoveryCode.isNotBlank() && recoveryOwner == task.result?.user?.uid) {
+                                val finishingCode = recoveryCode
+                                PremiumVerification.finishRecovery(finishingCode) { confirmed ->
+                                    if (confirmed && recoveryCode == finishingCode) { recoveryCode = ""; recoveryInput = "" }
+                                    else if (!confirmed) status = R.string.premium_unavailable
                                 }
                             }
                             task.result?.user?.sendEmailVerification()
