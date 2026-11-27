@@ -53,9 +53,24 @@ import fi.vladi.tarkastuspoytakirja.AppLanguage
 internal fun CloudAuthGate(content: @Composable (onSignOut: () -> Unit) -> Unit) {
     val context = LocalContext.current
     val auth = remember { FirebaseAuth.getInstance() }
-    var signedIn by remember { mutableStateOf(auth.currentUser != null) }
+    fi.vladi.valvontapoytakirja.billing.PremiumRefresh(context)
+    var signedIn by remember { mutableStateOf(auth.currentUser?.isAnonymous == false) }
     val guestPrefs = remember { context.getSharedPreferences("tarkastus_guest_mode", android.content.Context.MODE_PRIVATE) }
-    var guest by remember { mutableStateOf(auth.currentUser == null && guestPrefs.getBoolean("enabled", true)) }
+    var guest by remember { mutableStateOf(auth.currentUser?.isAnonymous == true || (auth.currentUser == null && guestPrefs.getBoolean("enabled", true))) }
+    androidx.compose.runtime.DisposableEffect(auth) {
+        val listener = FirebaseAuth.AuthStateListener {
+            val user = it.currentUser
+            if (user?.isAnonymous == true) {
+                signedIn = false
+                guest = true
+            } else if (user != null) {
+                signedIn = true
+                guest = false
+            }
+        }
+        auth.addAuthStateListener(listener)
+        onDispose { auth.removeAuthStateListener(listener) }
+    }
     var busy by remember { mutableStateOf(false) }
     var error by remember { mutableStateOf<String?>(null) }
     var email by remember { mutableStateOf("") }
@@ -96,8 +111,8 @@ internal fun CloudAuthGate(content: @Composable (onSignOut: () -> Unit) -> Unit)
             }
         }
     }
-    if (guest && !signedIn) {
-        content({ guest = false; guestPrefs.edit().putBoolean("enabled", false).apply() })
+    if (auth.currentUser?.isAnonymous == true || (guest && !signedIn)) {
+        content({ if (auth.currentUser?.isAnonymous != true) { guest = false; guestPrefs.edit().putBoolean("enabled", false).apply() } })
     } else if (signedIn) {
         BiometricSessionGate { content({
             fi.vladi.valvontapoytakirja.billing.PremiumAccess.clear()
