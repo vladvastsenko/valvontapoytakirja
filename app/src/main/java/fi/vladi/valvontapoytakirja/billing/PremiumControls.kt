@@ -8,6 +8,11 @@ import fi.vladi.valvontapoytakirja.R
 import com.android.billingclient.api.*
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.EmailAuthProvider
+import com.google.firebase.auth.GoogleAuthProvider
+import com.google.android.gms.auth.api.signin.GoogleSignIn
+import com.google.android.gms.auth.api.signin.GoogleSignInOptions
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 
 @Composable
 fun PremiumControls(onSignIn: () -> Unit = {}) {
@@ -29,6 +34,37 @@ fun PremiumControls(onSignIn: () -> Unit = {}) {
     var recovering by remember { mutableStateOf(false) }
     var requestedRecoveryCode by remember { mutableStateOf("") }
     val entitlement by PremiumAccess.changes.collectAsState()
+    var googleOwner by remember { mutableStateOf<String?>(null) }
+    val webClientId = remember(context) {
+        context.resources.getIdentifier("default_web_client_id", "string", context.packageName)
+            .let { if (it != 0) context.getString(it) else "" }
+    }
+    val googleLauncher = rememberLauncherForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+        val owner = googleOwner
+        googleOwner = null
+        val user = FirebaseAuth.getInstance().currentUser
+        if (result.resultCode != android.app.Activity.RESULT_OK || owner == null ||
+            user == null || user.uid != owner || user.hasPermanentIdentity() || !PremiumAccess.allowed()) {
+            busy = false
+        } else {
+            val token = runCatching { GoogleSignIn.getSignedInAccountFromIntent(result.data).result.idToken }.getOrNull()
+            if (token.isNullOrBlank()) {
+                busy = false
+                status = R.string.google_failed
+            } else {
+                user.linkWithCredential(GoogleAuthProvider.getCredential(token, null)).addOnCompleteListener { task ->
+                    busy = false
+                    if (task.isSuccessful && task.result?.user?.uid == owner && FirebaseAuth.getInstance().currentUser?.uid == owner) {
+                        registered = true
+                        val code = recoveryStore.read(owner)
+                        if (code != null) PremiumVerification.finishRecovery(code) { confirmed ->
+                            if (confirmed) recoveryStore.clear(owner)
+                        }
+                    } else status = R.string.google_failed
+                }
+            }
+        }
+    }
     val billing = remember(context) {
         ProBilling(context) { result, purchases ->
             busy = false
@@ -120,6 +156,17 @@ fun PremiumControls(onSignIn: () -> Unit = {}) {
     }) { Text(stringResource(R.string.premium_restore)) }
     if (entitlement != null && PremiumAccess.allowed() && !registered &&
         FirebaseAuth.getInstance().currentUser?.providerData?.none { it.providerId == "password" || it.providerId == "google.com" } == true) {
+        Button(enabled = !busy && webClientId.isNotBlank(), onClick = {
+            val user = FirebaseAuth.getInstance().currentUser
+            if (user != null && !user.hasPermanentIdentity() && PremiumAccess.allowed()) {
+                googleOwner = user.uid
+                busy = true
+                val options = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+                    .requestIdToken(webClientId).requestEmail().build()
+                runCatching { googleLauncher.launch(GoogleSignIn.getClient(context, options).signInIntent) }
+                    .onFailure { busy = false; googleOwner = null; status = R.string.google_failed }
+            }
+        }) { Text(stringResource(R.string.sign_in)) }
         OutlinedTextField(email, { email = it }, label = { Text(stringResource(R.string.email)) }, singleLine = true)
         OutlinedTextField(password, { password = it }, label = { Text(stringResource(R.string.password)) },
             singleLine = true, visualTransformation = androidx.compose.ui.text.input.PasswordVisualTransformation())
