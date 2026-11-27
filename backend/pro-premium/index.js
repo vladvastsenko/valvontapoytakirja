@@ -23,6 +23,7 @@ exports.verifyTarkastusProSubscription=onCall({region:"europe-west1"},async requ
  if(!request.auth) throw new HttpsError("unauthenticated","Sign in required");
  const uid=request.auth.uid, token=request.data?.token;
  if(typeof token!=="string"||token.length<10||token.length>4096) throw new HttpsError("invalid-argument","Invalid token");
+ await throttle(uid,"verify");
  const auth=new google.auth.GoogleAuth({scopes:["https://www.googleapis.com/auth/androidpublisher"]});
  const api=google.androidpublisher({version:"v3",auth});
  const packageName="fi.vladi.tarkastuspro", productId=product.value();
