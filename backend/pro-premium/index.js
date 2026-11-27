@@ -2,6 +2,8 @@ const {onCall,HttpsError}=require("firebase-functions/v2/https");
 const {defineString}=require("firebase-functions/params");
 const {initializeApp}=require("firebase-admin/app");
 const {google}=require("googleapis");
+const {getFirestore}=require("firebase-admin/firestore");
+const {claimToken}=require("./ownership");
 const {evaluate}=require("./policy");
 initializeApp();
 const product=defineString("PRO_SUBSCRIPTION_PRODUCT");
@@ -16,6 +18,11 @@ exports.verifyTarkastusProSubscription=onCall({region:"europe-west1"},async requ
   const {data}=await api.purchases.subscriptionsv2.get({packageName,token});
   const result=evaluate(data,uid,productId,Date.now());
   if(result.error) throw new HttpsError("permission-denied",result.error);
+  if(result.state === "ACTIVE") {
+   const db=getFirestore();
+   const accepted=await claimToken(db,packageName,token,uid,productId);
+   if(!accepted) throw new HttpsError("permission-denied","Purchase already bound");
+  }
   if(result.acknowledge) await api.purchases.subscriptions.acknowledge({packageName,subscriptionId:productId,token,requestBody:{}});
   return {uid:result.uid,state:result.state,expiresAtMillis:result.expiresAtMillis};
  } catch(error) {
