@@ -27,6 +27,7 @@ fun PremiumControls() {
     var recoveryInput by remember { mutableStateOf("") }
     var savedCode by remember { mutableStateOf(false) }
     var recovering by remember { mutableStateOf(false) }
+    var requestedRecoveryCode by remember { mutableStateOf("") }
     val entitlement by PremiumAccess.changes.collectAsState()
     val billing = remember(context) {
         ProBilling(context) { result, purchases ->
@@ -38,7 +39,7 @@ fun PremiumControls() {
                     } == true }
                 if (recovering) {
                     recovering = false
-                    val requestedCode = recoveryInput.trim()
+                    val requestedCode = requestedRecoveryCode
                     val candidate = purchases.singleOrNull { it.purchaseState == Purchase.PurchaseState.PURCHASED }
                     if (candidate == null) status = R.string.premium_unverified
                     else {
@@ -112,7 +113,7 @@ fun PremiumControls() {
     OutlinedTextField(recoveryInput, { recoveryInput = it }, label = { Text("Recovery code") },
         singleLine = true, visualTransformation = androidx.compose.ui.text.input.PasswordVisualTransformation())
     OutlinedButton(enabled = !busy && recoveryInput.trim().matches(Regex("[A-Za-z0-9_-]{43}")), onClick = {
-        recovering = true; busy = true; billing.restorePurchases()
+        requestedRecoveryCode = recoveryInput.trim(); recovering = true; busy = true; billing.restorePurchases()
     }) { Text(stringResource(R.string.premium_restore)) }
     if (entitlement != null && PremiumAccess.allowed() && !registered &&
         FirebaseAuth.getInstance().currentUser?.providerData?.none { it.providerId == "password" || it.providerId == "google.com" } == true) {
@@ -145,9 +146,11 @@ fun PremiumControls() {
     if (recoveryCode.isNotBlank() && FirebaseAuth.getInstance().currentUser.hasPermanentIdentity() && recoveryOwner == FirebaseAuth.getInstance().currentUser?.uid) {
         OutlinedButton(enabled = !busy, onClick = {
             busy = true
-            PremiumVerification.finishRecovery(recoveryCode) { confirmed ->
+            val finishingCode = recoveryCode
+            val finishingOwner = recoveryOwner
+            PremiumVerification.finishRecovery(finishingCode) { confirmed ->
                 busy = false
-                if (confirmed) { recoveryStore.clear(recoveryOwner); recoveryCode = ""; recoveryInput = ""; status = null }
+                if (confirmed && recoveryCode == finishingCode && recoveryOwner == finishingOwner) { recoveryStore.clear(finishingOwner); recoveryCode = ""; recoveryInput = ""; status = null }
                 else status = R.string.premium_unavailable
             }
         }) { Text(stringResource(R.string.premium_restore)) }
